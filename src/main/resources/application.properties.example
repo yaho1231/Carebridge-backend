@@ -10,7 +10,7 @@ spring:
     datasource:
         # MySQL
         driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://{ip_address}/pushop?&serverTimezone=Asia/Seoul
+        url: jdbc:mysql://{ip_address:3306}/pushop?&serverTimezone=Asia/Seoul
         username: ${user}
         password: ${password}
 
