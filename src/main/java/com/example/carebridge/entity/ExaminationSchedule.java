@@ -1,11 +1,16 @@
 package com.example.carebridge.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "Examination_Schedule") // MySQL의 Examination_Schedule 테이블과 매핑
 public class ExaminationSchedule {
 
+    // Getter와 Setter 메서드 정의
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 기본 키 자동 증가 설정
     private Integer id; // 검진 일정 고유 ID
@@ -25,22 +30,4 @@ public class ExaminationSchedule {
     @Column(name = "code", nullable = false) // 검진 코드 컬럼과 매핑
     private String code; // 검진 종류 코드
 
-    // Getter와 Setter 메서드 정의
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
-
-    public String getPatientPhone() { return patientPhone; }
-    public void setPatientPhone(String patientPhone) { this.patientPhone = patientPhone; }
-
-    public Integer getMedicalStaffId() { return medicalStaffId; }
-    public void setMedicalStaffId(Integer medicalStaffId) { this.medicalStaffId = medicalStaffId; }
-
-    public String getScheduleDate() { return scheduleDate; }
-    public void setScheduleDate(String scheduleDate) { this.scheduleDate = scheduleDate; }
-
-    public String getDetails() { return details; }
-    public void setDetails(String details) { this.details = details; }
-
-    public String getCode() { return code; }
-    public void setCode(String code) { this.code = code; }
 }
