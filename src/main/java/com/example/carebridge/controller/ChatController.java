@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
-public class ChatController {
+public class  ChatController {
 
     @Autowired
     private ClassificationService classificationService;
