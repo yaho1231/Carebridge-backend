@@ -1,5 +1,6 @@
 package com.example.carebridge.entity;
 
+import com.example.carebridge.dto.ExaminationScheduleDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,4 +31,11 @@ public class ExaminationSchedule {
     @Column(name = "code", nullable = false) // 검진 코드 컬럼과 매핑
     private String code; // 검진 종류 코드
 
+    public void update(ExaminationScheduleDto requestDto) {
+        this.patientPhone = requestDto.getPatientPhone();
+        this.medicalStaffId = requestDto.getMedicalStaffId();
+        this.scheduleDate = requestDto.getScheduleDate();
+        this.details = requestDto.getDetails();
+        this.code = requestDto.getCode();
+    }
 }

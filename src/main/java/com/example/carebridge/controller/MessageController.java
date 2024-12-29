@@ -11,6 +11,7 @@ import net.nurigo.sdk.message.response.MessageListResponse;
 import net.nurigo.sdk.message.response.MultipleDetailMessageSentResponse;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import net.nurigo.sdk.message.service.DefaultMessageService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,14 +32,20 @@ import java.util.ArrayList;
 public class MessageController {
 
     final DefaultMessageService messageService;
+//    @Value("${message.api-key}")
+//    private String apikey;
+//    @Value("${message.api-secret}")
+//    private String apiSecret;
 
     public MessageController() {
-        // 반드시 계정 내 등록된 유효한 API 키, API Secret Key를 입력해주셔야 합니다!
-        this.messageService = NurigoApp.INSTANCE.initialize("NCSQKDWKKH7P8A39", "FOLNG2VYL0OD6EW4QI83H4F6VR0SO6W1", "https://api.coolsms.co.kr");
+        this.messageService = NurigoApp.INSTANCE.initialize("NCS6BCWLJ7TYZ7RP", "F4SPBBU1M7Y3IW7EPECXADMQQM7LSFTN", "https://api.coolsms.co.kr");
+
+//        this.messageService = NurigoApp.INSTANCE.initialize(apikey, apiSecret, "https://api.coolsms.co.kr");
     }
 
     /**
      * 메시지 조회 예제
+     // 반드시 계정 내 등록된 유효한 API 키, API Secret Key를 입력해주셔야 합니다!
      */
     @GetMapping("/get-message-list")
     public MessageListResponse getMessageList() {
@@ -101,7 +108,7 @@ public class MessageController {
         // 발신번호 및 수신번호는 반드시 01012345678 형태로 입력되어야 합니다.
         message.setFrom("01032330241");
         message.setTo("01032330241");
-        message.setText("[CareBridge] Test Send");
+        message.setText("[CareBridge] Test Send !!! 인증번호는 [123456]입니다");
 
         SingleMessageSentResponse response = this.messageService.sendOne(new SingleMessageSendingRequest(message));
         System.out.println(response);

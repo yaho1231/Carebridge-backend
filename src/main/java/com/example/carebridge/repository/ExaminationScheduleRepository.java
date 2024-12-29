@@ -12,4 +12,5 @@ public interface ExaminationScheduleRepository extends JpaRepository<Examination
 
     // 환자 전화번호로 스케줄 조회 메서드
     List<ExaminationSchedule> findByPatientPhone(String patientPhone);
+
 }
