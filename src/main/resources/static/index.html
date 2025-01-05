@@ -2,11 +2,84 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Chat</title>
+    <script src="/webjars/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/2.3.3/stomp.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .chat-container { display: flex; justify-content: space-around; }
+        .chat-box { width: 45%; border: 1px solid #ccc; padding: 10px; }
+        .messages { height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 5px; margin-bottom: 10px; }
+        .message { margin-bottom: 5px; }
+    </style>
 </head>
 <body>
-    <div>
-        Hello World!
+<h1>WebSocket Chat</h1>
+<div class="chat-container">
+    <div class="chat-box" id="user1">
+        <h2>User 1</h2>
+        <div class="messages" id="messages1"></div>
+        <label for="messageInput1">Message for User 1:</label>
+        <input type="text" id="messageInput1" placeholder="Enter message">
+        <button onclick="sendMessage('user1')">Send</button>
     </div>
+    <div class="chat-box" id="user2">
+        <h2>User 2</h2>
+        <div class="messages" id="messages2"></div>
+        <label for="messageInput2">Message for User 2:</label>
+        <input type="text" id="messageInput2" placeholder="Enter message">
+        <button onclick="sendMessage('user2')">Send</button>
+    </div>
+</div>
+
+<script>
+    let stompClient1 = null;
+    let stompClient2 = null;
+    const roomId = 'test-room';
+
+    // WebSocket 연결을 설정하는 함수
+    function connect(user) {
+        const socket = new SockJS('/ws-stomp');
+        const stompClient = Stomp.over(socket);
+        stompClient.connect({}, function (frame) {
+            console.log(user + ' connected: ' + frame);
+            stompClient.subscribe('/sub/chat/room/' + roomId, function (message) {
+                showMessage(user, JSON.parse(message.body));
+            });
+        });
+        return stompClient;
+    }
+
+    // 메시지를 전송하는 함수
+    function sendMessage(user) {
+        const messageInput = document.getElementById('messageInput' + (user === 'user1' ? '1' : '2'));
+        const message = messageInput.value;
+        const stompClient = user === 'user1' ? stompClient1 : stompClient2;
+        console.log('Sending message:', message);
+        stompClient.send('/pub/chat/message', {}, JSON.stringify({
+            type: 'TALK',
+            roomId: roomId,
+            sender: user,
+            message: message
+        }));
+        messageInput.value = '';
+    }
+
+    // 수신된 메시지를 표시하는 함수
+    function showMessage(user, message) {
+        const messagesDiv = document.getElementById('messages' + (user === 'user1' ? '1' : '2'));
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message';
+        messageElement.textContent = message.sender + ': ' + message.message;
+        messagesDiv.appendChild(messageElement);
+    }
+
+    // 페이지가 로드될 때 WebSocket 연결을 설정
+    window.onload = function () {
+        stompClient1 = connect('user1');
+        stompClient2 = connect('user2');
+    };
+</script>
 </body>
 </html>
