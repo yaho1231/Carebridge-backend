@@ -23,44 +23,67 @@ repositories {
     mavenCentral()
 }
 
-
 dependencies {
     // Spring Data JPA - 데이터베이스와의 상호작용을 위한 JPA 지원
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
     // Spring Security OAuth2 Client - OAuth2 클라이언트 기능 제공
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
     // Spring Security - 보안 기능 제공
     implementation 'org.springframework.boot:spring-boot-starter-security'
+
     // Spring Thymeleaf - Thymeleaf 템플릿 엔진 지원
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
     // Spring Web - 웹 애플리케이션 개발을 위한 기본 기능 제공
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
     // Spring Web Services - 웹 서비스 기능 제공
     implementation 'org.springframework.boot:spring-boot-starter-web-services'
+
     // Thymeleaf Spring Security Extras - Thymeleaf와 Spring Security 통합
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+
     // Spring WebSocket - WebSocket 지원
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
     // Lombok - 보일러플레이트 코드를 줄이기 위한 라이브러리
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
     // Spring DevTools - 개발 편의 기능 제공
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
     // MySQL Connector - MySQL 데이터베이스 연결
     runtimeOnly 'com.mysql:mysql-connector-j'
+
     // Spring Boot Test - 테스트 기능 제공
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
     // Spring Security Test - 보안 관련 테스트 기능 제공
     testImplementation 'org.springframework.security:spring-security-test'
+
     // JUnit Platform Launcher - JUnit 플랫폼 런처
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
     // SpringDoc OpenAPI - OpenAPI 문서화 지원
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+
+    // SockJS Client - SockJS 클라이언트 라이브러리
+    implementation 'org.webjars:sockjs-client:1.5.1'
+
+    // STOMP WebSocket - STOMP WebSocket 라이브러리
+    implementation 'org.webjars:stomp-websocket:2.3.3'
+    
     // web sms service - 인증문자 메세지 기능 제공
     implementation 'net.nurigo:sdk:4.2.7'
+    
     // chat gpt service - chat gpt service 제공
     runtimeOnly 'org.springframework.boot:spring-boot-starter-tomcat'
+
 }
+
 tasks.named('test') {
     useJUnitPlatform()
 }
