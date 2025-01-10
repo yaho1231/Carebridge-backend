@@ -81,7 +81,6 @@ dependencies {
 
     // chat gpt service - chat gpt service 제공
     runtimeOnly 'org.springframework.boot:spring-boot-starter-tomcat'
-
 }
 
 tasks.named('test') {
