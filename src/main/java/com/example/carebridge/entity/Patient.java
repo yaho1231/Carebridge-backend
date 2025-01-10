@@ -1,9 +1,14 @@
 package com.example.carebridge.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDate;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "Patient") // MySQL의 Patient 테이블과 매핑
 public class Patient {
 
@@ -35,36 +40,8 @@ public class Patient {
     @JoinColumn(name = "guardian_contact", referencedColumnName = "phone_number", insertable = false, updatable = false)
     private Guardian guardian; // Guardian 엔티티와 참조 관계 설정
     
-    @Column(name = "chat_room_id") // chat_room_id 컬럼과 매핑
-    private Integer chatRoomId; // 채팅방 ID
-
-    // Getter와 Setter 메서드 정의
-    public Integer getPatientId() { return patientId; }
-    public void setId(Integer patientId) { this.patientId = patientId; }
-
-    public String getPhoneNumber() { return phoneNumber; }
-    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public LocalDate getBirthDate() { return birthDate; }
-    public void setBirthDate(LocalDate birthDate) { this.birthDate = birthDate; }
-
-    public Gender getGender() { return gender; }
-    public void setGender(Gender gender) { this.gender = gender; }
-
-    public String getGuardianContact() { return guardianContact; }
-    public void setGuardianContact(String guardianContact) { this.guardianContact = guardianContact; }
-
-    public String getHospitalLocation() { return hospitalLocation; }
-    public void setHospitalLocation(String hospitalLocation) { this.hospitalLocation = hospitalLocation; }
-
-    public Guardian getGuardian() { return guardian; }
-    public void setGuardian(Guardian guardian) { this.guardian = guardian; }
-
-    public Integer getChatRoomId() { return chatRoomId; }
-    public void setChatRoomId(Integer chatRoomId) { this.chatRoomId = chatRoomId; }
+    @Column(name = "chatroom_id") // chat_room_id 컬럼과 매핑
+    private String chatRoomId; // 채팅방 ID
 
     // 성별을 Enum으로 정의 (Male/Female)
     public enum Gender {
