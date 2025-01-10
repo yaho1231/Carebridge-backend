@@ -8,8 +8,9 @@ import java.time.LocalDate;
 public class Patient {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // 기본 키 자동 증가 설정
-    private Integer id; // 환자 고유 ID
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-increment primary key
+    @Column(name = "patient_id") // patient_id column mapping
+    private Integer patientId; // Patient unique ID
 
     @Column(name = "phone_number", nullable = false, unique = true) // phone_number 컬럼과 매핑, 고유값 설정
     private String phoneNumber; // 환자 전화번호
@@ -30,14 +31,16 @@ public class Patient {
     @Column(name = "hospital_location") // hospital_location 컬럼과 매핑
     private String hospitalLocation; // 병원 위치 정보
 
-    // 보호자 테이블(Guardian)과의 관계 매핑 (Many-to-One)
     @ManyToOne
     @JoinColumn(name = "guardian_contact", referencedColumnName = "phone_number", insertable = false, updatable = false)
     private Guardian guardian; // Guardian 엔티티와 참조 관계 설정
+    
+    @Column(name = "chat_room_id") // chat_room_id 컬럼과 매핑
+    private Integer chatRoomId; // 채팅방 ID
 
     // Getter와 Setter 메서드 정의
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
+    public Integer getPatientId() { return patientId; }
+    public void setId(Integer patientId) { this.patientId = patientId; }
 
     public String getPhoneNumber() { return phoneNumber; }
     public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
@@ -59,6 +62,9 @@ public class Patient {
 
     public Guardian getGuardian() { return guardian; }
     public void setGuardian(Guardian guardian) { this.guardian = guardian; }
+
+    public Integer getChatRoomId() { return chatRoomId; }
+    public void setChatRoomId(Integer chatRoomId) { this.chatRoomId = chatRoomId; }
 
     // 성별을 Enum으로 정의 (Male/Female)
     public enum Gender {
