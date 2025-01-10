@@ -1,10 +1,13 @@
 package com.example.carebridge.dto;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Data
-public class ChatMessage {
-
+@Getter
+@Setter
+public class ChatMessageDto {
     /**
      * 메시지 타입을 정의하는 열거형입니다.
      * ENTER: 채팅방에 입장할 때
@@ -28,9 +31,11 @@ public class ChatMessage {
     private String roomId;
 
     /**
-     * 메시지를 보낸 사람의 이름
+     * 메시지를 보낸 사람의 ID;
      */
-    private String sender;
+    private Integer senderId;
+
+    private Boolean isPatient;
 
     /**
      * 실제 메시지 내용
