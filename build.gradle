@@ -78,7 +78,7 @@ dependencies {
 
     // web sms service - 인증문자 메세지 기능 제공
     implementation 'net.nurigo:sdk:4.2.7'
-
+    
     // chat gpt service - chat gpt service 제공
     runtimeOnly 'org.springframework.boot:spring-boot-starter-tomcat'
 }
