@@ -6,8 +6,6 @@ import com.example.carebridge.entity.ExaminationSchedule;
 import com.example.carebridge.service.ExaminationScheduleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
@@ -39,5 +37,19 @@ public class ExaminationScheduleController {
     public ResponseEntity<ExaminationSchedule> updateSchedule(@PathVariable Integer id, @RequestBody ExaminationScheduleDto requestDto) {
         ExaminationSchedule updated = scheduleService.updateSchedule(id, requestDto);
         return ResponseEntity.ok(updated);
+    }
+
+    // 더미 데이터
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteSchedule(@PathVariable Integer id) {
+
+        return ResponseEntity.ok("Schedule deleted successfully.");
+    }
+
+    //더미데이터
+    @PostMapping("/notification")
+    public ResponseEntity<ExaminationSchedule> sendNotification(@RequestBody ExaminationScheduleDto requestDto) {
+
+        return null;
     }
 }
