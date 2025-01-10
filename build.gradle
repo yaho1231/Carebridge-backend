@@ -57,9 +57,9 @@ dependencies {
     // SpringDoc OpenAPI - OpenAPI 문서화 지원
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
     // web sms service - 인증문자 메세지 기능 제공
-    implementation 'net.nurigo:sdk:4.2.7' // web sms service
-//    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat' // chat gpt service
-    runtimeOnly 'org.springframework.boot:spring-boot-starter-tomcat' // chat gpt service
+    implementation 'net.nurigo:sdk:4.2.7'
+    // chat gpt service - chat gpt service 제공
+    runtimeOnly 'org.springframework.boot:spring-boot-starter-tomcat'
 }
 tasks.named('test') {
     useJUnitPlatform()
