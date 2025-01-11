@@ -1,8 +1,12 @@
 package com.example.carebridge.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "Medical_Record") // MySQL의 Medical_Record 테이블과 매핑
 public class MedicalRecord {
 
@@ -24,23 +28,4 @@ public class MedicalRecord {
 
     @Column(name = "hospital_id", nullable = false) // 병원 ID 컬럼과 매핑
     private Integer hospitalId; // 병원 ID
-
-    // Getter와 Setter 메서드 정의
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
-
-    public String getPatientPhone() { return patientPhone; }
-    public void setPatientPhone(String patientPhone) { this.patientPhone = patientPhone; }
-
-    public String getDiseaseInfo() { return diseaseInfo; }
-    public void setDiseaseInfo(String diseaseInfo) { this.diseaseInfo = diseaseInfo; }
-
-    public String getPrescription() { return prescription; }
-    public void setPrescription(String prescription) { this.prescription = prescription; }
-
-    public String getExamSchedule() { return examSchedule; }
-    public void setExamSchedule(String examSchedule) { this.examSchedule = examSchedule; }
-
-    public Integer getHospitalId() { return hospitalId; }
-    public void setHospitalId(Integer hospitalId) { this.hospitalId = hospitalId; }
 }
