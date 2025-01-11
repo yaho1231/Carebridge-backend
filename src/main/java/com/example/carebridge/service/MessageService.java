@@ -46,6 +46,7 @@ public class MessageService {
         message.setMedicalStaffId(medicalStaffId);
         message.setChatRoomId(roomId);
         message.setMessageContent(chatMessageDto.getMessage());
+        message.setSender_id(chatMessageDto.getSenderId());
         messageRepository.save(message);
     }
 
