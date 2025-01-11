@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/sms-verify")
 public class SmsVerificationController {
 
-    final DefaultMessageService messageService;
+    final DefaultMessageService smsMessageService;
 
     public SmsVerificationController(DefaultMessageService messageService) {
-        this.messageService = messageService;
+        this.smsMessageService = messageService;
     }
 
     /**
@@ -28,7 +28,7 @@ public class SmsVerificationController {
         message.setTo(phone);
         message.setText("[CareBridge] Test Send !!! 인증번호는 [123456]입니다");
 
-        SingleMessageSentResponse response = this.messageService.sendOne(new SingleMessageSendingRequest(message));
+        SingleMessageSentResponse response = this.smsMessageService.sendOne(new SingleMessageSendingRequest(message));
         System.out.println(response);
 
         return response;
@@ -39,7 +39,7 @@ public class SmsVerificationController {
      */
     @GetMapping("/get-balance")
     public Balance getBalance() {
-        Balance balance = this.messageService.getBalance();
+        Balance balance = this.smsMessageService.getBalance();
         System.out.println(balance);
 
         return balance;
