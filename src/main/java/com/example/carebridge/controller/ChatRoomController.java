@@ -19,7 +19,7 @@ public class ChatRoomController {
      * @param department 의료진 소속 분과
      * @return 생성된 채팅방 객체
      */
-    @PostMapping("/post/room")
+    @PostMapping("/room")
     @ResponseBody
     public ChatRoomDto createRoom(@RequestParam Integer patientId, @RequestParam String department) {
         return callBellService.createChatRoom(patientId, department);
@@ -31,7 +31,7 @@ public class ChatRoomController {
      * @param patientId 환자의 ID
      * @return 해당 ID를 가진 채팅방 객체
      */
-    @GetMapping("/get/room/{patientId}")
+    @GetMapping("/room/{patientId}")
     @ResponseBody
     public ChatRoomDto roomInfo(@PathVariable Integer patientId) {
         return callBellService.findChatRoomByPatientId(patientId);

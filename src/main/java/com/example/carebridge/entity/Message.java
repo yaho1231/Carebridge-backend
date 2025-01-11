@@ -31,4 +31,7 @@ public class Message {
 
     @Column(name = "chatroom_id", nullable = false) // 채팅방 ID 컬럼과 매핑
     private String chatRoomId; // 채팅방 ID
+
+    @Column(name = "sender_id", nullable = false) // 발신자 ID 컬럼과 매핑
+    private Integer sender_id; // 발신자 ID
 }
