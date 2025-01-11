@@ -4,6 +4,9 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * ChatMessageDto 는 채팅 메시지의 정보를 담고 있는 데이터 전송 객체입니다.
+ */
 @Data
 @Getter
 @Setter
@@ -31,10 +34,13 @@ public class ChatMessageDto {
     private String roomId;
 
     /**
-     * 메시지를 보낸 사람의 ID;
+     * 메시지를 보낸 사람의 ID
      */
     private Integer senderId;
 
+    /**
+     * 메시지를 보낸 사람이 환자인지 여부
+     */
     private Boolean isPatient;
 
     /**

@@ -43,7 +43,10 @@ public class Patient {
     @Column(name = "chatroom_id") // chat_room_id 컬럼과 매핑
     private String chatRoomId; // 채팅방 ID
 
-    // 성별을 Enum으로 정의 (Male/Female)
+    @Column(name = "department") // department 컬럼과 매핑
+    private String department;
+
+    // 성별을 Enum 으로 정의 (Male/Female)
     public enum Gender {
         Male, Female
     }

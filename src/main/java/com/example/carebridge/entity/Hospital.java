@@ -1,8 +1,12 @@
 package com.example.carebridge.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "Hospital") // MySQL의 Hospital 테이블과 매핑
 public class Hospital {
 
@@ -15,14 +19,4 @@ public class Hospital {
 
     @Column(nullable = false) // 병원 위치 정보, Not Null 제약 조건 설정
     private String location; // 병원 위치
-
-    // Getter와 Setter 메서드 정의
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getLocation() { return location; }
-    public void setLocation(String location) { this.location = location; }
 }
