@@ -25,7 +25,7 @@ public class CallBellController {
      *
      * @param message 수신된 채팅 메시지 객체
      */
-    @MessageMapping("api/chat/message")
+    @MessageMapping("chat/message")
     public void message(ChatMessageDto message) {
         // 수신된 메시지를 로그에 기록합니다.
         logger.info("Received message: {}", message);
