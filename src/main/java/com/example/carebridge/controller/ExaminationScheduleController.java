@@ -33,17 +33,18 @@ public class ExaminationScheduleController {
         return ResponseEntity.ok("Schedule added successfully.");
     }
 
+    // 스케줄 변경
     @PutMapping("/{id}")
     public ResponseEntity<ExaminationSchedule> updateSchedule(@PathVariable Integer id, @RequestBody ExaminationScheduleDto requestDto) {
         ExaminationSchedule updated = scheduleService.updateSchedule(id, requestDto);
         return ResponseEntity.ok(updated);
     }
 
-    // 더미 데이터
+    // 스케줄 삭제
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteSchedule(@PathVariable Integer id) {
-
-        return ResponseEntity.ok("Schedule deleted successfully.");
+    public ResponseEntity<ExaminationSchedule> deleteSchedule(@PathVariable Integer id) {
+        ExaminationSchedule deleted = scheduleService.deleteSchedule(id);
+        return ResponseEntity.ok(deleted);
     }
 
     //더미데이터
