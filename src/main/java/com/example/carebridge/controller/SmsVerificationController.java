@@ -1,5 +1,6 @@
 package com.example.carebridge.controller;
 
+import lombok.Getter;
 import net.nurigo.sdk.message.model.Balance;
 import net.nurigo.sdk.message.model.Message;
 import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
@@ -8,7 +9,7 @@ import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/sms-verify")
+@RequestMapping("/api/sms")
 public class SmsVerificationController {
 
     final DefaultMessageService smsMessageService;
@@ -20,18 +21,24 @@ public class SmsVerificationController {
     /**
      * 단일 메시지 발송 예제
      */
-    @PostMapping("/send-one/{phone}")
-    public SingleMessageSentResponse sendOne(@PathVariable String phone) {
+    @PostMapping("/verify-phone/{phone}")
+//    public SingleMessageSentResponse sendOne(@PathVariable String phone) {
+    public VerifyResponse sendOne(@PathVariable String phone) {
         Message message = new Message();
-        // 발신번호 및 수신번호는 반드시 01012345678 형태로 입력되어야 합니다.
+
+        // Random Verify Number Generation
+        double randomValue = Math.random();
+        int intValue = (int) (randomValue * 899999 + 100000);
+
         message.setFrom("01032330241");
         message.setTo(phone);
-        message.setText("[CareBridge] Test Send !!! 인증번호는 [123456]입니다");
+        message.setText("[CareBridge] 인증번호는 [ " + intValue + " ] 입니다");
 
         SingleMessageSentResponse response = this.smsMessageService.sendOne(new SingleMessageSendingRequest(message));
         System.out.println(response);
 
-        return response;
+//        return response;
+        return new VerifyResponse(intValue, phone);
     }
 
     /**
@@ -43,5 +50,17 @@ public class SmsVerificationController {
         System.out.println(balance);
 
         return balance;
+    }
+
+    @Getter
+    public static class VerifyResponse {
+        private final int verify_value;
+        private final String phone;
+
+        public VerifyResponse(int value, String phone) {
+            this.verify_value = value;
+            this.phone = phone;
+        }
+
     }
 }

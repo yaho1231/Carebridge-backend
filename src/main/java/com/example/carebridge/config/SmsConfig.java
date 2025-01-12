@@ -13,8 +13,6 @@ public class SmsConfig {
             @Value("${message.api-key}") String apiKey,
             @Value("${message.api-secret}") String apiSecret
     ) {
-        DefaultMessageService smsMessageService = NurigoApp.INSTANCE.initialize(apiKey, apiSecret, "https://api.coolsms.co.kr");
-        System.out.println("api key : " + apiKey);
-        return smsMessageService;
+        return NurigoApp.INSTANCE.initialize(apiKey, apiSecret, "https://api.coolsms.co.kr");
     }
 }
