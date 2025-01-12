@@ -30,7 +30,7 @@ public class Patient {
     @Column(nullable = false) // Not Null 제약 조건 설정
     private Gender gender; // 환자 성별 (Male/Female)
 
-    @Column(name = "guardian_contact") // guardian_contact 컬럼과 매핑
+    @Column(name = "guardian_contact", length = 15) // guardian_contact 컬럼과 매핑
     private String guardianContact; // 보호자 전화번호 (참조)
 
     @Column(name = "hospital_location") // hospital_location 컬럼과 매핑
