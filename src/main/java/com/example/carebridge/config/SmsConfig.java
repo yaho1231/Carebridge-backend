@@ -9,12 +9,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SmsConfig {
     @Bean
-    public DefaultMessageService messageService(
+    public DefaultMessageService smsMessageService(
             @Value("${message.api-key}") String apiKey,
             @Value("${message.api-secret}") String apiSecret
     ) {
-        DefaultMessageService messageService = NurigoApp.INSTANCE.initialize(apiKey, apiSecret, "https://api.coolsms.co.kr");
+        DefaultMessageService smsMessageService = NurigoApp.INSTANCE.initialize(apiKey, apiSecret, "https://api.coolsms.co.kr");
         System.out.println("api key : " + apiKey);
-        return messageService;
+        return smsMessageService;
     }
 }
