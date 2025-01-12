@@ -12,6 +12,7 @@ public class MedicalStaff {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 기본 키 자동 증가 설정
+    @Column(name = "medical_staff_id", nullable = false) //Not Null 제약 조건 설정
     private Integer medicalStaffId; // 의료진 고유 ID
 
     @Column(nullable = false) // 의료진 소속 분과, Not Null 제약 조건 설정
