@@ -131,7 +131,7 @@ public class MessageController {
      * @param messageId 메시지의 ID
      * @return HTTP 상태 코드
      */
-    @PostMapping("/read")
+    @PutMapping("/read")
     public ResponseEntity<Void> updateMessageReadStatus(@RequestParam Integer messageId) {
         try {
             // 메시지의 읽음 상태를 업데이트합니다.
