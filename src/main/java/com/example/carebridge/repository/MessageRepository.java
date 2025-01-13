@@ -23,4 +23,6 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
      */
     @Nonnull
     List<Message> findAll();
+
+    Message findByMessageId(Integer messageId);
 }

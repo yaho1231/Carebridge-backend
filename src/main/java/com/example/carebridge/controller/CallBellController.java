@@ -34,6 +34,6 @@ public class CallBellController {
         messageService.saveMessage(message);
 
         // 수신된 메시지를 해당 채팅방의 구독자들에게 전송합니다.
-        messagingTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), message);
+        messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), message);
     }
 }
