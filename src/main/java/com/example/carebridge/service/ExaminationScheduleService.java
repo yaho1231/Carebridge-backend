@@ -33,4 +33,11 @@ public class ExaminationScheduleService {
         scheduleRepository.save(schedule);
         return schedule;
     }
+
+    public ExaminationSchedule deleteSchedule(Integer id) {
+        ExaminationSchedule schedule = scheduleRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Schedule not found with id: " + id));
+        scheduleRepository.deleteById(id);
+        return schedule;
+    }
 }
