@@ -124,4 +124,23 @@ public class MessageController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * 메시지의 읽음 상태를 업데이트합니다.
+     *
+     * @param messageId 메시지의 ID
+     * @return HTTP 상태 코드
+     */
+    @PostMapping("/read")
+    public ResponseEntity<Void> updateMessageReadStatus(@RequestParam Integer messageId) {
+        try {
+            // 메시지의 읽음 상태를 업데이트합니다.
+            messageService.updateReadStatus(messageId);
+            // HTTP 상태 코드 200(OK)을 반환합니다.
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            // 예외 발생 시, HTTP 상태 코드 500(내부 서버 오류)을 반환합니다.
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

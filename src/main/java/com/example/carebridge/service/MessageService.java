@@ -33,22 +33,32 @@ public class MessageService {
         Message message = new Message();
         Integer patientId;
         Integer medicalStaffId;
-        String roomId = chatMessageDto.getRoomId();
+        String roomId = chatMessageDto.getChatRoomId();
 
         if (chatMessageDto.getIsPatient()) {
-            patientId = chatMessageDto.getSenderId();
+            patientId = chatMessageDto.getSender_id();
             medicalStaffId = chatRoomRepository.findByChatRoomId(roomId).getMedicalStaffId();
         } else {
-            medicalStaffId = chatMessageDto.getSenderId();
+            medicalStaffId = chatMessageDto.getSender_id();
             patientId = chatRoomRepository.findByChatRoomId(roomId).getPatientId();
         }
         message.setPatientId(patientId);
         message.setMedicalStaffId(medicalStaffId);
         message.setChatRoomId(roomId);
-        message.setMessageContent(chatMessageDto.getMessage());
-        message.setSender_id(chatMessageDto.getSenderId());
+        message.setMessageContent(chatMessageDto.getMessageContent());
+        message.setSender_id(chatMessageDto.getSender_id());
+        message.setSender_id(chatMessageDto.getSender_id());
+        message.setReadStatus(chatMessageDto.getReadStatus());
+        message.setTimestamp(chatMessageDto.getTimestamp());
         messageRepository.save(message);
     }
+
+    public void updateReadStatus(Integer messageId) {
+        Message message = messageRepository.findByMessageId(messageId);
+        message.setReadStatus(true);
+        messageRepository.save(message);
+    }
+
 
     /**
      * 모든 환자의 메시지 목록을 환자 ID를 키로, 메시지 리스트를 값으로 가지는 맵으로 반환합니다.
