@@ -56,40 +56,6 @@ public class StaffController {
         return ResponseEntity.ok(medicalStaffs);
     }
 
-    //아래 내용은 후에 Hospital -> HospitalInfo 등으로 수정
-    //더미데이터
-    @GetMapping("hospitalInfo")
-    public ResponseEntity<List<Hospital>> getHospitals() {
-        return null;
-    }
-
-    //더미데이터
-    @GetMapping("hospitalInfo/{id}")
-    public ResponseEntity<Hospital> getHospital(@PathVariable int id) {
-        return null;
-    }
-
-    //더미데이터
-    @PostMapping("hospitalInfo")
-    public ResponseEntity<Hospital> addHospital(@RequestBody Hospital hospital) {
-        return null;
-    }
-
-    @PutMapping("hospitalInfo")
-    public ResponseEntity<Hospital> updateHospital(@RequestBody Hospital hospital) {
-        return null;
-    }
-
-    @DeleteMapping("hospitalInfo")
-    public ResponseEntity<Hospital> deleteHospital(@RequestBody Hospital hospital) {
-        return null;
-    }
-
-    @GetMapping("hospitalInfo/search")
-    public ResponseEntity<Hospital> getHospitalData(@RequestBody Hospital hospital) {
-        return null;
-    }
-
     @PostMapping("macro")
     public ResponseEntity<Hospital> addMacro(@RequestBody Hospital hospital) {
         return null;
