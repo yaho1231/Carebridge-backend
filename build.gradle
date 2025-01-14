@@ -82,6 +82,8 @@ dependencies {
     // chat gpt service - chat gpt service 제공
     runtimeOnly 'org.springframework.boot:spring-boot-starter-tomcat'
 
+    // Hospital Information service - 가장 유사한 내용 찾기 기능
+    implementation 'org.apache.commons:commons-text:1.10.0'
 }
 
 tasks.named('test') {

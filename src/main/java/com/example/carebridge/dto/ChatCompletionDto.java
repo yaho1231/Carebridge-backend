@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * 모델에 대한 요청 객체를 관리 : gpt-4, gpt-4 turbo, gpt-3.5-turbo
- * prompt에 넣는거
+ * prompt에 넣어서 보낼 때
  */
 @Getter
 @ToString
