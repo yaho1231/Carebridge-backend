@@ -22,18 +22,6 @@ public class StaffController {
     }
 
     //더미데이터
-    @PostMapping("/request/accept")
-    public ResponseEntity<List<Messages>> acceptRequest(@RequestBody List<Messages> messages) {
-        return ResponseEntity.ok(messages);
-    }
-
-    //더미데이터
-    @PostMapping("/request/defer")
-    public ResponseEntity<List<Messages>> deferRequest(@RequestBody List<Messages> messages) {
-        return ResponseEntity.ok(messages);
-    }
-
-    //더미데이터
     @PostMapping("login")
     public ResponseEntity<List<MedicalStaff>> login(@RequestBody List<MedicalStaff> medicalStaffs) {
         return ResponseEntity.ok(medicalStaffs);
