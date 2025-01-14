@@ -1,5 +1,6 @@
 package com.example.carebridge.controller;
 
+import com.example.carebridge.dto.MessageSummaryDto;
 import com.example.carebridge.entity.Message;
 import com.example.carebridge.service.MessageService;
 import org.slf4j.Logger;
@@ -140,6 +141,34 @@ public class MessageController {
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             // 예외 발생 시, HTTP 상태 코드 500(내부 서버 오류)을 반환합니다.
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 메인화면용 사람들 이름, 마지막 메시지, 시간 반환
+     *
+     * @return 메시지 요약 정보 리스트와 HTTP 상태 코드
+     */
+    @GetMapping("/main")
+    public ResponseEntity<List<MessageSummaryDto>> getMessages() {
+        try {
+            // 메시지 요약 정보를 가져옵니다.
+            List<MessageSummaryDto> messageSummaryList = messageService.getSummaryMessageInformation();
+
+            // 메시지 요약 정보가 비어있는지 확인합니다.
+            if (messageSummaryList.isEmpty()) {
+                // 비어있다면 HTTP 상태 코드 204 (No Content)를 반환합니다.
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
+            // 메시지 요약 정보를 포함한 HTTP 상태 코드 200 (OK)을 반환합니다.
+            return new ResponseEntity<>(messageSummaryList, HttpStatus.OK);
+        } catch (Exception e) {
+            // 예외 발생 시, 오류 로그를 기록합니다.
+            logger.error("Error fetching message summaries", e);
+
+            // HTTP 상태 코드 500 (Internal Server Error)을 반환합니다.
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
