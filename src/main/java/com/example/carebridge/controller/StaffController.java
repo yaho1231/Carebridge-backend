@@ -22,23 +22,6 @@ public class StaffController {
     }
 
     //더미데이터
-    @GetMapping("/patient/{id}")
-    public ResponseEntity<List<Patient>> getPatients(@PathVariable int id) {
-        List<Patient> patients = new ArrayList<>();
-        List<ExaminationSchedule> examinationSchedules = new ArrayList<>();
-
-        return ResponseEntity.ok(patients);
-    }
-    //더미데이터
-    @GetMapping("/patient")
-    public ResponseEntity<List<Patient>> getPatientLists() {
-        List<Patient> patients = new ArrayList<>();
-        List<ExaminationSchedule> examinationSchedules = new ArrayList<>();
-
-        return ResponseEntity.ok(patients);
-    }
-
-    //더미데이터
     @PostMapping("/request/accept")
     public ResponseEntity<List<Messages>> acceptRequest(@RequestBody List<Messages> messages) {
         return ResponseEntity.ok(messages);

@@ -35,10 +35,6 @@ public class Patient {
 
     @Column(name = "hospital_location") // hospital_location 컬럼과 매핑
     private String hospitalLocation; // 병원 위치 정보
-
-    @ManyToOne
-    @JoinColumn(name = "guardian_contact", referencedColumnName = "phone_number", insertable = false, updatable = false)
-    private Guardian guardian; // Guardian 엔티티와 참조 관계 설정
     
     @Column(name = "chatroom_id") // chat_room_id 컬럼과 매핑
     private String chatRoomId; // 채팅방 ID
