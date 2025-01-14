@@ -150,11 +150,11 @@ public class MessageController {
      *
      * @return 메시지 요약 정보 리스트와 HTTP 상태 코드
      */
-    @GetMapping("/main")
-    public ResponseEntity<List<MessageSummaryDto>> getMessages() {
+    @GetMapping("/main/{staff_id}")
+    public ResponseEntity<List<MessageSummaryDto>> getMessages(@PathVariable Integer staff_id) {
         try {
             // 메시지 요약 정보를 가져옵니다.
-            List<MessageSummaryDto> messageSummaryList = messageService.getSummaryMessageInformation();
+            List<MessageSummaryDto> messageSummaryList = messageService.getSummaryMessageInformation(staff_id);
 
             // 메시지 요약 정보가 비어있는지 확인합니다.
             if (messageSummaryList.isEmpty()) {

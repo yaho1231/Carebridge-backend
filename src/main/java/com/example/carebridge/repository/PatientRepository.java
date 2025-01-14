@@ -19,6 +19,8 @@ public interface PatientRepository extends JpaRepository<Patient, Integer> {
      */
     Patient findByPatientId(Integer patientId);
 
+    Patient findByHospitalId(Integer hospitalId);
+
     /**
      * 모든 환자 정보를 조회합니다.
      *
@@ -26,4 +28,6 @@ public interface PatientRepository extends JpaRepository<Patient, Integer> {
      */
     @Nonnull
     List<Patient> findAll();
+
+    List<Patient> findByHospitalIdAndDepartment(Integer hospitalId, String department);
 }

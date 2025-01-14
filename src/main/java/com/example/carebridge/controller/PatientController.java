@@ -18,14 +18,14 @@ public class PatientController {
     }
 
     /**
-     * 모든 환자 정보를 조회합니다.
+     * 모든 담당 환자 정보를 조회합니다.
      *
      * @return 환자 리스트
      */
-    @GetMapping("/users")
-    public ResponseEntity<List<PatientDto>> getPatientList() {
+    @GetMapping("/users/{staff_id}")
+    public ResponseEntity<List<PatientDto>> getPatientList(@PathVariable("staff_id") int staffId) {
         try {
-            List<PatientDto> patientDtoList = patientService.getPatientList();
+            List<PatientDto> patientDtoList = patientService.getPatientList(staffId);
             if (patientDtoList.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }

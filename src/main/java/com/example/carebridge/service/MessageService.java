@@ -159,8 +159,8 @@ public class MessageService {
      *
      * @return 메시지 요약 정보 리스트
      */
-    public List<MessageSummaryDto> getSummaryMessageInformation() {
-        List<Message> messages = messageRepository.findAll();
+    public List<MessageSummaryDto> getSummaryMessageInformation(Integer medicalStaffId) {
+        List<Message> messages = messageRepository.findByMedicalStaffId(medicalStaffId);
         return messages.stream()
                 .collect(Collectors.groupingBy(Message::getPatientId))
                 .values().stream()
