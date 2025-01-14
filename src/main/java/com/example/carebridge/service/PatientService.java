@@ -3,6 +3,7 @@ package com.example.carebridge.service;
 import com.example.carebridge.entity.Patient;
 import com.example.carebridge.dto.PatientDto;
 import com.example.carebridge.repository.GuardianRepository;
+import com.example.carebridge.repository.MedicalStaffRepository;
 import com.example.carebridge.repository.PatientRepository;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,21 +18,25 @@ import java.util.List;
 public class PatientService {
     private final PatientRepository patientRepository;
     private final GuardianRepository guardianRepository;
+    private final MedicalStaffRepository medicalStaffRepository;
 
     // 생성자 주입을 통해 PatientRepository 와 GuardianRepository 를 초기화합니다.
-    public PatientService(PatientRepository patientRepository, GuardianRepository guardianRepository) {
+    public PatientService(PatientRepository patientRepository, GuardianRepository guardianRepository, MedicalStaffRepository medicalStaffRepository) {
         this.patientRepository = patientRepository;
         this.guardianRepository = guardianRepository;
+        this.medicalStaffRepository = medicalStaffRepository;
     }
 
     /**
-     * 모든 환자 정보를 조회하여 PatientDto 리스트로 반환합니다.
+     * 모든 담당 환자 정보를 조회하여 PatientDto 리스트로 반환합니다.
      *
      * @return 환자 정보가 담긴 PatientDto 리스트
      */
-    public List<PatientDto> getPatientList() {
+    public List<PatientDto> getPatientList(Integer MedicalStaffId) {
         List<PatientDto> patientDtoList = new ArrayList<>();
-        List<Patient> patients = patientRepository.findAll();
+        String department = medicalStaffRepository.findByMedicalStaffId(MedicalStaffId).getDepartment();
+        Integer hospitalId = medicalStaffRepository.findByMedicalStaffId(MedicalStaffId).getHospitalId();
+        List<Patient> patients = patientRepository.findByHospitalIdAndDepartment(hospitalId, department);
         for (Patient patient : patients) {
             patientDtoList.add(convertToDto(patient));
         }
@@ -64,6 +69,7 @@ public class PatientService {
         patientDto.setGender(patient.getGender());
         patientDto.setGuardianContact(patient.getGuardianContact());
         patientDto.setHospitalLocation(patient.getHospitalLocation());
+        patientDto.setHospitalId(patient.getHospitalId());
         patientDto.setChatRoomId(patient.getChatRoomId());
         patientDto.setDepartment(patient.getDepartment());
         return patientDto;

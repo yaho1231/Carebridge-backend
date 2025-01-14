@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Entity
 @Getter
 @Setter
-@Table(name = "Patient") // MySQL의 Patient 테이블과 매핑
+@Table(name = "Patient") // MySQL 의 Patient 테이블과 매핑
 public class Patient {
 
     @Id
@@ -33,8 +33,12 @@ public class Patient {
     @Column(name = "guardian_contact", length = 15) // guardian_contact 컬럼과 매핑
     private String guardianContact; // 보호자 전화번호 (참조)
 
+
     @Column(name = "hospital_location") // hospital_location 컬럼과 매핑
     private String hospitalLocation; // 병원 위치 정보
+
+    @Column(name = "hospital_id") // hospital_ID
+    private Integer hospitalId; // 병원 아이디
     
     @Column(name = "chatroom_id") // chat_room_id 컬럼과 매핑
     private String chatRoomId; // 채팅방 ID

@@ -13,4 +13,8 @@ public interface MedicalStaffRepository extends JpaRepository<MedicalStaff, Inte
      * @return 해당 부서의 모든 의료진 목록
      */
     MedicalStaff findAllByDepartment(String department);
+
+    MedicalStaff findByMedicalStaffId(Integer medicalStaffId);
+
+    MedicalStaff findByMedicalStaffIdAndDepartment(Integer medicalStaffId, String department);
 }

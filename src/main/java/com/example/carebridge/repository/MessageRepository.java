@@ -25,4 +25,6 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
     List<Message> findAll();
 
     Message findByMessageId(Integer messageId);
+
+    List<Message> findByMedicalStaffId(Integer medicalStaffId);
 }

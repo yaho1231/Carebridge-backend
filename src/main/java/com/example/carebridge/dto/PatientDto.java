@@ -46,6 +46,11 @@ public class PatientDto {
     private String guardianContact; // 보호자 전화번호 (참조)
 
     /**
+     * 병원의 ID
+     */
+    private Integer hospitalId; // 병원 아이디
+
+    /**
      * 병원의 위치 정보
      */
     private String hospitalLocation; // 병원 위치 정보
