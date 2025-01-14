@@ -5,7 +5,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * WebConfig는 CORS(Cross-Origin Resource Sharing) 설정을 구성하는 클래스입니다.
+ * WebConfig 는 CORS(Cross-Origin Resource Sharing) 설정을 구성하는 클래스입니다.
  */
 @Configuration
 public class WebConfig implements WebMvcConfigurer {

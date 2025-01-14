@@ -24,23 +24,6 @@ public class CallBellService {
     }
 
     /**
-     * 모든 채팅방을 조회합니다.
-     *
-     * @return 채팅방 DTO 리스트
-     */
-    public List<ChatRoomDto> findAllRoom() {
-        List<ChatRoom> chatRooms = chatRoomRepository.findAll();
-        List<ChatRoomDto> chatRoomDtos = new ArrayList<>();
-        for (ChatRoom chatRoom : chatRooms) {
-            ChatRoomDto chatRoomDto = new ChatRoomDto();
-            chatRoomDto.setRoomId(chatRoom.getChatRoomId());
-            chatRoomDtos.add(chatRoomDto);
-        }
-        Collections.reverse(chatRoomDtos);
-        return chatRoomDtos;
-    }
-
-    /**
      * 특정 환자의 ID로 채팅방을 조회합니다.
      *
      * @param patientId 환자의 ID

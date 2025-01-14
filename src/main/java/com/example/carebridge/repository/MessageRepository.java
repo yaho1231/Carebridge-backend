@@ -24,7 +24,19 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
     @Nonnull
     List<Message> findAll();
 
+    /**
+     * 메시지 ID로 메시지를 조회합니다.
+     *
+     * @param messageId 메시지 ID
+     * @return 메시지 객체
+     */
     Message findByMessageId(Integer messageId);
 
+    /**
+     * 의료진 ID로 메시지를 조회합니다.
+     *
+     * @param medicalStaffId 의료진 ID
+     * @return 의료진의 메시지 목록
+     */
     List<Message> findByMedicalStaffId(Integer medicalStaffId);
 }
