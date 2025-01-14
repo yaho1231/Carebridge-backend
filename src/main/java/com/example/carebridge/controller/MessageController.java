@@ -50,6 +50,7 @@ public class MessageController {
      * @return 환자 ID를 키로 하고 메시지 리스트를 값으로 가지는 맵과 HTTP 상태 코드
      */
     @GetMapping("/users")
+    @ResponseBody
     public ResponseEntity<Map<Integer, List<Message>>> getMessageList() {
         try {
             Map<Integer, List<Message>> messages = messageService.getAll();
@@ -70,6 +71,7 @@ public class MessageController {
      * @return 메시지 목록과 HTTP 상태 코드
      */
     @GetMapping("/user")
+    @ResponseBody
     public ResponseEntity<List<Message>> getMessageList(@RequestParam Integer patientId) {
         try {
             List<Message> messages = messageService.getMessagesByPatientId(patientId);
@@ -91,6 +93,7 @@ public class MessageController {
      * @return 메시지 목록과 HTTP 상태 코드
      */
     @GetMapping("/containing")
+    @ResponseBody
     public ResponseEntity<List<Message>> getMessagesContainingText(@RequestParam Integer patientId, @RequestParam String text) {
         try {
             List<Message> messages = messageService.getMessagesContainingText(patientId, text);
@@ -112,6 +115,7 @@ public class MessageController {
      * @return 읽음 상태와 HTTP 상태 코드
      */
     @GetMapping("/status")
+    @ResponseBody
     public ResponseEntity<Boolean> getMessageReadStatus(@RequestParam Integer patientId, @RequestParam Integer messageId) {
         try {
             Boolean readStatus = messageService.getReadStatus(patientId, messageId);
@@ -133,6 +137,7 @@ public class MessageController {
      * @return 타임스탬프와 HTTP 상태 코드
      */
     @GetMapping("/timestamp")
+    @ResponseBody
     public ResponseEntity<String> getMessageTimestamp(@RequestParam Integer patientId, @RequestParam Integer messageId) {
         try {
             List<Message> patientMessageList = messageService.getMessagesByPatientId(patientId);
@@ -155,6 +160,7 @@ public class MessageController {
      * @return HTTP 상태 코드
      */
     @PutMapping("/read")
+    @ResponseBody
     public ResponseEntity<Void> updateMessageReadStatus(@RequestParam Integer messageId) {
         try {
             // 메시지의 읽음 상태를 업데이트합니다.
@@ -173,6 +179,7 @@ public class MessageController {
      * @return 메시지 요약 정보 리스트와 HTTP 상태 코드
      */
     @GetMapping("/main/{staff_id}")
+    @ResponseBody
     public ResponseEntity<List<MessageSummaryDto>> getMessages(@PathVariable Integer staff_id) {
         try {
             // 메시지 요약 정보를 가져옵니다.

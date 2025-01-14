@@ -23,6 +23,7 @@ public class PatientController {
      * @return 환자 리스트
      */
     @GetMapping("/users/{staff_id}")
+    @ResponseBody
     public ResponseEntity<List<PatientDto>> getPatientList(@PathVariable("staff_id") int staffId) {
         try {
             List<PatientDto> patientDtoList = patientService.getPatientList(staffId);
@@ -42,6 +43,7 @@ public class PatientController {
      * @return 환자 객체
      */
     @GetMapping("/user/{patient_id}")
+    @ResponseBody
     public ResponseEntity<PatientDto> getPatientById(@PathVariable("patient_id") int patientId) {
         try {
             PatientDto patientDto = patientService.getPatientById(patientId);
