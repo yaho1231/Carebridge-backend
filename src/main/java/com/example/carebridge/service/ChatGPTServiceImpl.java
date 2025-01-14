@@ -51,16 +51,13 @@ public class ChatGPTServiceImpl implements ChatGPTService {
 
         Map<String, Object> resultMap = new HashMap<>();
 
-        // [STEP1] 토큰 정보가 포함된 Header를 가져옵니다.
         HttpHeaders headers = chatGPTConfig.httpHeaders();
 
-        // [STEP5] 통신을 위한 RestTemplate을 구성합니다.
         HttpEntity<ChatCompletionDto> requestEntity = new HttpEntity<>(chatCompletionDto, headers);
         ResponseEntity<String> response = chatGPTConfig
                 .restTemplate()
                 .exchange(promptUrl, HttpMethod.POST, requestEntity, String.class);
         try {
-            // [STEP6] String -> HashMap 역직렬화를 구성합니다.
             ObjectMapper om = new ObjectMapper();
             resultMap = om.readValue(response.getBody(), new TypeReference<>() {
             });
@@ -71,4 +68,6 @@ public class ChatGPTServiceImpl implements ChatGPTService {
         }
         return resultMap;
     }
+
+
 }
