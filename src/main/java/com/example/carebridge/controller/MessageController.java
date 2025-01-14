@@ -1,5 +1,6 @@
 package com.example.carebridge.controller;
 
+import com.example.carebridge.dto.ChatMessageDto;
 import com.example.carebridge.dto.MessageSummaryDto;
 import com.example.carebridge.entity.Message;
 import com.example.carebridge.service.MessageService;
@@ -7,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,9 +20,28 @@ import java.util.Map;
 public class MessageController {
     private static final Logger logger = LoggerFactory.getLogger(MessageController.class);
     private final MessageService messageService;
+    private final SimpMessageSendingOperations messagingTemplate;
 
-    public MessageController(MessageService messageService) {
+    public MessageController(MessageService messageService, SimpMessageSendingOperations messagingTemplate) {
         this.messageService = messageService;
+        this.messagingTemplate = messagingTemplate;
+    }
+
+    /**
+     * 클라이언트로부터 채팅 메시지를 수신하여 처리하는 메서드입니다.
+     *
+     * @param message 수신된 채팅 메시지 객체
+     */
+    @MessageMapping("chat/message")
+    public void message(ChatMessageDto message) {
+        // 수신된 메시지를 로그에 기록합니다.
+        logger.info("Received message: {}", message);
+
+        // 메시지를 데이터베이스에 저장합니다.
+        messageService.saveMessage(message);
+
+        // 수신된 메시지를 해당 채팅방의 구독자들에게 전송합니다.
+        messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), message);
     }
 
     /**
