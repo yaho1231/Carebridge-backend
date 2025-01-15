@@ -1,8 +1,6 @@
 package com.example.carebridge.controller;
 
 import com.example.carebridge.dto.ChatCompletionDto;
-//import com.example.carebridge.dto.ChatRequestMsgDto;
-import com.example.carebridge.entity.HospitalInformation;
 import com.example.carebridge.service.ChatGPTService;
 import com.example.carebridge.service.HospitalInformationService;
 import lombok.extern.slf4j.Slf4j;
