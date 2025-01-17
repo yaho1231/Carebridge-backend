@@ -65,6 +65,12 @@ public class CallBellService {
         return chatRoomDto;
     }
 
+    /**
+     * 요청 상태를 업데이트합니다.
+     *
+     * @param requestId 요청 ID
+     * @param status 새로운 상태
+     */
     public void updateRequestStatus(Integer requestId, String status) {
         Request request = requestRepository.findByRequestId(requestId);
         switch (status) {
@@ -84,6 +90,12 @@ public class CallBellService {
         requestRepository.save(request);
     }
 
+    /**
+     * 특정 의료진의 모든 요청을 조회합니다.
+     *
+     * @param medicalStaffId 의료진 ID
+     * @return 요청 DTO 리스트
+     */
     public List<RequestDto> getAllRequests(Integer medicalStaffId) {
         List<Request> requests = requestRepository.findByMedicalStaffId(medicalStaffId);
         List<RequestDto> requestDtoList = new ArrayList<>();
@@ -98,5 +110,36 @@ public class CallBellService {
             requestDtoList.add(requestDto);
         }
         return requestDtoList;
+    }
+
+    /**
+     * 특정 환자의 모든 요청을 조회합니다.
+     *
+     * @param patientId 환자 ID
+     * @return 요청 DTO 리스트
+     */
+    public List<RequestDto> getPatientRequests(Integer patientId) {
+        List<Request> requests = requestRepository.findByPatientIdOrderByRequestTime(patientId);
+        List<RequestDto> requestDtoList = new ArrayList<>();
+        for (Request request : requests) {
+            RequestDto requestDto = new RequestDto();
+            requestDto.setRequestId(request.getRequestId());
+            requestDto.setMedicalStaffId(request.getMedicalStaffId());
+            requestDto.setRequestContent(request.getRequestContent());
+            requestDto.setStatus(request.getStatus().toString());
+            requestDto.setRequestTime(request.getRequestTime());
+            requestDto.setAcceptTime(request.getAcceptTime());
+            requestDtoList.add(requestDto);
+        }
+        return requestDtoList;
+    }
+
+    /**
+     * 특정 요청을 삭제합니다.
+     *
+     * @param requestId 요청 ID
+     */
+    public void deleteRequest(Integer requestId) {
+        requestRepository.deleteByRequestId(requestId);
     }
 }
