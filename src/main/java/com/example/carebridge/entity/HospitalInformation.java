@@ -11,7 +11,7 @@ import lombok.Setter;
 public class HospitalInformation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 기본 키 자동 증가 설정
-    private Long id; // 병원 정보 고유 ID
+    private Integer id; // 병원 정보 고유 ID
 
     @Column(name = "hospital_id", nullable = false)
     private Integer hospitalId; // 병원 ID
