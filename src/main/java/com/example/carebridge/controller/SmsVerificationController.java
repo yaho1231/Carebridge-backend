@@ -1,5 +1,6 @@
 package com.example.carebridge.controller;
 
+import com.example.carebridge.dto.VerifyResponseDto;
 import lombok.Getter;
 import net.nurigo.sdk.message.model.Balance;
 import net.nurigo.sdk.message.model.Message;
@@ -23,7 +24,7 @@ public class SmsVerificationController {
      */
     @PostMapping("/verify-phone/{phone}")
 //    public SingleMessageSentResponse sendOne(@PathVariable String phone) {
-    public VerifyResponse sendOne(@PathVariable String phone) {
+    public VerifyResponseDto sendOne(@PathVariable String phone) {
         Message message = new Message();
 
         // Random Verify Number Generation
@@ -38,7 +39,7 @@ public class SmsVerificationController {
         System.out.println(response);
 
 //        return response;
-        return new VerifyResponse(intValue, phone);
+        return new VerifyResponseDto(intValue, phone);
     }
 
     /**
@@ -52,15 +53,4 @@ public class SmsVerificationController {
         return balance;
     }
 
-    @Getter
-    public static class VerifyResponse {
-        private final int verify_value;
-        private final String phone;
-
-        public VerifyResponse(int value, String phone) {
-            this.verify_value = value;
-            this.phone = phone;
-        }
-
-    }
 }

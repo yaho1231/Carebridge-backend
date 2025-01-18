@@ -10,10 +10,11 @@ import java.util.List;
 public interface ExaminationScheduleRepository extends JpaRepository<ExaminationSchedule, Integer> {
 
     /**
-     * 환자의 전화번호로 검사 일정을 조회합니다.
-     * @param patientPhone 환자의 전화번호
+     * 환자의 ID로 검사 일정을 조회합니다.
+     *
+     * @param patientId 환자의 ID
      * @return 환자의 검사 일정 목록
      */
-    List<ExaminationSchedule> findByPatientPhone(String patientPhone);
+    List<ExaminationSchedule> findByPatientIdOrderByScheduleDateDesc(Integer patientId);
 
 }

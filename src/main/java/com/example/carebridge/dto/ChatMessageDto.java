@@ -5,46 +5,27 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * ChatMessageDto 는 채팅 메시지의 정보를 담고 있는 데이터 전송 객체입니다.
+ * ChatMessageDto��� 채팅 메시지의 정보를 담고 있는 데이터 전송 객체입니다.
  */
 @Data
 @Getter
 @Setter
 public class ChatMessageDto {
-    /**
-     * 메시지 타입을 정의하는 열거형입니다.
-     * ENTER: 채팅방에 입장할 때
-     * TALK: 채팅 중일 때
-     * EXIT: 채팅방을 나갈 때
-     * MATCH: 매칭이 성사되었을 때
-     * MATCH_REQUEST: 매칭 요청을 보낼 때
-     */
-    public enum MessageType {
-        ENTER, TALK, EXIT, MATCH, MATCH_REQUEST;
-    }
+    private Integer messageId; // 메시지 고유 ID
 
-    /**
-     * 메시지 타입 (ENTER, TALK, EXIT, MATCH, MATCH_REQUEST 중 하나)
-     */
-    private MessageType type;
+    private Integer patientId; // 환자 ID
 
-    /**
-     * 메시지가 속한 채팅방의 ID
-     */
-    private String roomId;
+    private Integer medicalStaffId; // 의료진 ID
 
-    /**
-     * 메시지를 보낸 사람의 ID
-     */
-    private Integer senderId;
+    private String messageContent; // 메시지 내용
 
-    /**
-     * 메시지를 보낸 사람이 환자인지 여부
-     */
-    private Boolean isPatient;
+    private String timestamp; // 메시지 발송 시간
 
-    /**
-     * 실제 메시지 내용
-     */
-    private String message;
+    private Boolean readStatus; // 메시지 읽음 여부
+
+    private String chatRoomId; // 채팅방 ID
+
+    private Integer sender_id; // 발신자 ID
+
+    private Boolean isPatient; // 환자 여부
 }

@@ -1,11 +1,15 @@
 package com.example.carebridge.controller;
 
+import com.example.carebridge.dto.ChatMessageDto;
+import com.example.carebridge.dto.MessageSummaryDto;
 import com.example.carebridge.entity.Message;
 import com.example.carebridge.service.MessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,9 +20,28 @@ import java.util.Map;
 public class MessageController {
     private static final Logger logger = LoggerFactory.getLogger(MessageController.class);
     private final MessageService messageService;
+    private final SimpMessageSendingOperations messagingTemplate;
 
-    public MessageController(MessageService messageService) {
+    public MessageController(MessageService messageService, SimpMessageSendingOperations messagingTemplate) {
         this.messageService = messageService;
+        this.messagingTemplate = messagingTemplate;
+    }
+
+    /**
+     * 클라이언트로부터 채팅 메시지를 수신하여 처리하는 메서드입니다.
+     *
+     * @param message 수신된 채팅 메시지 객체
+     */
+    @MessageMapping("chat/message")
+    public void message(ChatMessageDto message) {
+        // 수신된 메시지를 로그에 기록합니다.
+        logger.info("Received message: {}", message);
+
+        // 메시지를 데이터베이스에 저장합니다.
+        messageService.saveMessage(message);
+
+        // 수신된 메시지를 해당 채팅방의 구독자들에게 전송합니다.
+        messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), message);
     }
 
     /**
@@ -27,6 +50,7 @@ public class MessageController {
      * @return 환자 ID를 키로 하고 메시지 리스트를 값으로 가지는 맵과 HTTP 상태 코드
      */
     @GetMapping("/users")
+    @ResponseBody
     public ResponseEntity<Map<Integer, List<Message>>> getMessageList() {
         try {
             Map<Integer, List<Message>> messages = messageService.getAll();
@@ -47,6 +71,7 @@ public class MessageController {
      * @return 메시지 목록과 HTTP 상태 코드
      */
     @GetMapping("/user")
+    @ResponseBody
     public ResponseEntity<List<Message>> getMessageList(@RequestParam Integer patientId) {
         try {
             List<Message> messages = messageService.getMessagesByPatientId(patientId);
@@ -68,6 +93,7 @@ public class MessageController {
      * @return 메시지 목록과 HTTP 상태 코드
      */
     @GetMapping("/containing")
+    @ResponseBody
     public ResponseEntity<List<Message>> getMessagesContainingText(@RequestParam Integer patientId, @RequestParam String text) {
         try {
             List<Message> messages = messageService.getMessagesContainingText(patientId, text);
@@ -89,6 +115,7 @@ public class MessageController {
      * @return 읽음 상태와 HTTP 상태 코드
      */
     @GetMapping("/status")
+    @ResponseBody
     public ResponseEntity<Boolean> getMessageReadStatus(@RequestParam Integer patientId, @RequestParam Integer messageId) {
         try {
             Boolean readStatus = messageService.getReadStatus(patientId, messageId);
@@ -110,6 +137,7 @@ public class MessageController {
      * @return 타임스탬프와 HTTP 상태 코드
      */
     @GetMapping("/timestamp")
+    @ResponseBody
     public ResponseEntity<String> getMessageTimestamp(@RequestParam Integer patientId, @RequestParam Integer messageId) {
         try {
             List<Message> patientMessageList = messageService.getMessagesByPatientId(patientId);
@@ -121,6 +149,55 @@ public class MessageController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             logger.error("Error fetching timestamp for patientId: {} and messageId: {}", patientId, messageId, e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 메시지의 읽음 상태를 업데이트합니다.
+     *
+     * @param messageId 메시지의 ID
+     * @return HTTP 상태 코드
+     */
+    @PutMapping("/read")
+    @ResponseBody
+    public ResponseEntity<Void> updateMessageReadStatus(@RequestParam Integer messageId) {
+        try {
+            // 메시지의 읽음 상태를 업데이트합니다.
+            messageService.updateReadStatus(messageId);
+            // HTTP 상태 코드 200(OK)을 반환합니다.
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            // 예외 발생 시, HTTP 상태 코드 500(내부 서버 오류)을 반환합니다.
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 메인화면용 사람들 이름, 마지막 메시지, 시간 반환
+     *
+     * @return 메시지 요약 정보 리스트와 HTTP 상태 코드
+     */
+    @GetMapping("/main/{staff_id}")
+    @ResponseBody
+    public ResponseEntity<List<MessageSummaryDto>> getMessages(@PathVariable Integer staff_id) {
+        try {
+            // 메시지 요약 정보를 가져옵니다.
+            List<MessageSummaryDto> messageSummaryList = messageService.getSummaryMessageInformation(staff_id);
+
+            // 메시지 요약 정보가 비어있는지 확인합니다.
+            if (messageSummaryList.isEmpty()) {
+                // 비어있다면 HTTP 상태 코드 204 (No Content)를 반환합니다.
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
+            // 메시지 요약 정보를 포함한 HTTP 상태 코드 200 (OK)을 반환합니다.
+            return new ResponseEntity<>(messageSummaryList, HttpStatus.OK);
+        } catch (Exception e) {
+            // 예외 발생 시, 오류 로그를 기록합니다.
+            logger.error("Error fetching message summaries", e);
+
+            // HTTP 상태 코드 500 (Internal Server Error)을 반환합니다.
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

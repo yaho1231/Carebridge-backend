@@ -1,39 +1,88 @@
 package com.example.carebridge.controller;
 
-import com.example.carebridge.dto.ChatMessageDto;
-import com.example.carebridge.service.MessageService;
+import com.example.carebridge.dto.RequestDto;
+import com.example.carebridge.service.CallBellService;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 
-/**
- * CallBellController 는 클라이언트로부터 수신된 채팅 메시지를 처리하고
- * 해당 채팅방의 구독자들에게 메시지를 전송하는 역할을 합니다.
- */
+import java.util.List;
+
 @RequiredArgsConstructor
 @Controller
+@RequestMapping("api/call-bell")
 public class CallBellController {
-    private static final Logger logger = LoggerFactory.getLogger(CallBellController.class);
-    private final SimpMessageSendingOperations messagingTemplate;
-    private final MessageService messageService;
+
+    private final CallBellService callBellService;
 
     /**
-     * 클라이언트로부터 채팅 메시지를 수신하여 처리하는 메서드입니다.
+     * 요청 상태를 업데이트합니다.
      *
-     * @param message 수신된 채팅 메시지 객체
+     * @param requestId 요청 ID
+     * @param status 새로운 상태
+     * @return 성공 메시지
      */
-    @MessageMapping("chat/message")
-    public void message(ChatMessageDto message) {
-        // 수신된 메시지를 로그에 기록합니다.
-        logger.info("Received message: {}", message);
+    @PutMapping("/request/status/{request_id}")
+    @ResponseBody
+    public ResponseEntity<String> acceptRequest(@PathVariable("request_id") int requestId, @RequestParam("status") String status) {
+        try {
+            callBellService.updateRequestStatus(requestId, status);
+            return new ResponseEntity<>("Request status updated successfully", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Failed to update request status", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
-        // 메시지를 데이터베이스에 저장합니다.
-        messageService.saveMessage(message);
+    /**
+     * 특정 의료진의 모든 요청을 조회합니다.
+     *
+     * @param medicalStaffId 의료진 ID
+     * @return 요청 목록
+     */
+    @GetMapping("/request/{staff_id}")
+    @ResponseBody
+    public ResponseEntity<List<RequestDto>> getAllRequest(@PathVariable("staff_id") int medicalStaffId) {
+        try {
+            List<RequestDto> request = callBellService.getAllRequests(medicalStaffId);
+            return new ResponseEntity<>(request, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
-        // 수신된 메시지를 해당 채팅방의 구독자들에게 전송합니다.
-        messagingTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), message);
+    /**
+     * 특정 환자의 모든 요청을 조회합니다.
+     *
+     * @param patientId 환자 ID
+     * @return 요청 목록
+     */
+    @GetMapping("/request/{patient_id}")
+    @ResponseBody
+    public ResponseEntity<List<RequestDto>> getPatientRequestList(@PathVariable("patient_id") int patientId) {
+        try {
+            List<RequestDto> request = callBellService.getPatientRequests(patientId);
+            return new ResponseEntity<>(request, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 특정 요청을 삭제합니다.
+     *
+     * @param requestId 요청 ID
+     * @return 성공 메시지
+     */
+    @DeleteMapping("/request/{request_id}")
+    @ResponseBody
+    public ResponseEntity<String> deleteRequest(@PathVariable("request_id") int requestId) {
+        try {
+            callBellService.deleteRequest(requestId);
+            return new ResponseEntity<>("Request deleted successfully", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Failed to delete request", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
