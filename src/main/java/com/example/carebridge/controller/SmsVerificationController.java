@@ -1,11 +1,6 @@
 package com.example.carebridge.controller;
 
-import com.example.carebridge.dto.VerifyResponseDto;
-import lombok.Getter;
 import net.nurigo.sdk.message.model.Balance;
-import net.nurigo.sdk.message.model.Message;
-import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
-import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,25 +17,25 @@ public class SmsVerificationController {
     /**
      * 단일 메시지 발송 예제
      */
-    @PostMapping("/verify-phone/{phone}")
-//    public SingleMessageSentResponse sendOne(@PathVariable String phone) {
-    public VerifyResponseDto sendOne(@PathVariable String phone) {
-        Message message = new Message();
-
-        // Random Verify Number Generation
-        double randomValue = Math.random();
-        int intValue = (int) (randomValue * 899999 + 100000);
-
-        message.setFrom("01032330241");
-        message.setTo(phone);
-        message.setText("[CareBridge] 인증번호는 [ " + intValue + " ] 입니다");
-
-        SingleMessageSentResponse response = this.smsMessageService.sendOne(new SingleMessageSendingRequest(message));
-        System.out.println(response);
-
-//        return response;
-        return new VerifyResponseDto(intValue, phone);
-    }
+//    @PostMapping("/verify-phone/{phone}")
+////    public SingleMessageSentResponse sendOne(@PathVariable String phone) {
+//    public VerifyResponseDto sendOne(@PathVariable String phone) {
+//        Message message = new Message();
+//
+//        // Random Verify Number Generation
+//        double randomValue = Math.random();
+//        int intValue = (int) (randomValue * 899999 + 100000);
+//
+//        message.setFrom("01032330241");
+//        message.setTo(phone);
+//        message.setText("[CareBridge] 인증번호는 [ " + intValue + " ] 입니다");
+//
+//        SingleMessageSentResponse response = this.smsMessageService.sendOne(new SingleMessageSendingRequest(message));
+//        System.out.println(response);
+//
+////        return response;
+//        return new VerifyResponseDto(intValue, phone);
+//    }
 
     /**
      * 잔액 조회 예제
