@@ -1,9 +1,8 @@
-// ExaminationScheduleController.java
 package com.example.carebridge.controller;
 
 import com.example.carebridge.dto.ExaminationScheduleDto;
-import com.example.carebridge.entity.ExaminationSchedule;
 import com.example.carebridge.service.ExaminationScheduleService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,38 +18,22 @@ public class ExaminationScheduleController {
         this.scheduleService = scheduleService;
     }
 
-    // 환자별 스케줄 조회 API
-    @GetMapping("/patient/{phone}")
-    public ResponseEntity<List<ExaminationSchedule>> getSchedulesByPatientPhone(@PathVariable("phone") String patientPhone) {
-        List<ExaminationSchedule> schedules = scheduleService.getSchedulesByPatientPhone(patientPhone);
-        return ResponseEntity.ok(schedules);
-    }
-
-    // 스케줄 추가 API
-    @PostMapping
-    public ResponseEntity<String> addSchedule(@RequestBody ExaminationSchedule schedule) {
-        scheduleService.addSchedule(schedule);
-        return ResponseEntity.ok("Schedule added successfully.");
-    }
-
-    // 스케줄 변경
-    @PutMapping("/{id}")
-    public ResponseEntity<ExaminationSchedule> updateSchedule(@PathVariable Integer id, @RequestBody ExaminationScheduleDto requestDto) {
-        ExaminationSchedule updated = scheduleService.updateSchedule(id, requestDto);
-        return ResponseEntity.ok(updated);
-    }
-
-    // 스케줄 삭제
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ExaminationSchedule> deleteSchedule(@PathVariable Integer id) {
-        ExaminationSchedule deleted = scheduleService.deleteSchedule(id);
-        return ResponseEntity.ok(deleted);
-    }
-
-    //더미데이터
-    @PostMapping("/notification")
-    public ResponseEntity<ExaminationSchedule> sendNotification(@RequestBody ExaminationScheduleDto requestDto) {
-
-        return null;
+    /**
+     * 환자별 스케줄 조회 API
+     *
+     * @param patientId 환자 ID
+     * @return 환자의 검사 일정 목록
+     */
+    @GetMapping("/patient/{patient_id}")
+    @ResponseBody
+    public ResponseEntity<List<ExaminationScheduleDto>> getSchedules(@PathVariable("patient_id") Integer patientId) {
+        try {
+            List<ExaminationScheduleDto> schedules = scheduleService.getSchedules(patientId);
+            return ResponseEntity.ok(schedules);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 }
