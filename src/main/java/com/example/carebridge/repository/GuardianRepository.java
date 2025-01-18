@@ -4,21 +4,31 @@ import com.example.carebridge.entity.Guardian;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface GuardianRepository extends JpaRepository<Guardian, Integer> {
 
     /**
-     * 보호자 ID로 보호자 정보를 조회합니다.
+     * 전화번호로 보호자 정보를 삭제합니다.
      *
-     * @param guardianId 보호자 ID
-     * @return 보호자 엔티티
+     * @param phoneNumber 보호자 전화번호
      */
-    Guardian findByGuardianId(String guardianId);
+    void deleteByPhoneNumber(String phoneNumber);
 
     /**
-     * 보호자 ID로 보호자 정보를 삭제합니다.
+     * 전화번호로 보호자 정보를 조회합니다.
      *
-     * @param guardianId 보호자 ID
+     * @param phoneNumber 보호자 전화번호
+     * @return 보호자 엔티티
      */
-    void deleteByGuardianId(String guardianId);
+    Guardian findByPhoneNumber(String phoneNumber);
+
+    /**
+     * 환자 ID로 모든 보호자 정보를 조회합니다.
+     *
+     * @param patientId 환자 ID
+     * @return 보호자 엔티티 리스트
+     */
+    List<Guardian> findAllByPatientId(Integer patientId);
 }
