@@ -20,4 +20,10 @@ public class MedicalStaff {
 
     @Column(name = "hospital_id", nullable = false) // 소속 병원 ID 컬럼과 매핑
     private Integer hospitalId; // 소속 병원 ID
+
+    @Column(name = "phrase_head") // 의료진 인사말 컬럼과 매핑
+    private String phrase_head; // 의료진 인사말
+
+    @Column(name = "phrase_tail") // 의료진 인사말 컬럼과 매핑
+    private String phrase_tail;
 }
