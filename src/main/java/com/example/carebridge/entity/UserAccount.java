@@ -1,0 +1,53 @@
+package com.example.carebridge.entity;
+
+import com.example.carebridge.dto.UserAccountDto;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.util.Date;
+
+@Setter
+@Getter
+@Entity
+@Table(name = "User_Account")
+public class UserAccount {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-increment primary key
+    @Column(name = "user_id") // user_id column mapping
+    private Integer id; // User unique ID
+
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
+    @Column(name = "birth_date")
+    private Date birthDate;
+
+    @Enumerated(EnumType.STRING) // Enum 타입을 문자열로 저장
+    @Column(nullable = false) // Not Null 제약 조건 설정
+    private UserAccount.Gender gender; // 환자 성별 (Male/Female)
+
+    @Column(name = "otp")
+    private String otp; // 임시 저장
+
+    @Column(name = "otp_expiry")
+    private LocalDateTime otpExpiry; // OTP 만료 시간
+
+    public enum Gender {
+        Male, Female
+    }
+
+    public UserAccount() {}
+
+    public void update(UserAccountDto userAccountDto) {
+        this.name = userAccountDto.getName();
+        this.phoneNumber = userAccountDto.getPhoneNumber();
+        this.birthDate = userAccountDto.getBirthDate();
+        this.gender = userAccountDto.getGender();
+    }
+}
