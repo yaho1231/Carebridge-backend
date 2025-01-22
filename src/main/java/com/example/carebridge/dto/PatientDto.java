@@ -1,6 +1,5 @@
 package com.example.carebridge.dto;
 
-import com.example.carebridge.entity.Guardian;
 import com.example.carebridge.entity.Patient;
 import lombok.Data;
 import lombok.Getter;
