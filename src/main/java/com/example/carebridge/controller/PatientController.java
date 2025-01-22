@@ -2,6 +2,7 @@ package com.example.carebridge.controller;
 
 import com.example.carebridge.dto.PatientDto;
 import com.example.carebridge.service.PatientService;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -51,6 +52,23 @@ public class PatientController {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
             return new ResponseEntity<>(patientDto, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 환자의 채팅방 존재 여부를 확인합니다.
+     *
+     * @param patientId 환자의 ID
+     * @return 채팅방 존재 여부
+     */
+    @GetMapping("/chatroom/{patient_id}")
+    @ResponseBody
+    public ResponseEntity<Boolean> isChatRoomExist(@PathVariable("patient_id") int patientId) {
+        try {
+            boolean isChatRoomExist = patientService.isChatRoomExist(patientId);
+            return new ResponseEntity<>(isChatRoomExist, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

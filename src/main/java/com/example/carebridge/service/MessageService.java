@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -155,22 +156,46 @@ public class MessageService {
 
 
     /**
-     * 환자별로 가장 최근 메시지 정보를 요약하여 반환합니다.
+     * 의료진 ID로 메시지 요약 정보를 조회합니다.
      *
+     * @param medicalStaffId 의료진의 ID
      * @return 메시지 요약 정보 리스트
      */
     public List<MessageSummaryDto> getSummaryMessageInformation(Integer medicalStaffId) {
+        // 의료진 ID로 메시지 목록을 조회합니다.
         List<Message> messages = messageRepository.findByMedicalStaffId(medicalStaffId);
-        return messages.stream()
-                .collect(Collectors.groupingBy(Message::getPatientId))
-                .values().stream()
-                .map(patientMessages -> patientMessages.stream().max(Comparator.comparing(Message::getTimestamp)).orElse(null))
-                .filter(Objects::nonNull)
-                .map(message -> new MessageSummaryDto(
-                        patientRepository.findByPatientId(message.getPatientId()).getName(), // 발신자 이름
-                        message.getMessageContent(), // 마지막 메시지 내용
-                        message.getTimestamp() // 메시지 타임스탬프
-                ))
-                .collect(Collectors.toList());
+
+        // 메시지를 환자 ID 별로 그룹화합니다.
+        Map<Integer, List<Message>> messagesByPatient = messages.stream()
+                .collect(Collectors.groupingBy(Message::getPatientId));
+
+        // 메시지 요약 정보를 저장할 리스트를 생성합니다.
+        List<MessageSummaryDto> summaryList = new ArrayList<>();
+
+        // 각 환자별로 메시지 요약 정보를 생성합니다.
+        for (Map.Entry<Integer, List<Message>> entry : messagesByPatient.entrySet()) {
+            List<Message> patientMessages = entry.getValue();
+
+            // 메시지를 타임스탬프 기준으로 내림차순 정렬하여 가장 최근 메시지를 가져옵니다.
+            patientMessages.sort(Comparator.comparing(Message::getTimestamp).reversed());
+
+            // 가장 최근 메시지를 가져옵니다.
+            Message recentMessage = patientMessages.get(0);
+
+            // 메시지 요약 정보를 생성합니다.
+            MessageSummaryDto summary = new MessageSummaryDto(
+                    patientRepository.findByPatientId(recentMessage.getPatientId()).getName(), // 발신자 이름을 문자열로 변환하여 사용
+                    recentMessage.getChatRoomId(),
+                    recentMessage.getMessageContent(),
+                    Timestamp.valueOf(recentMessage.getTimestamp()),
+                    recentMessage.getReadStatus()
+            );
+
+            // 메시지 요약 정보를 리스트에 추가합니다.
+            summaryList.add(summary);
+        }
+
+        // 메시지 요약 정보 리스트를 반환합니다.
+        return summaryList;
     }
 }
