@@ -74,4 +74,14 @@ public class PatientService {
         patientDto.setDepartment(patient.getDepartment());
         return patientDto;
     }
+
+    /**
+     * 환자의 채팅방 존재 여부를 확인합니다.
+     *
+     * @param patientId 환자의 ID
+     * @return 채팅방 존재 여부
+     */
+    public Boolean isChatRoomExist(Integer patientId) {
+        return patientRepository.findByPatientId(patientId).getChatRoomId() != null;
+    }
 }

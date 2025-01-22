@@ -36,4 +36,5 @@ public class ChatRoomController {
     public ChatRoomDto roomInfo(@PathVariable Integer patientId) {
         return callBellService.findChatRoomByPatientId(patientId);
     }
+
 }
