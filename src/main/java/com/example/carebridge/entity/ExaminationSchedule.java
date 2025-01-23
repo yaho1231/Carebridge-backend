@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Setter
 @Getter
@@ -23,7 +25,7 @@ public class ExaminationSchedule {
     private Integer medicalStaffId; // 의료진 ID
 
     @Column(name = "schedule_date", nullable = false) // 검진 일정 날짜 컬럼과 매핑
-    private Timestamp scheduleDate; // 검진 날짜
+    private LocalDateTime scheduleDate; // 검진 날짜
 
     @Column(name = "details") // 검진 세부사항 컬럼과 매핑
     private String details; // 검진 세부사항
