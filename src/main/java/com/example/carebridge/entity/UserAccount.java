@@ -26,11 +26,14 @@ public class UserAccount {
     private String phoneNumber;
 
     @Column(name = "birth_date")
-    private Date birthDate;
+    private LocalDateTime birthDate;
 
     @Enumerated(EnumType.STRING) // Enum 타입을 문자열로 저장
     @Column(nullable = false) // Not Null 제약 조건 설정
     private UserAccount.Gender gender; // 환자 성별 (Male/Female)
+
+    @Column(name = "email", nullable = false) // Not Null 제약 조건 설정
+    private String email;
 
     @Column(name = "otp")
     private String otp; // 임시 저장
@@ -49,5 +52,6 @@ public class UserAccount {
         this.phoneNumber = userAccountDto.getPhoneNumber();
         this.birthDate = userAccountDto.getBirthDate();
         this.gender = userAccountDto.getGender();
+        this.email = userAccountDto.getEmail();
     }
 }

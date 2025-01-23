@@ -19,8 +19,9 @@ public class UserAccountDto {
 
     private String phoneNumber;
 
-    private Date birthDate;
+    private LocalDateTime birthDate;
 
     private UserAccount.Gender gender;
 
+    private String email;
 }
