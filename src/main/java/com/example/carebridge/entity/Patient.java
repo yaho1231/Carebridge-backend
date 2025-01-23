@@ -46,6 +46,9 @@ public class Patient {
     @Column(name = "department") // department 컬럼과 매핑
     private String department;
 
+    @Column(name = "email")
+    private String email;
+
     // 성별을 Enum 으로 정의 (Male/Female)
     public enum Gender {
         Male, Female
