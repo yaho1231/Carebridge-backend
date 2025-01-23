@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -24,7 +25,7 @@ public class Patient {
     private String name; // 환자 이름
 
     @Column(name = "birth_date", nullable = false) // birth_date 컬럼과 매핑
-    private LocalDate birthDate; // 환자 생년월일
+    private LocalDateTime birthDate; // 환자 생년월일
 
     @Enumerated(EnumType.STRING) // Enum 타입을 문자열로 저장
     @Column(nullable = false) // Not Null 제약 조건 설정
@@ -46,7 +47,7 @@ public class Patient {
     @Column(name = "department") // department 컬럼과 매핑
     private String department;
 
-    @Column(name = "email")
+    @Column(name = "email", nullable = false) // Not Null 제약 조건 설정
     private String email;
 
     // 성별을 Enum 으로 정의 (Male/Female)
