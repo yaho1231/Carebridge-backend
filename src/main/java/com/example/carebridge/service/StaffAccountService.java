@@ -1,6 +1,8 @@
 package com.example.carebridge.service;
 
+import com.example.carebridge.controller.StaffAccountController;
 import com.example.carebridge.dto.StaffAccountDto;
+import com.example.carebridge.dto.UserAccountDto;
 import com.example.carebridge.entity.StaffAccount;
 import com.example.carebridge.repository.StaffAccountRepository;
 import lombok.Getter;
@@ -18,14 +20,8 @@ public class StaffAccountService {
         this.staffAccountRepository = staffAccountRepository;
     }
 
-    public String login(StaffAccountDto staffAccountDto) {
-        try {
-            StaffAccountDto staffAccountDto1 = staffAccountRepository.getStaffAccountByUserId(staffAccountDto.getUserId());
-            return "Login successful";
-        }
-        catch (Exception e) {
-            return "Login failed";
-        }
+    public StaffAccount login(StaffAccountDto staffAccountDto) {
+        return staffAccountRepository.getStaffAccountByUserId(staffAccountDto.getUserId());
     }
 
     public StaffAccountDto convertStaffAccountToStaffAccountDto(StaffAccount staffAccount) {

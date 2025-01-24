@@ -28,8 +28,8 @@ public class StaffAccountController {
     @PostMapping("login")
     public ResponseEntity<String> login(@RequestBody StaffAccountDto staffAccountDto) {
         try {
-            String response = staffAccountService.login(staffAccountDto);
-            return ResponseEntity.ok(response);
+            staffAccountService.login(staffAccountDto);
+            return ResponseEntity.ok("Login successful!");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
