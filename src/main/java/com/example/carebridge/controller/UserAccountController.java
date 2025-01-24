@@ -55,8 +55,12 @@ public class UserAccountController {
      */
     @PostMapping("/send-otp/{phone}")
     public ResponseEntity<String> sendOtp(@PathVariable String phone) {
-        userAccountService.sendOtp(phone);
-        return null;
+        try {
+            userAccountService.sendOtp(phone); // OTP 전송 로직 호출
+            return ResponseEntity.ok("OTP sent successfully to " + phone);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to send OTP: " + e.getMessage());
+        }
     }
 
     /**
@@ -80,13 +84,18 @@ public class UserAccountController {
     }
 
     @PostMapping("/sign-up")
-    public ResponseEntity<UserAccountDto> signIn(@RequestBody UserAccountDto userAccountDto) {
-        UserAccountDto createdUser = userAccountService.createUserAccount(userAccountDto);
-        return ResponseEntity.ok(createdUser);
+    public ResponseEntity<String> signUp(@RequestBody UserAccountDto userAccountDto) {
+        try {
+            userAccountService.createUserAccount(userAccountDto);
+            return ResponseEntity.ok("Sign Up successful!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to create user account: " + e.getMessage());
+        }
+
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(VerifyAccountDto verifyAccountDto) {
+    public ResponseEntity<String> login(@RequestBody VerifyAccountDto verifyAccountDto) {
         boolean isVerified = userAccountService.verifyOtp(verifyAccountDto);
         if (isVerified)
             return ResponseEntity.ok("Login successful!");
