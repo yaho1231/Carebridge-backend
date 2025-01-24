@@ -83,6 +83,11 @@ public class UserAccountController {
         }
     }
 
+    /**
+     * User SignUp
+     * @param userAccountDto
+     * @return
+     */
     @PostMapping("/sign-up")
     public ResponseEntity<String> signUp(@RequestBody UserAccountDto userAccountDto) {
         try {
@@ -94,16 +99,36 @@ public class UserAccountController {
 
     }
 
+    /**
+     * User Login
+     * @param verifyAccountDto
+     * @param session
+     * @return
+     */
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody VerifyAccountDto verifyAccountDto) {
+    public ResponseEntity<String> login(@RequestBody VerifyAccountDto verifyAccountDto, HttpSession session) {
         boolean isVerified = userAccountService.verifyOtp(verifyAccountDto);
-        if (isVerified)
+        if (isVerified){
+            session.setAttribute("userPhone", verifyAccountDto.getPhone());
             return ResponseEntity.ok("Login successful!");
+        }
         else
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid phone number or otp.");
     }
 
     /**
+     * User logout
+     * @param session
+     * @return
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpSession session) {
+        session.invalidate();
+        return ResponseEntity.ok("Logout successful!");
+    }
+
+    /**
+     * get kakao login link
      * 카카오 로그인 기능
      * 인가코드 받는 링크 (login 페이지 link 요청)
      * @return
@@ -124,7 +149,7 @@ public class UserAccountController {
     }
 
     /**
-     * 카카오 로그인 매핑 (링크로 사용 X)
+     * 카카오 로그인 매핑 (url로 사용 X)
      * 인가 code가 있어야 사용 가능 함.
      * 기본은 /social-login/kakao 를 통해 받는 login 페이지를 통해 접속
      * @return

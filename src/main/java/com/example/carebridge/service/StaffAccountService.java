@@ -7,6 +7,7 @@ import com.example.carebridge.entity.StaffAccount;
 import com.example.carebridge.repository.StaffAccountRepository;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,8 +21,10 @@ public class StaffAccountService {
         this.staffAccountRepository = staffAccountRepository;
     }
 
-    public StaffAccount login(StaffAccountDto staffAccountDto) {
-        return staffAccountRepository.getStaffAccountByUserId(staffAccountDto.getUserId());
+    public Boolean veriftStaffAccount(StaffAccountDto staffAccountDto) {
+        StaffAccount staffAccount1 = staffAccountRepository.getStaffAccountByUserId(staffAccountDto.getUserId());
+        return staffAccountDto.getUserId().equals(staffAccount1.getUserId()) &&
+                staffAccountDto.getPassword().equals(staffAccount1.getPassword());
     }
 
     public StaffAccountDto convertStaffAccountToStaffAccountDto(StaffAccount staffAccount) {
