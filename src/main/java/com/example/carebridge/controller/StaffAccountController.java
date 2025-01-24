@@ -5,6 +5,7 @@ import com.example.carebridge.dto.StaffAccountDto;
 import com.example.carebridge.entity.MedicalStaff;
 import com.example.carebridge.entity.StaffAccount;
 import com.example.carebridge.service.StaffAccountService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,18 +22,29 @@ public class StaffAccountController {
     }
 
     /**
-     * Medical Staff Login
+     * Medical Staff login
      * @param staffAccountDto
      * @return
      */
     @PostMapping("login")
-    public ResponseEntity<String> login(@RequestBody StaffAccountDto staffAccountDto) {
-        try {
-            staffAccountService.login(staffAccountDto);
+    public ResponseEntity<String> login(@RequestBody StaffAccountDto staffAccountDto, HttpSession session) {
+        Boolean verify = staffAccountService.veriftStaffAccount(staffAccountDto);
+        if (verify) {
+            session.setAttribute("userId", staffAccountDto.getUserId());
             return ResponseEntity.ok("Login successful!");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
+        else
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Id or password.");
     }
 
+    /**
+     * Staff logout
+     * @param session
+     * @return
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpSession session) {
+        session.invalidate();
+        return ResponseEntity.ok("Logout successful!");
+    }
 }
