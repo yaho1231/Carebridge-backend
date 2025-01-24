@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.sql.Date;
 import java.time.LocalDateTime;
 
 @Entity
@@ -50,6 +50,8 @@ public class Patient {
     @Column(name = "email", nullable = false) // Not Null 제약 조건 설정
     private String email;
 
+    @Column(name = "hospitalization_date") // hospitalization_date 컬럼과 매핑
+    private Date hospitalizationDate; // 입원 날짜
     // 성별을 Enum 으로 정의 (Male/Female)
     public enum Gender {
         Male, Female

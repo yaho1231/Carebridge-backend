@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.sql.Date;
 import java.time.LocalDateTime;
 
 /**
@@ -69,4 +69,9 @@ public class PatientDto {
      * 환자의 Email
      */
     private String email;
+
+    /**
+     * 입원 날짜
+     */
+    private Date hospitalizationDate;
 }

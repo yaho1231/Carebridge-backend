@@ -72,6 +72,7 @@ public class PatientService {
         patientDto.setHospitalId(patient.getHospitalId());
         patientDto.setChatRoomId(patient.getChatRoomId());
         patientDto.setDepartment(patient.getDepartment());
+        patientDto.setHospitalizationDate(patient.getHospitalizationDate());
         return patientDto;
     }
 
