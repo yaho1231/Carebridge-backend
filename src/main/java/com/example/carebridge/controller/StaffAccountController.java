@@ -26,7 +26,7 @@ public class StaffAccountController {
      * @param staffAccountDto
      * @return
      */
-    @PostMapping("login")
+    @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody StaffAccountDto staffAccountDto, HttpSession session) {
         Boolean verify = staffAccountService.veriftStaffAccount(staffAccountDto);
         if (verify) {

@@ -73,15 +73,14 @@ public class HospitalInformationController {
     /**
      * 새로운 병원 정보를 추가합니다.
      *
-     * @param hospital_id 병원 ID
      * @param hospitalInformationDto 병원 정보 DTO
      * @return 성공 메시지
      */
-    @PostMapping("/{hospital_id}")
+    @PostMapping()
     @ResponseBody
-    public ResponseEntity<String> addHospitalInformation(@PathVariable int hospital_id, @RequestBody HospitalInformationDto hospitalInformationDto) {
+    public ResponseEntity<String> addHospitalInformation(@RequestBody HospitalInformationDto hospitalInformationDto) {
         try {
-            hospitalInformationService.addHospitalInformation(hospital_id, hospitalInformationDto);
+            hospitalInformationService.addHospitalInformation(hospitalInformationDto);
             return ResponseEntity.ok("Hospital information added successfully");
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error adding hospital information: " + e.getMessage());

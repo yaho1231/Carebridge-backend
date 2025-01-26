@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface HospitalInformationRepository extends JpaRepository<HospitalInformation, Integer> {
-    List<HospitalInformation> findAllByHospital(Hospital hospital);
-    HospitalInformation findByHospitalAndTitle(Hospital hospital, String title);
+public interface HospitalRepository extends JpaRepository<Hospital, Long> {
+    Hospital findByHospitalId(Integer hospitalId);
 }

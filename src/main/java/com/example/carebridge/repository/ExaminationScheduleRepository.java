@@ -1,6 +1,7 @@
 package com.example.carebridge.repository;
 
 import com.example.carebridge.entity.ExaminationSchedule;
+import com.example.carebridge.entity.Patient;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,9 +13,9 @@ public interface ExaminationScheduleRepository extends JpaRepository<Examination
     /**
      * 환자의 ID로 검사 일정을 조회합니다.
      *
-     * @param patientId 환자의 ID
+     * @param patient 환자의 ID
      * @return 환자의 검사 일정 목록
      */
-    List<ExaminationSchedule> findByPatientIdOrderByScheduleDateDesc(Integer patientId);
+    List<ExaminationSchedule> findByPatient(Patient patient);
 
 }

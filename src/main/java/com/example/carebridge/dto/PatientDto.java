@@ -73,5 +73,10 @@ public class PatientDto {
     /**
      * 입원 날짜
      */
-    private Date hospitalizationDate;
+    private LocalDateTime hospitalizationDate;
+
+    /**
+     * User account Id
+     */
+    private Integer userId;
 }
