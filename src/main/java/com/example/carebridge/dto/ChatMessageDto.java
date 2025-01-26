@@ -4,6 +4,8 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 /**
  * ChatMessageDto��� 채팅 메시지의 정보를 담고 있는 데이터 전송 객체입니다.
  */
@@ -19,7 +21,7 @@ public class ChatMessageDto {
 
     private String messageContent; // 메시지 내용
 
-    private String timestamp; // 메시지 발송 시간
+    private LocalDateTime timestamp; // 메시지 발송 시간
 
     private Boolean readStatus; // 메시지 읽음 여부
 

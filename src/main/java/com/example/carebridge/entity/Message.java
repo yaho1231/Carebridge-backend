@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -24,7 +26,7 @@ public class Message {
     private String messageContent; // 메시지 내용
 
     @Column(name = "message_timestamp", nullable = false) // 타임스탬프 컬럼과 매핑
-    private String timestamp; // 메시지 발송 시간
+    private LocalDateTime timestamp; // 메시지 발송 시간
 
     @Column(name = "readstatus", nullable = false) // 읽음 여부 컬럼과 매핑 (기본값 false)
     private Boolean readStatus; // 메시지 읽음 여부

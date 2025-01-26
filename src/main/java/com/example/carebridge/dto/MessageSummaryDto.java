@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 /**
  * MessageSummaryDto 는 메시지 요약 정보를 담고 있는 데이터 전송 객체입니다.
@@ -33,7 +34,7 @@ public class MessageSummaryDto {
     /**
      * 마지막 메시지 시간
      */
-    private Timestamp lastMessageTime; // 마지막 메시지 시간
+    private LocalDateTime lastMessageTime; // 마지막 메시지 시간
 
     /**
      * 읽음 상태

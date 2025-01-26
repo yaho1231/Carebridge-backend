@@ -12,6 +12,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -138,7 +139,7 @@ public class MessageController {
      */
     @GetMapping("/timestamp")
     @ResponseBody
-    public ResponseEntity<String> getMessageTimestamp(@RequestParam Integer patientId, @RequestParam Integer messageId) {
+    public ResponseEntity<LocalDateTime> getMessageTimestamp(@RequestParam Integer patientId, @RequestParam Integer messageId) {
         try {
             List<Message> patientMessageList = messageService.getMessagesByPatientId(patientId);
             for (Message message : patientMessageList) {
