@@ -1,8 +1,10 @@
 package com.example.carebridge.service;
 
 import com.example.carebridge.dto.HospitalInformationDto;
+import com.example.carebridge.entity.Hospital;
 import com.example.carebridge.entity.HospitalInformation;
 import com.example.carebridge.repository.HospitalInformationRepository;
+import com.example.carebridge.repository.HospitalRepository;
 import org.apache.commons.text.similarity.CosineSimilarity;
 import org.springframework.stereotype.Service;
 
@@ -14,10 +16,12 @@ import java.util.stream.Collectors;
 @Service
 public class HospitalInformationService {
     private final HospitalInformationRepository hospitalInformationRepository;
+    private final HospitalRepository hospitalRepository;
 
     // HospitalInformationRepository 를 주입받는 생성자
-    public HospitalInformationService(HospitalInformationRepository hospitalInformationRepository) {
+    public HospitalInformationService(HospitalInformationRepository hospitalInformationRepository, HospitalRepository hospitalRepository) {
         this.hospitalInformationRepository = hospitalInformationRepository;
+        this.hospitalRepository = hospitalRepository;
     }
 
     /**
@@ -31,9 +35,10 @@ public class HospitalInformationService {
         CosineSimilarity cosineSimilarity = new CosineSimilarity(); // 코사인 유사도 계산을 위한 객체 생성
         double maxSimilarity = -1; // 최대 유사도 초기화
         HospitalInformation mostSimilarInfo = null; // 가장 유사한 병원 정보를 저장할 변수 초기화
+        Hospital hospital = hospitalRepository.findByHospitalId(hospital_id);
 
         // 주어진 병원 ID에 해당하는 모든 병원 정보를 순회
-        for (HospitalInformation hospitalInformation : hospitalInformationRepository.findAllByHospitalId(hospital_id)) {
+        for (HospitalInformation hospitalInformation : hospitalInformationRepository.findAllByHospital(hospital)) {
             // 프롬프트와 병원 정보의 유사도를 계산
             double similarity = cosineSimilarity.cosineSimilarity(
                     Arrays.stream(prompt.split(" "))
@@ -58,12 +63,13 @@ public class HospitalInformationService {
      * @return 병원 정보가 담긴 HospitalInformationDto 리스트
      */
     public List<HospitalInformationDto> getHospitalInformationList(int hospital_id) {
-        List<HospitalInformation> hospitalInformationList = hospitalInformationRepository.findAllByHospitalId(hospital_id);
+        Hospital hospital = hospitalRepository.findByHospitalId(hospital_id);
+        List<HospitalInformation> hospitalInformationList = hospitalInformationRepository.findAllByHospital(hospital);
         List<HospitalInformationDto> hospitalInformationDtoList = new ArrayList<>();
         HospitalInformationDto hospitalInformationDto = new HospitalInformationDto();
         for (HospitalInformation hospitalInformation : hospitalInformationList) {
             hospitalInformationDto.setId(hospitalInformation.getId());
-            hospitalInformationDto.setHospitalId(hospitalInformation.getHospitalId());
+            hospitalInformationDto.setHospitalId(hospitalInformation.getHospital().getHospitalId());
             hospitalInformationDto.setInformation(hospitalInformation.getInformation());
             hospitalInformationDto.setTitle(hospitalInformation.getTitle());
             hospitalInformationDtoList.add(hospitalInformationDto);
@@ -79,20 +85,20 @@ public class HospitalInformationService {
      * @return 병원 정보 내용
      */
     public String getHospitalInformation(Integer hospital_id, String title) {
-        HospitalInformation hospitalInformation = hospitalInformationRepository.findByHospitalIdAndTitle(hospital_id, title);
+        Hospital hospital = hospitalRepository.findByHospitalId(hospital_id);
+        HospitalInformation hospitalInformation = hospitalInformationRepository.findByHospitalAndTitle(hospital, title);
         return hospitalInformation.getInformation();
     }
 
     /**
      * 새로운 병원 정보를 추가합니다.
      *
-     * @param hospital_id 병원 ID
      * @param hospitalInformationDto 병원 정보 DTO
      */
-    public void addHospitalInformation(int hospital_id, HospitalInformationDto hospitalInformationDto) {
+    public void addHospitalInformation(HospitalInformationDto hospitalInformationDto) {
+        Hospital hospital = hospitalRepository.findByHospitalId(hospitalInformationDto.getHospitalId());
         HospitalInformation hospitalInformation = new HospitalInformation();
-        hospitalInformation.setHospitalId(hospital_id);
-        hospitalInformation.setHospitalId(hospitalInformationDto.getHospitalId());
+        hospitalInformation.setHospital(hospital);
         hospitalInformation.setCategory(hospitalInformationDto.getCategory());
         hospitalInformation.setTitle(hospitalInformationDto.getTitle());
         hospitalInformation.setInformation(hospitalInformationDto.getInformation());
@@ -107,7 +113,8 @@ public class HospitalInformationService {
      * @param information 새로운 정보 내용
      */
     public void updateHospitalInformation(int hospital_id, String title, String information) {
-        HospitalInformation hospitalInformation = hospitalInformationRepository.findByHospitalIdAndTitle(hospital_id, title);
+        Hospital hospital = hospitalRepository.findByHospitalId(hospital_id);
+        HospitalInformation hospitalInformation = hospitalInformationRepository.findByHospitalAndTitle(hospital, title);
         hospitalInformation.setInformation(information);
         hospitalInformationRepository.save(hospitalInformation);
     }
@@ -119,7 +126,8 @@ public class HospitalInformationService {
      * @param title 정보 제목
      */
     public void deleteHospitalInformation(int hospital_id, String title) {
-        HospitalInformation hospitalInformation = hospitalInformationRepository.findByHospitalIdAndTitle(hospital_id, title);
+        Hospital hospital = hospitalRepository.findByHospitalId(hospital_id);
+        HospitalInformation hospitalInformation = hospitalInformationRepository.findByHospitalAndTitle(hospital, title);
         hospitalInformationRepository.delete(hospitalInformation);
     }
 }

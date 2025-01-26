@@ -1,10 +1,13 @@
 package com.example.carebridge.entity;
 
+import com.example.carebridge.dto.PatientDto;
+import com.example.carebridge.repository.PatientRepository;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.sql.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -20,11 +23,15 @@ public class Patient {
     @Column(name = "phone_number", nullable = false, unique = true) // phone_number 컬럼과 매핑, 고유값 설정
     private String phoneNumber; // 환자 전화번호
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
+    private UserAccount userAccount;  // UserAccount와의 1:1 관계
+
     @Column(nullable = false) // Not Null 제약 조건 설정
     private String name; // 환자 이름
 
     @Column(name = "birth_date", nullable = false) // birth_date 컬럼과 매핑
-    private LocalDate birthDate; // 환자 생년월일
+    private LocalDateTime birthDate; // 환자 생년월일
 
     @Enumerated(EnumType.STRING) // Enum 타입을 문자열로 저장
     @Column(nullable = false) // Not Null 제약 조건 설정
@@ -46,8 +53,29 @@ public class Patient {
     @Column(name = "department") // department 컬럼과 매핑
     private String department;
 
+    @Column(name = "email", nullable = false) // Not Null 제약 조건 설정
+    private String email;
+
+    @Column(name = "hospitalization_date") // hospitalization_date 컬럼과 매핑
+    private LocalDateTime hospitalizationDate; // 입원 날짜
+
     // 성별을 Enum 으로 정의 (Male/Female)
     public enum Gender {
         Male, Female
+    }
+
+    public void update(PatientDto patientDto, UserAccount userAccount) {
+        this.phoneNumber = patientDto.getPhoneNumber();
+        this.userAccount = userAccount;
+        this.name = patientDto.getName();
+        this.birthDate = patientDto.getBirthDate();
+        this.gender = patientDto.getGender();
+        this.guardianContact = patientDto.getGuardianContact();
+        this.hospitalLocation = patientDto.getHospitalLocation();
+        this.hospitalId = patientDto.getHospitalId();
+        this.chatRoomId = patientDto.getChatRoomId();
+        this.department = patientDto.getDepartment();
+        this.email = patientDto.getEmail();
+        this.hospitalizationDate = patientDto.getHospitalizationDate();
     }
 }

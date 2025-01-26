@@ -1,12 +1,12 @@
 package com.example.carebridge.dto;
 
-import com.example.carebridge.entity.Guardian;
 import com.example.carebridge.entity.Patient;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.sql.Date;
+import java.time.LocalDateTime;
 
 /**
  * PatientDto 는 환자 정보를 전송하기 위한 데이터 전송 객체입니다.
@@ -33,7 +33,7 @@ public class PatientDto {
     /**
      * 환자의 생년월일
      */
-    private LocalDate birthDate; // 환자 생년월일
+    private LocalDateTime birthDate; // 환자 생년월일
 
     /**
      * 환자의 성별 (남성/여성)
@@ -64,4 +64,19 @@ public class PatientDto {
      * 부서 정보
      */
     private String department; // 부서
+
+    /**
+     * 환자의 Email
+     */
+    private String email;
+
+    /**
+     * 입원 날짜
+     */
+    private LocalDateTime hospitalizationDate;
+
+    /**
+     * User account Id
+     */
+    private Integer userId;
 }

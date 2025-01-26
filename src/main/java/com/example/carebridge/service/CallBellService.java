@@ -5,6 +5,7 @@ import com.example.carebridge.dto.RequestDto;
 import com.example.carebridge.entity.ChatRoom;
 import com.example.carebridge.entity.Request;
 import com.example.carebridge.repository.ChatRoomRepository;
+import com.example.carebridge.repository.MedicalStaffRepository;
 import com.example.carebridge.repository.RequestRepository;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,12 +21,14 @@ public class CallBellService {
 
     private final ChatRoomRepository chatRoomRepository;
     private final RequestRepository requestRepository;
+    private final MedicalStaffRepository medicalStaffRepository;
     private MedicalStaffService medicalStaffService;
 
     @Autowired
-    public CallBellService(ChatRoomRepository chatRoomRepository, RequestRepository requestRepository) {
+    public CallBellService(ChatRoomRepository chatRoomRepository, RequestRepository requestRepository, MedicalStaffRepository medicalStaffRepository) {
         this.chatRoomRepository = chatRoomRepository;
         this.requestRepository = requestRepository;
+        this.medicalStaffRepository = medicalStaffRepository;
     }
 
     /**
@@ -52,7 +55,8 @@ public class CallBellService {
      */
     public ChatRoomDto createChatRoom(Integer patientId, String department) {
         ChatRoomDto chatRoomDto = new ChatRoomDto();
-        chatRoomDto.setRoomId(UUID.randomUUID().toString());
+        String roomId = medicalStaffRepository.findAllByDepartment(department).getMedicalStaffId().toString() + "_" + patientId.toString();
+        chatRoomDto.setRoomId(roomId);
         chatRoomDto.setPatientId(patientId);
         chatRoomDto.setMedicalStaffId(medicalStaffService.findAllByDepartment(department).getMedicalStaffId());
 
