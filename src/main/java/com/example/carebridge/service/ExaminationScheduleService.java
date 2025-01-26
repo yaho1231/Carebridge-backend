@@ -2,6 +2,7 @@ package com.example.carebridge.service;
 
 import com.example.carebridge.dto.ExaminationScheduleDto;
 import com.example.carebridge.entity.ExaminationSchedule;
+import com.example.carebridge.entity.Patient;
 import com.example.carebridge.repository.ExaminationScheduleRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
@@ -22,11 +23,11 @@ public class ExaminationScheduleService {
     /**
      * 환자 ID로 스케줄을 조회합니다.
      *
-     * @param patientId 환자 ID
+     * @param patient 환자 ID
      * @return 환자의 검사 일정 목록
      */
-    public List<ExaminationScheduleDto> getSchedules(Integer patientId) {
-        List<ExaminationSchedule> schedules = scheduleRepository.findByPatientIdOrderByScheduleDateDesc(patientId);
+    public List<ExaminationScheduleDto> getSchedules(Patient patient) {
+        List<ExaminationSchedule> schedules = scheduleRepository.findByPatient(patient);
         List<ExaminationScheduleDto> examinationScheduleDtoList = new ArrayList<>();
         for (ExaminationSchedule schedule : schedules) {
             ExaminationScheduleDto examinationScheduleDto = getExaminationScheduleDto(schedule);
@@ -45,10 +46,10 @@ public class ExaminationScheduleService {
     private static ExaminationScheduleDto getExaminationScheduleDto(ExaminationSchedule schedule) {
         ExaminationScheduleDto examinationScheduleDto = new ExaminationScheduleDto();
         examinationScheduleDto.setId(schedule.getId());
-        examinationScheduleDto.setPatientId(schedule.getPatientId());
+        examinationScheduleDto.setPatientId(schedule.getPatient().getPatientId());
         examinationScheduleDto.setScheduleDate(schedule.getScheduleDate());
         examinationScheduleDto.setCategory(schedule.getCategory());
-        examinationScheduleDto.setMedicalStaffId(schedule.getMedicalStaffId());
+        examinationScheduleDto.setMedicalStaffId(schedule.getMedicalStaff().getMedicalStaffId());
         examinationScheduleDto.setDetails(schedule.getDetails());
         return examinationScheduleDto;
     }

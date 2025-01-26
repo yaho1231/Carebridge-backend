@@ -13,8 +13,9 @@ public class HospitalInformation {
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 기본 키 자동 증가 설정
     private Integer id; // 병원 정보 고유 ID
 
-    @Column(name = "hospital_id", nullable = false)
-    private Integer hospitalId; // 병원 ID
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hospital_id", nullable = false) // 외래 키 설정
+    private Hospital hospital; // Hospital과의 관계
 
     @Column(name = "category") // 정보 카테고리
     private String category; // 정보 카테고리
