@@ -187,7 +187,7 @@ public class MessageService {
                     patientRepository.findByPatientId(recentMessage.getPatientId()).getName(), // 발신자 이름을 문자열로 변환하여 사용
                     recentMessage.getChatRoomId(),
                     recentMessage.getMessageContent(),
-                    Timestamp.valueOf(recentMessage.getTimestamp()),
+                    Timestamp.valueOf(recentMessage.getTimestamp()).toLocalDateTime(),
                     recentMessage.getReadStatus()
             );
 
