@@ -30,4 +30,6 @@ public class ChatMessageDto {
     private Integer sender_id; // 발신자 ID
 
     private Boolean isPatient; // 환자 여부
+
+    private String type;
 }
