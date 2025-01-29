@@ -27,7 +27,7 @@ public class ChatMessageDto {
 
     private String chatRoomId; // 채팅방 ID
 
-    private Integer senderId; // 발신자 ID
+    private Integer sender_id; // 발신자 ID
 
     private Boolean isPatient; // 환자 여부
 
