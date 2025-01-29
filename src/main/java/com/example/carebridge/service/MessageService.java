@@ -9,6 +9,8 @@ import com.example.carebridge.repository.PatientRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -28,32 +30,38 @@ public class MessageService {
         this.patientRepository = patientRepository;
     }
 
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
+
     /**
      * 새로운 메시지를 저장합니다.
      *
      * @param chatMessageDto 저장할 메시지 객체
+     * @return
      */
-    public void saveMessage(ChatMessageDto chatMessageDto) {
+    public Message saveMessage(ChatMessageDto chatMessageDto) {
         Message message = new Message();
         Integer patientId;
         Integer medicalStaffId;
         String roomId = chatMessageDto.getChatRoomId();
 
         if (chatMessageDto.getIsPatient()) {
-            patientId = chatMessageDto.getSenderId();
+            patientId = chatMessageDto.getSender_id();
             medicalStaffId = chatRoomRepository.findByChatRoomId(roomId).getMedicalStaffId();
         } else {
-            medicalStaffId = chatMessageDto.getSenderId();
+            medicalStaffId = chatMessageDto.getSender_id();
             patientId = chatRoomRepository.findByChatRoomId(roomId).getPatientId();
         }
         message.setPatientId(patientId);
         message.setMedicalStaffId(medicalStaffId);
         message.setChatRoomId(roomId);
         message.setMessageContent(chatMessageDto.getMessageContent());
-        message.setSender_id(chatMessageDto.getSenderId());
+        message.setSender_id(chatMessageDto.getSender_id());
         message.setReadStatus(chatMessageDto.getReadStatus());
         message.setTimestamp(chatMessageDto.getTimestamp());
         messageRepository.save(message);
+
+        return message;
     }
 
     /**
