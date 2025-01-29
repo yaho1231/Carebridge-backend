@@ -40,17 +40,17 @@ public class MessageService {
         String roomId = chatMessageDto.getChatRoomId();
 
         if (chatMessageDto.getIsPatient()) {
-            patientId = chatMessageDto.getSender_id();
+            patientId = chatMessageDto.getSenderId();
             medicalStaffId = chatRoomRepository.findByChatRoomId(roomId).getMedicalStaffId();
         } else {
-            medicalStaffId = chatMessageDto.getSender_id();
+            medicalStaffId = chatMessageDto.getSenderId();
             patientId = chatRoomRepository.findByChatRoomId(roomId).getPatientId();
         }
         message.setPatientId(patientId);
         message.setMedicalStaffId(medicalStaffId);
         message.setChatRoomId(roomId);
         message.setMessageContent(chatMessageDto.getMessageContent());
-        message.setSender_id(chatMessageDto.getSender_id());
+        message.setSender_id(chatMessageDto.getSenderId());
         message.setReadStatus(chatMessageDto.getReadStatus());
         message.setTimestamp(chatMessageDto.getTimestamp());
         messageRepository.save(message);
