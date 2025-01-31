@@ -108,7 +108,9 @@ public class UserAccountController {
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody VerifyAccountDto verifyAccountDto, HttpSession session) {
         boolean isVerified = userAccountService.verifyOtp(verifyAccountDto);
-        if (isVerified){
+        boolean isValid = userAccountService.isValidUserAccount(verifyAccountDto.getPhone());
+
+        if (isVerified && isValid){
             session.setAttribute("userPhone", verifyAccountDto.getPhone());
             return ResponseEntity.ok("Login successful!");
         }

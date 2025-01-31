@@ -77,6 +77,12 @@ public class UserAccountService {
                 userAccount.getOtpExpiry().isAfter(LocalDateTime.now());
     }
 
+    public boolean isValidUserAccount(String phone_number){
+        UserAccount userAccount = userAccountRepository.findByPhoneNumber(phone_number);
+        return !userAccount.getName().equals("UserName") &&
+                !userAccount.getEmail().equals("email@email.com");
+    }
+
     public String generateRandomNumber(int num) {
         Random rand = new Random();
         StringBuilder numStr = new StringBuilder();
