@@ -3,7 +3,6 @@ package com.example.carebridge.controller;
 import com.example.carebridge.dto.PatientDto;
 import com.example.carebridge.entity.Patient;
 import com.example.carebridge.service.PatientService;
-import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -76,10 +75,11 @@ public class PatientController {
     }
 
     /**
-     * Patient 정보 생성
-     * User_Account가 이미 생성되어 있어야 함.
-     * @param patientDto
-     * @return
+     * 환자 정보를 생성합니다.
+     * User\_Account 가 이미 생성되어 있어야 합니다.
+     *
+     * @param patientDto 환자 DTO
+     * @return 생성된 환자 객체와 HTTP 상태 코드
      */
     @PostMapping("/user")
     @ResponseBody
@@ -87,8 +87,29 @@ public class PatientController {
         try {
             Patient patient1 = patientService.createPatient(patientDto);
             return new ResponseEntity<>(patient1, HttpStatus.OK);
-        }catch (Exception e) {
+        } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * 환자의 전화번호를 업데이트합니다.
+     *
+     * @param patientId 환자의 ID
+     * @param phoneNumber 새로운 전화번호
+     * @return HTTP 상태 코드
+     */
+    @PutMapping("/phone/{patient_id}")
+    @ResponseBody
+    public ResponseEntity<Void> updatePhoneNumber(@PathVariable("patient_id") int patientId, @RequestBody String phoneNumber) {
+        try {
+            patientService.updatePhoneNumber(patientId, phoneNumber);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+
 }
