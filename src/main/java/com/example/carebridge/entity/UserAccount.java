@@ -35,7 +35,7 @@ public class UserAccount {
     @Column(nullable = false) // Not Null 제약 조건 설정
     private UserAccount.Gender gender; // 환자 성별 (Male/Female)
 
-    @Column(name = "email", nullable = false) // Not Null 제약 조건 설정
+    @Column(name = "email")
     private String email;
 
     @Column(name = "otp")
