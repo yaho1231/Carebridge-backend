@@ -39,10 +39,10 @@ public class MessageController {
         logger.info("Received message: {}", message);
 
         // 메시지를 데이터베이스에 저장합니다.
-        messageService.saveMessage(message);
+        Message savedMessage = messageService.saveMessage(message);
 
         // 수신된 메시지를 해당 채팅방의 구독자들에게 전송합니다.
-        messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), message);
+        messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), savedMessage);
     }
 
     /**

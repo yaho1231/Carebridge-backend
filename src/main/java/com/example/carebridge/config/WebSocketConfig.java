@@ -36,8 +36,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // "/ws-stomp" 엔드포인트를 등록하고 SockJS 폴백 옵션을 활성화합니다.
         registry.addEndpoint("/ws-stomp")
                 // 모든 출처를 허용합니다.
-                .setAllowedOriginPatterns("*")
+                .setAllowedOriginPatterns("*");
                 // SockJS 폴백 옵션을 활성화합니다.
-                .withSockJS();
+//                .withSockJS();
     }
 }
