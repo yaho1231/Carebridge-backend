@@ -19,8 +19,8 @@ public class UserAccount {
     @Column(name = "user_id") // user_id column mapping
     private Integer id; // User unique ID
 
-    @OneToOne(mappedBy = "userAccount", fetch = FetchType.LAZY)
-    private Patient patient;  // Patient와의 1:1 관계
+//    @OneToOne(mappedBy = "userAccount", fetch = FetchType.LAZY)
+//    private Patient patient;  // Patient와의 1:1 관계
 
     @Column(name = "name")
     private String name;
