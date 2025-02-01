@@ -77,7 +77,7 @@ public class PatientService {
      * @param patient 변환할 Patient 엔티티
      * @return 변환된 PatientDto 객체
      */
-    private PatientDto convertToDto(Patient patient) {
+    public PatientDto convertToDto(Patient patient) {
         PatientDto patientDto = new PatientDto();
         patientDto.setPatientId(patient.getPatientId());
         patientDto.setName(patient.getName());
