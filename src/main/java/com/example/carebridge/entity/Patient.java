@@ -23,9 +23,11 @@ public class Patient {
     @Column(name = "phone_number", nullable = false, unique = true) // phone_number 컬럼과 매핑, 고유값 설정
     private String phoneNumber; // 환자 전화번호
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
-    private UserAccount userAccount;  // UserAccount와의 1:1 관계
+//    @OneToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
+//    private UserAccount userAccount;  // UserAccount와의 1:1 관계
+    @Column(name = "user_id")
+    private Integer userId;
 
     @Column(nullable = false) // Not Null 제약 조건 설정
     private String name; // 환자 이름
@@ -66,7 +68,8 @@ public class Patient {
 
     public void update(PatientDto patientDto, UserAccount userAccount) {
         this.phoneNumber = patientDto.getPhoneNumber();
-        this.userAccount = userAccount;
+//        this.userAccount = userAccount;
+        this.userId = userAccount.getId();
         this.name = patientDto.getName();
         this.birthDate = patientDto.getBirthDate();
         this.gender = patientDto.getGender();
