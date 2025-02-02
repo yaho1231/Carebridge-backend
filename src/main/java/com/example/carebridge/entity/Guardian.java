@@ -11,7 +11,6 @@ import lombok.Setter;
 public class Guardian {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // 기본 키 자동 증가 설정
     @Column(name = "guardian_id") // 보호자 ID 컬럼과 매핑
     private String guardianId; // 보호자 고유 ID
 
