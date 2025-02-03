@@ -69,7 +69,7 @@ public class UserAccountController {
      * @return
      */
     @PostMapping("/verify-otp")
-    public ResponseEntity<String> verify(VerifyAccountDto verifyAccountDto) {
+    public ResponseEntity<String> verify(@RequestBody VerifyAccountDto verifyAccountDto) {
 //        HttpSession session = request.getSession();
         boolean isVerified = userAccountService.verifyOtp(verifyAccountDto);
 
