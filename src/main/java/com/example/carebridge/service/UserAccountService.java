@@ -31,11 +31,12 @@ public class UserAccountService {
         return convertUserAccountToUserAccountDto(userAccount);
     }
 
-    public UserAccountDto createUserAccount(UserAccountDto userAccountDto){
-        UserAccount userAccount = new UserAccount();
+    public void createUserAccount(UserAccountDto userAccountDto){
+        UserAccount userAccount = userAccountRepository.findByPhoneNumber(userAccountDto.getPhoneNumber());
+        if(userAccount == null)
+            userAccount = new UserAccount();
         userAccount.update(userAccountDto);
         userAccountRepository.save(userAccount);
-        return convertUserAccountToUserAccountDto(userAccount);
     }
 
     public UserAccountDto updateUserAccount(String phone_number, UserAccountDto userAccountDto){
