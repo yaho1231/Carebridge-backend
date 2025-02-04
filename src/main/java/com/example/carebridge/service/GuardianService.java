@@ -3,6 +3,7 @@ package com.example.carebridge.service;
 import com.example.carebridge.dto.GuardianDto;
 import com.example.carebridge.entity.Guardian;
 import com.example.carebridge.repository.GuardianRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -75,6 +76,7 @@ public class GuardianService {
      *
      * @param phone_number 보호자 전화번호
      */
+    @Transactional
     public void deleteGuardian(String phone_number) {
         guardianRepository.deleteByPhoneNumber(phone_number); // 전화번호로 보호자 정보 삭제
     }

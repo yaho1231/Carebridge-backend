@@ -19,8 +19,8 @@ public class UserAccount {
     @Column(name = "user_id") // user_id column mapping
     private Integer id; // User unique ID
 
-    @OneToOne(mappedBy = "userAccount", fetch = FetchType.LAZY)
-    private Patient patient;  // Patient와의 1:1 관계
+//    @OneToOne(mappedBy = "userAccount", fetch = FetchType.LAZY)
+//    private Patient patient;  // Patient와의 1:1 관계
 
     @Column(name = "name")
     private String name;
@@ -35,7 +35,7 @@ public class UserAccount {
     @Column(nullable = false) // Not Null 제약 조건 설정
     private UserAccount.Gender gender; // 환자 성별 (Male/Female)
 
-    @Column(name = "email", nullable = false) // Not Null 제약 조건 설정
+    @Column(name = "email")
     private String email;
 
     @Column(name = "otp")

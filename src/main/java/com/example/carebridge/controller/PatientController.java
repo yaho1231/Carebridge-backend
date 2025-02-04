@@ -3,18 +3,17 @@ package com.example.carebridge.controller;
 import com.example.carebridge.dto.PatientDto;
 import com.example.carebridge.entity.Patient;
 import com.example.carebridge.service.PatientService;
-import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/patient")
 public class PatientController {
     private final PatientService patientService;
-
     public PatientController(PatientService patientService) {
         this.patientService = patientService;
     }
@@ -46,16 +45,9 @@ public class PatientController {
      */
     @GetMapping("/user/{patient_id}")
     @ResponseBody
-    public ResponseEntity<Patient> getPatientById(@PathVariable("patient_id") int patientId) {
-        try {
-            Patient patient = patientService.getPatientById(patientId);
-            if (patient == null) {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            return new ResponseEntity<>(patient, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<PatientDto> getPatientById(@PathVariable("patient_id") int patientId) {
+        PatientDto patientDto = patientService.convertToDto(patientService.getPatientById(patientId));
+        return new ResponseEntity<>(patientDto, HttpStatus.OK);
     }
 
     /**
@@ -76,10 +68,11 @@ public class PatientController {
     }
 
     /**
-     * Patient 정보 생성
-     * User_Account가 이미 생성되어 있어야 함.
-     * @param patientDto
-     * @return
+     * 환자 정보를 생성합니다.
+     * User\_Account 가 이미 생성되어 있어야 합니다.
+     *
+     * @param patientDto 환자 DTO
+     * @return 생성된 환자 객체와 HTTP 상태 코드
      */
     @PostMapping("/user")
     @ResponseBody
@@ -87,7 +80,25 @@ public class PatientController {
         try {
             Patient patient1 = patientService.createPatient(patientDto);
             return new ResponseEntity<>(patient1, HttpStatus.OK);
-        }catch (Exception e) {
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 환자의 전화번호를 업데이트합니다.
+     *
+     * @param patientId 환자의 ID
+     * @param request {"phoneNumber": "010xxxxxxxx"}
+     * @return HTTP 상태 코드
+     */
+    @PutMapping("/phone/{patient_id}")
+    @ResponseBody
+    public ResponseEntity<Void> updatePhoneNumber(@PathVariable("patient_id") int patientId, @RequestBody Map<String, String> request) {
+        try {
+            patientService.updatePhoneNumber(patientId, request.get("phoneNumber"));
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

@@ -50,6 +50,14 @@ public class UserAccountService {
         LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(5);
 
         UserAccount userAccount = userAccountRepository.findByPhoneNumber(phone_number);
+        if(userAccount == null){
+            userAccount = new UserAccount();
+            userAccount.setName("UserName");
+            userAccount.setPhoneNumber(phone_number);
+            userAccount.setBirthDate(LocalDateTime.now());
+            userAccount.setGender(UserAccount.Gender.Male);
+            userAccount.setEmail("email@email.com");
+        }
         userAccount.setOtp(otp);
         userAccount.setOtpExpiry(expiryTime);
         userAccountRepository.save(userAccount);
@@ -57,10 +65,9 @@ public class UserAccountService {
         Message message = new Message();
         message.setFrom("01032330241");
         message.setTo(phone_number);
-        message.setText("[CareBridge] 인증번호는 [ " + otp + " ] 입니다");
+        message.setText("[CareBridge] 인증번호는 \n[ " + otp + " ] 입니다");
 
         this.smsMessageService.sendOne(new SingleMessageSendingRequest(message));
-//        System.out.println(otp);
     }
 
     public boolean verifyOtp(VerifyAccountDto verifyAccountDto) {
@@ -68,6 +75,12 @@ public class UserAccountService {
 
         return userAccount.getOtp().equals(verifyAccountDto.getOtp()) &&
                 userAccount.getOtpExpiry().isAfter(LocalDateTime.now());
+    }
+
+    public boolean isValidUserAccount(String phone_number){
+        UserAccount userAccount = userAccountRepository.findByPhoneNumber(phone_number);
+        return !userAccount.getName().equals("UserName") &&
+                !userAccount.getEmail().equals("email@email.com");
     }
 
     public String generateRandomNumber(int num) {

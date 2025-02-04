@@ -58,6 +58,12 @@ public class PatientService {
         return patientRepository.findByPatientId(patientId);
     }
 
+    /**
+     * 새로운 환자 정보를 생성합니다.
+     *
+     * @param patient 환자 DTO
+     * @return 생성된 환자 객체
+     */
     public Patient createPatient(PatientDto patient) {
         Patient patient1 = new Patient();
         UserAccount userAccount = userAccountRepository.findByPhoneNumber(patient.getPhoneNumber());
@@ -71,7 +77,7 @@ public class PatientService {
      * @param patient 변환할 Patient 엔티티
      * @return 변환된 PatientDto 객체
      */
-    private PatientDto convertToDto(Patient patient) {
+    public PatientDto convertToDto(Patient patient) {
         PatientDto patientDto = new PatientDto();
         patientDto.setPatientId(patient.getPatientId());
         patientDto.setName(patient.getName());
@@ -95,5 +101,17 @@ public class PatientService {
      */
     public Boolean isChatRoomExist(Integer patientId) {
         return patientRepository.findByPatientId(patientId).getChatRoomId() != null;
+    }
+
+    /**
+     * 환자의 전화번호를 업데이트합니다.
+     *
+     * @param patientId 환자의 ID
+     * @param phoneNumber 새로운 전화번호
+     */
+    public void updatePhoneNumber(Integer patientId, String phoneNumber) {
+        Patient patient = patientRepository.findByPatientId(patientId);
+        patient.setPhoneNumber(phoneNumber);
+        patientRepository.save(patient);
     }
 }
