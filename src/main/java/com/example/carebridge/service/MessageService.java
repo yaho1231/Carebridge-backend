@@ -6,6 +6,7 @@ import com.example.carebridge.dto.ChatRequestMsgDto;
 import com.example.carebridge.dto.MessageSummaryDto;
 import com.example.carebridge.entity.Message;
 import com.example.carebridge.repository.ChatRoomRepository;
+import com.example.carebridge.repository.HospitalRepository;
 import com.example.carebridge.repository.MessageRepository;
 import com.example.carebridge.repository.PatientRepository;
 import org.slf4j.Logger;
@@ -28,13 +29,15 @@ public class MessageService {
     private final PatientRepository patientRepository;
     private final ChatGPTService chatGPTService;
     private final HospitalInformationService hospitalInformationService;
+    private final HospitalRepository hospitalRepository;
 
-    public MessageService(MessageRepository messageRepository, ChatRoomRepository chatRoomRepository, PatientRepository patientRepository, ChatGPTService chatGPTService, HospitalInformationService hospitalInformationService) {
+    public MessageService(MessageRepository messageRepository, ChatRoomRepository chatRoomRepository, PatientRepository patientRepository, ChatGPTService chatGPTService, HospitalInformationService hospitalInformationService, HospitalRepository hospitalRepository) {
         this.messageRepository = messageRepository;
         this.chatRoomRepository = chatRoomRepository;
         this.patientRepository = patientRepository;
         this.chatGPTService = chatGPTService;
         this.hospitalInformationService = hospitalInformationService;
+        this.hospitalRepository = hospitalRepository;
     }
 
     @Autowired
@@ -60,7 +63,10 @@ public class MessageService {
             ChatCompletionDto chatCompletionDto = new ChatCompletionDto(
                     "gpt-4o-mini-2024-07-18",
                     Collections.singletonList(new ChatRequestMsgDto("user",
-                            "다음 메시지를 반드시 정보성 질문, 의료진 도움요청 2개의 카테고리 중 하나로만 단답으로 분류하라. 메시지 :" + chatMessageDto.getMessageContent()))
+                            "다음 메시지를 반드시 정보성 질문, 의료진 도움요청 2개의 카테고리 중 하나로만 단답으로 분류하라. " +
+                                    "단순히 웹에서 정보 제공을 통해 처리 가능한 요청사항의 경우 정보성 질문에 해당한다. " +
+                                    "웹에서 처리 불가능하며 의료진이 필요한 요청사항의 경우 의료진 도움요청에 해당한다." +
+                                    "메시지 :" + chatMessageDto.getMessageContent()))
             );
             Map<String, Object> result = chatGPTService.prompt(chatCompletionDto);
             List<Map<String, Object>> choices = (List<Map<String, Object>>) result.get("choices");
@@ -90,12 +96,16 @@ public class MessageService {
         Integer patientId = chatMessageDto.getSenderId();
         String roomId = chatMessageDto.getChatRoomId();
         Integer medicalStaffId = chatRoomRepository.findByChatRoomId(roomId).getMedicalStaffId();
+        String hospitalName = hospitalRepository.findByHospitalId(chatMessageDto.getHospitalId()).getName();
 
         String mostSimilarInfo = hospitalInformationService.findMostSimilarHospitalInformation(chatMessageDto.getMessageContent(), chatMessageDto.getHospitalId()).getInformation();
         ChatCompletionDto chatCompletionDto = new ChatCompletionDto(
                 "gpt-4o-mini-2024-07-18",
                 Collections.singletonList(new ChatRequestMsgDto("user",
-                        "너는 병원에 소속된 의료진이야, 다음 내용을 기반으로 varchar(255) 크기 이내로 답변해 " + mostSimilarInfo + " 답변해야할 메시지 :" + chatMessageDto.getMessageContent()))
+                        "지금부터 너는 " + hospitalName +
+                                "병원에 소속된 의료진이다." +
+                                "다음 내용을 기반으로 varchar(255) 크기를 넘지 않게 답변하라 " + mostSimilarInfo +
+                                "답변해야할 메시지 :" + chatMessageDto.getMessageContent()))
         );
 
         Map<String, Object> result = chatGPTService.prompt(chatCompletionDto);
