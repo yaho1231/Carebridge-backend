@@ -1,6 +1,8 @@
 package com.example.carebridge.service;
 
+import com.example.carebridge.dto.ChatCompletionDto;
 import com.example.carebridge.dto.ChatMessageDto;
+import com.example.carebridge.dto.ChatRequestMsgDto;
 import com.example.carebridge.dto.MessageSummaryDto;
 import com.example.carebridge.entity.Message;
 import com.example.carebridge.repository.ChatRoomRepository;
@@ -14,6 +16,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,11 +26,15 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final PatientRepository patientRepository;
+    private final ChatGPTService chatGPTService;
+    private final HospitalInformationService hospitalInformationService;
 
-    public MessageService(MessageRepository messageRepository, ChatRoomRepository chatRoomRepository, PatientRepository patientRepository) {
+    public MessageService(MessageRepository messageRepository, ChatRoomRepository chatRoomRepository, PatientRepository patientRepository, ChatGPTService chatGPTService, HospitalInformationService hospitalInformationService) {
         this.messageRepository = messageRepository;
         this.chatRoomRepository = chatRoomRepository;
         this.patientRepository = patientRepository;
+        this.chatGPTService = chatGPTService;
+        this.hospitalInformationService = hospitalInformationService;
     }
 
     @Autowired
@@ -44,21 +51,67 @@ public class MessageService {
         Integer patientId;
         Integer medicalStaffId;
         String roomId = chatMessageDto.getChatRoomId();
+        String category = chatMessageDto.getCategory();
 
         if (chatMessageDto.getIsPatient()) {
-            patientId = chatMessageDto.getSender_id();
+            patientId = chatMessageDto.getSenderId();
             medicalStaffId = chatRoomRepository.findByChatRoomId(roomId).getMedicalStaffId();
+
+            ChatCompletionDto chatCompletionDto = new ChatCompletionDto(
+                    "gpt-4o-mini-2024-07-18",
+                    Collections.singletonList(new ChatRequestMsgDto("user",
+                            "다음 메시지를 반드시 정보성 질문, 의료진 도움요청 2개의 카테고리 중 하나로만 단답으로 분류하라. 메시지 :" + chatMessageDto.getMessageContent()))
+            );
+            Map<String, Object> result = chatGPTService.prompt(chatCompletionDto);
+            List<Map<String, Object>> choices = (List<Map<String, Object>>) result.get("choices");
+            Map<String, Object> getMessage = (Map<String, Object>) choices.get(0).get("message");
+            category = (String) getMessage.get("content");
         } else {
-            medicalStaffId = chatMessageDto.getSender_id();
+            medicalStaffId = chatMessageDto.getSenderId();
             patientId = chatRoomRepository.findByChatRoomId(roomId).getPatientId();
         }
         message.setPatientId(patientId);
         message.setMedicalStaffId(medicalStaffId);
         message.setChatRoomId(roomId);
         message.setMessageContent(chatMessageDto.getMessageContent());
-        message.setSender_id(chatMessageDto.getSender_id());
+        message.setSenderId(chatMessageDto.getSenderId());
         message.setReadStatus(chatMessageDto.getReadStatus());
         message.setTimestamp(chatMessageDto.getTimestamp());
+        message.setHospitalId(chatMessageDto.getHospitalId());
+        message.setCategory(category);
+
+        messageRepository.save(message);
+
+        return message;
+    }
+
+    public Message chatGptMessage(ChatMessageDto chatMessageDto) {
+        Message message = new Message();
+        Integer patientId = chatMessageDto.getSenderId();
+        String roomId = chatMessageDto.getChatRoomId();
+        Integer medicalStaffId = chatRoomRepository.findByChatRoomId(roomId).getMedicalStaffId();
+
+        String mostSimilarInfo = hospitalInformationService.findMostSimilarHospitalInformation(chatMessageDto.getMessageContent(), chatMessageDto.getHospitalId()).getInformation();
+        ChatCompletionDto chatCompletionDto = new ChatCompletionDto(
+                "gpt-4o-mini-2024-07-18",
+                Collections.singletonList(new ChatRequestMsgDto("user",
+                        "너는 병원에 소속된 의료진이야, 다음 내용을 기반으로 varchar(255) 크기 이내로 답변해 " + mostSimilarInfo + " 답변해야할 메시지 :" + chatMessageDto.getMessageContent()))
+        );
+
+        Map<String, Object> result = chatGPTService.prompt(chatCompletionDto);
+        List<Map<String, Object>> choices = (List<Map<String, Object>>) result.get("choices");
+        Map<String, Object> getMessage = (Map<String, Object>) choices.get(0).get("message");
+        String content = (String) getMessage.get("content");
+
+        message.setPatientId(patientId);
+        message.setMedicalStaffId(medicalStaffId);
+        message.setChatRoomId(roomId);
+        message.setMessageContent(content);
+        message.setSenderId(medicalStaffId);
+        message.setReadStatus(chatMessageDto.getReadStatus());
+        message.setTimestamp(LocalDateTime.now());
+        message.setHospitalId(chatMessageDto.getHospitalId());
+        message.setCategory("정보성 질문");
         messageRepository.save(message);
 
         return message;
