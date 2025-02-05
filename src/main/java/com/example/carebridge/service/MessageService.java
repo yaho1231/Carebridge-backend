@@ -58,7 +58,11 @@ public class MessageService {
 
         if (chatMessageDto.getIsPatient()) {
             patientId = chatMessageDto.getSenderId();
-            medicalStaffId = chatRoomRepository.findByChatRoomId(roomId).getMedicalStaffId();
+            medicalStaffId = chatRoomRepository.findByChatRoomId(roomId)
+                .orElseThrow(() -> {
+                    logger.error("채팅방을 찾을 수 없습니다 - 방 ID: {}", roomId);
+                    return new IllegalArgumentException("해당 채팅방이 존재하지 않습니다.");
+                }).getMedicalStaffId();
 
             ChatCompletionDto chatCompletionDto = new ChatCompletionDto(
                     "gpt-4o-mini-2024-07-18",
@@ -74,7 +78,11 @@ public class MessageService {
             category = (String) getMessage.get("content");
         } else {
             medicalStaffId = chatMessageDto.getSenderId();
-            patientId = chatRoomRepository.findByChatRoomId(roomId).getPatientId();
+            patientId = chatRoomRepository.findByChatRoomId(roomId)
+                .orElseThrow(() -> {
+                    logger.error("채팅방을 찾을 수 없습니다 - 방 ID: {}", roomId);
+                    return new IllegalArgumentException("해당 채팅방이 존재하지 않습니다.");
+                }).getPatientId();
         }
         message.setPatientId(patientId);
         message.setMedicalStaffId(medicalStaffId);
@@ -82,7 +90,7 @@ public class MessageService {
         message.setMessageContent(chatMessageDto.getMessageContent());
         message.setSenderId(chatMessageDto.getSenderId());
         message.setReadStatus(chatMessageDto.getReadStatus());
-        message.setTimestamp(chatMessageDto.getTimestamp());
+        message.setTimestamp(LocalDateTime.parse(chatMessageDto.getTimestamp()));
         message.setHospitalId(chatMessageDto.getHospitalId());
         message.setCategory(category);
 
@@ -95,10 +103,19 @@ public class MessageService {
         Message message = new Message();
         Integer patientId = chatMessageDto.getSenderId();
         String roomId = chatMessageDto.getChatRoomId();
-        Integer medicalStaffId = chatRoomRepository.findByChatRoomId(roomId).getMedicalStaffId();
-        String hospitalName = hospitalRepository.findByHospitalId(chatMessageDto.getHospitalId()).getName();
+        Integer medicalStaffId = chatRoomRepository.findByChatRoomId(roomId)
+            .orElseThrow(() -> {
+                logger.error("채팅방을 찾을 수 없습니다 - 방 ID: {}", roomId);
+                return new IllegalArgumentException("해당 채팅방이 존재하지 않습니다.");
+            }).getMedicalStaffId();
+        String hospitalName = hospitalRepository.findByHospitalId(chatMessageDto.getHospitalId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 병원을 찾을 수 없습니다."))
+                .getName();
 
-        String mostSimilarInfo = hospitalInformationService.findMostSimilarHospitalInformation(chatMessageDto.getMessageContent(), chatMessageDto.getHospitalId()).getInformation();
+        String mostSimilarInfo = Optional.ofNullable(hospitalInformationService.findMostSimilarHospitalInformation(
+                chatMessageDto.getMessageContent(), chatMessageDto.getHospitalId()))
+                .orElseThrow(() -> new IllegalArgumentException("관련된 병원 정보를 찾을 수 없습니다."))
+                .getInformation();
         ChatCompletionDto chatCompletionDto = new ChatCompletionDto(
                 "gpt-4o-mini-2024-07-18",
                 Collections.singletonList(new ChatRequestMsgDto("user",
@@ -133,7 +150,8 @@ public class MessageService {
      * @param messageId 메시지의 ID
      */
     public void updateReadStatus(Integer messageId) {
-        Message message = messageRepository.findByMessageId(messageId);
+        Message message = messageRepository.findByMessageId(messageId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 메시지를 찾을 수 없습니다."));
         message.setReadStatus(true);
         messageRepository.save(message);
     }
@@ -233,40 +251,33 @@ public class MessageService {
      * @return 메시지 요약 정보 리스트
      */
     public List<MessageSummaryDto> getSummaryMessageInformation(Integer medicalStaffId) {
-        // 의료진 ID로 메시지 목록을 조회합니다.
         List<Message> messages = messageRepository.findByMedicalStaffId(medicalStaffId);
 
-        // 메시지를 환자 ID 별로 그룹화합니다.
         Map<Integer, List<Message>> messagesByPatient = messages.stream()
                 .collect(Collectors.groupingBy(Message::getPatientId));
 
-        // 메시지 요약 정보를 저장할 리스트를 생성합니다.
         List<MessageSummaryDto> summaryList = new ArrayList<>();
 
-        // 각 환자별로 메시지 요약 정보를 생성합니다.
         for (Map.Entry<Integer, List<Message>> entry : messagesByPatient.entrySet()) {
             List<Message> patientMessages = entry.getValue();
 
-            // 메시지를 타임스탬프 기준으로 내림차순 정렬하여 가장 최근 메시지를 가져옵니다.
             patientMessages.sort(Comparator.comparing(Message::getTimestamp).reversed());
 
-            // 가장 최근 메시지를 가져옵니다.
             Message recentMessage = patientMessages.get(0);
 
-            // 메시지 요약 정보를 생성합니다.
             MessageSummaryDto summary = new MessageSummaryDto(
-                    patientRepository.findByPatientId(recentMessage.getPatientId()).getName(), // 발신자 이름을 문자열로 변환하여 사용
+                    patientRepository.findByPatientId(recentMessage.getPatientId())
+                            .orElseThrow(() -> new IllegalArgumentException("해당 환자를 찾을 수 없습니다."))
+                            .getName(),
                     recentMessage.getChatRoomId(),
                     recentMessage.getMessageContent(),
                     Timestamp.valueOf(recentMessage.getTimestamp()).toLocalDateTime(),
                     recentMessage.getReadStatus()
             );
 
-            // 메시지 요약 정보를 리스트에 추가합니다.
             summaryList.add(summary);
         }
 
-        // 메시지 요약 정보 리스트를 반환합니다.
         return summaryList;
     }
 }

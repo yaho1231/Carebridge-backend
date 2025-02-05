@@ -3,55 +3,60 @@ package com.example.carebridge.service;
 import com.example.carebridge.dto.ExaminationScheduleDto;
 import com.example.carebridge.entity.ExaminationSchedule;
 import com.example.carebridge.entity.Patient;
+import com.example.carebridge.mapper.ExaminationScheduleMapper;
 import com.example.carebridge.repository.ExaminationScheduleRepository;
-import org.jetbrains.annotations.NotNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+/**
+ * 검사 일정 관리 서비스
+ * 환자의 검사 일정을 조회, 등록, 수정, 삭제하는 기능을 제공하는 서비스 클래스입니다.
+ */
+@Slf4j
 @Service
 public class ExaminationScheduleService {
 
     private final ExaminationScheduleRepository scheduleRepository;
+    private final ExaminationScheduleMapper scheduleMapper;
 
-    // ExaminationScheduleRepository 를 주입받는 생성자
-    public ExaminationScheduleService(ExaminationScheduleRepository scheduleRepository) {
+    /**
+     * ExaminationScheduleRepository와 ExaminationScheduleMapper를 주입받는 생성자
+     */
+    public ExaminationScheduleService(ExaminationScheduleRepository scheduleRepository,
+                                    ExaminationScheduleMapper scheduleMapper) {
         this.scheduleRepository = scheduleRepository;
+        this.scheduleMapper = scheduleMapper;
     }
 
     /**
      * 환자 ID로 스케줄을 조회합니다.
      *
-     * @param patient 환자 ID
+     * @param patient 환자 정보
      * @return 환자의 검사 일정 목록
+     * @throws IllegalArgumentException 환자 정보가 유효하지 않은 경우
      */
+    @Transactional(readOnly = true)
     public List<ExaminationScheduleDto> getSchedules(Patient patient) {
-        List<ExaminationSchedule> schedules = scheduleRepository.findByPatient(patient);
-        List<ExaminationScheduleDto> examinationScheduleDtoList = new ArrayList<>();
-        for (ExaminationSchedule schedule : schedules) {
-            ExaminationScheduleDto examinationScheduleDto = getExaminationScheduleDto(schedule);
-            examinationScheduleDtoList.add(examinationScheduleDto);
+        if (patient == null) {
+            log.error("환자 정보가 null입니다.");
+            throw new IllegalArgumentException("환자 정보는 필수입니다.");
         }
-        return examinationScheduleDtoList;
-    }
 
-    /**
-     * ExaminationSchedule 엔티티를 ExaminationScheduleDto 로 변환합니다.
-     *
-     * @param schedule 검사 일정 엔티티
-     * @return 검사 일정 DTO
-     */
-    @NotNull
-    private static ExaminationScheduleDto getExaminationScheduleDto(ExaminationSchedule schedule) {
-        ExaminationScheduleDto examinationScheduleDto = new ExaminationScheduleDto();
-        examinationScheduleDto.setId(schedule.getId());
-        examinationScheduleDto.setPatientId(schedule.getPatient().getPatientId());
-        examinationScheduleDto.setScheduleDate(schedule.getScheduleDate());
-        examinationScheduleDto.setCategory(schedule.getCategory());
-        examinationScheduleDto.setMedicalStaffId(schedule.getMedicalStaff().getMedicalStaffId());
-        examinationScheduleDto.setDetails(schedule.getDetails());
-        return examinationScheduleDto;
+        try {
+            List<ExaminationSchedule> schedules = scheduleRepository.findByPatientId(patient);
+            log.debug("검사 일정 조회 성공 - 환자 ID: {}, 일정 수: {}", 
+                    patient.getPatientId(), schedules.size());
+            
+            return schedules.stream()
+                    .map(scheduleMapper::toDto)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("검사 일정 조회 중 오류 발생: {}", e.getMessage(), e);
+            throw new RuntimeException("검사 일정 조회에 실패했습니다.", e);
+        }
     }
-
 }

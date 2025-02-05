@@ -1,12 +1,10 @@
 package com.example.carebridge.entity;
 
 import com.example.carebridge.dto.PatientDto;
-import com.example.carebridge.repository.PatientRepository;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Date;
 import java.time.LocalDateTime;
 
 @Entity
@@ -71,7 +69,7 @@ public class Patient {
 //        this.userAccount = userAccount;
         this.userId = userAccount.getId();
         this.name = patientDto.getName();
-        this.birthDate = patientDto.getBirthDate();
+        this.birthDate = LocalDateTime.parse(patientDto.getBirthDate());
         this.gender = patientDto.getGender();
         this.guardianContact = patientDto.getGuardianContact();
         this.hospitalLocation = patientDto.getHospitalLocation();
@@ -79,6 +77,6 @@ public class Patient {
         this.chatRoomId = patientDto.getChatRoomId();
         this.department = patientDto.getDepartment();
         this.email = patientDto.getEmail();
-        this.hospitalizationDate = patientDto.getHospitalizationDate();
+        this.hospitalizationDate = LocalDateTime.parse(patientDto.getHospitalizationDate());
     }
 }

@@ -1,18 +1,40 @@
 package com.example.carebridge.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
+/**
+ * MacroDto는 의료진의 매크로 정보를 전송하기 위한 데이터 전송 객체입니다.
+ */
 @Data
-@Getter
-@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class MacroDto {
-    private Integer macroId; // 매크로 ID
+    /**
+     * 매크로 ID
+     */
+    private Integer macroId;
 
-    private Integer medicalStaffId; // 의료진 ID
+    /**
+     * 의료진 ID
+     */
+    @NotNull
+    private Integer medicalStaffId;
 
-    private String text; // 텍스트
+    /**
+     * 매크로 텍스트 내용
+     */
+    @NotBlank
+    private String text;
 
-    private String macroName; // 매크로 이름
+    /**
+     * 매크로 이름
+     */
+    @NotBlank
+    private String macroName;
 }

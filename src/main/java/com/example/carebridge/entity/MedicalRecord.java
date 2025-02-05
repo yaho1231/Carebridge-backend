@@ -1,31 +1,76 @@
 package com.example.carebridge.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * 의료 기록을 관리하는 엔티티 클래스
+ */
 @Entity
 @Getter
 @Setter
-@Table(name = "Medical_Record") // MySQL의 Medical_Record 테이블과 매핑
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "medical_record")
 public class MedicalRecord {
 
+    /**
+     * 의료 기록의 고유 식별자
+     * 자동 증가 전략 사용
+     */
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // 기본 키 자동 증가 설정
-    private Integer id; // 의료 기록 고유 ID
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Integer id;
 
-    @Column(name = "patient_phone", nullable = false) // 환자 전화번호 컬럼과 매핑 (Not Null 제약 조건)
-    private String patientPhone; // 환자 전화번호
+    /**
+     * 환자 전화번호
+     * 필수 입력 값이며 최대 20자까지 저장 가능
+     */
+    @Column(name = "patient_phone", nullable = false, length = 20)
+    private String patientPhone;
 
-    @Column(name = "disease_info") // 질병 정보 컬럼과 매핑
-    private String diseaseInfo; // 질병 정보
+    /**
+     * 질병 정보
+     * 최대 500자까지 저장 가능
+     */
+    @Column(name = "disease_info", length = 500)
+    private String diseaseInfo;
 
-    @Column(name = "prescription") // 처방 내용 컬럼과 매핑
-    private String prescription; // 처방 내용
+    /**
+     * 처방 내용
+     * 최대 500자까지 저장 가능
+     */
+    @Column(name = "prescription", length = 500)
+    private String prescription;
 
-    @Column(name = "exam_schedule") // 검진 일정 컬럼과 매핑
-    private String examSchedule; // 검진 일정
+    /**
+     * 검진 일정
+     * 최대 255자까지 저장 가능
+     */
+    @Column(name = "exam_schedule", length = 255)
+    private String examSchedule;
 
-    @Column(name = "hospital_id", nullable = false) // 병원 ID 컬럼과 매핑
-    private Integer hospitalId; // 병원 ID
+    /**
+     * 병원 ID
+     * 필수 입력 값
+     */
+    @Column(name = "hospital_id", nullable = false)
+    private Integer hospitalId;
+
+    /**
+     * 의료 기록 생성을 위한 빌더 패턴 생성자
+     */
+    @Builder
+    public MedicalRecord(String patientPhone, String diseaseInfo, 
+                        String prescription, String examSchedule, Integer hospitalId) {
+        this.patientPhone = patientPhone;
+        this.diseaseInfo = diseaseInfo;
+        this.prescription = prescription;
+        this.examSchedule = examSchedule;
+        this.hospitalId = hospitalId;
+    }
 }

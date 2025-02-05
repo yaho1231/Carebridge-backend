@@ -1,38 +1,89 @@
 package com.example.carebridge.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Setter
-@Getter
+/**
+ * 진료 일정 정보를 저장하는 엔티티
+ */
 @Entity
-@Table(name = "Examination_Schedule") // MySQL 의 Examination_Schedule 테이블과 매핑
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "examination_schedule")
 public class ExaminationSchedule {
 
+    /**
+     * 진료 일정의 고유 식별자
+     */
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // 기본 키 자동 증가 설정
-    private Integer id; // 검진 일정 고유 ID
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "patient_id", nullable = false)
-    private Patient patient;  // Patient와의 연관 관계
+    /**
+     * 의료진 정보와의 연관 관계
+     */
+    @Column(name = "medical_staff_id", nullable = false)
+    private Integer medicalStaffId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "medical_staff_id", nullable = false)
-    private MedicalStaff medicalStaff;  // MedicalStaff와의 연관 관계
+    /**
+     * 환자 정보와의 연관 관계
+     */
+    @Column(name = "patient_id", nullable = false)
+    private Integer patientId;
 
-    @Column(name = "schedule_date", nullable = false) // 검진 일정 날짜 컬럼과 매핑
-    private LocalDateTime scheduleDate; // 검진 날짜
+    /**
+     * 진료 예정 일시
+     */
+    @Column(name = "schedule_date", nullable = false)
+    private LocalDateTime scheduleDate;
 
-    @Column(name = "details") // 검진 세부사항 컬럼과 매핑
-    private String details; // 검진 세부사항
+    /**
+     * 진료 세부사항
+     */
+    @Column(name = "details")
+    private String details;
 
-    @Column(name = "category", nullable = false) // 검진 종류 코드 컬럼과 매핑
-    private String category; // 검진 종류 코드
+    /**
+     * 진료 종류
+     * SURGERY(수술), OUTPATIENT(외래), EXAMINATION(검진)
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category", nullable = false)
+    private Category category;
 
+    @Builder
+    public ExaminationSchedule(Integer medicalStaffId, Integer patientId, 
+                             LocalDateTime scheduleDate, String details) {
+        this.medicalStaffId = medicalStaffId;
+        this.patientId = patientId;
+        this.scheduleDate = scheduleDate;
+        this.details = details;
+    }
+
+    /**
+     * 진료 종류를 정의하는 열거형
+     */
+    public enum Category {
+        SURGERY("수술"),
+        OUTPATIENT("외래"),
+        EXAMINATION("검진");
+
+        private final String description;
+
+        Category(String description) {
+            this.description = description;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
 }

@@ -1,26 +1,36 @@
 package com.example.carebridge.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
-@Table(name = "Macro") // MySQL 의 Macro 테이블과 매핑
+@NoArgsConstructor
+@Table(name = "macro")
 public class Macro {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // 기본 키 자동 증가 설정
-    @Column(name = "macro_id") // 매크로 ID, Not Null 제약 조건 설정
-    private Integer macroId; // 매크로 ID
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "macro_id")
+    private Integer macroId;
 
-    @Column(name = "medical_Staff_id") // 의료진 ID, Not Null 제약 조건 설정
-    private Integer medicalStaffId; // 의료진 ID
+    @Column(name = "medical_staff_id", nullable = false)
+    private Integer medicalStaffId;
 
-    @Column(name = "text") // 텍스트 필드, Not Null 제약 조건 설정, 최대 길이 255
-    private String text; // 텍스트
+    @Column(name = "text", nullable = false, length = 255)
+    private String text;
 
-    @Column(name = "macro_name") // 매크로 이름, Not Null 제약 조건 설정, 최대 길이 255
-    private String macroName; // 매크로 이름
+    @Column(name = "macro_name", nullable = false, length = 255)
+    private String macroName;
+
+    @Builder
+    public Macro(Integer medicalStaffId, String text, String macroName) {
+        this.medicalStaffId = medicalStaffId;
+        this.text = text;
+        this.macroName = macroName;
+    }
 }
