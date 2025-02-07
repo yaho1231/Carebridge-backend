@@ -51,13 +51,16 @@ public class UserAccountController {
     /**
      * phone 으로 인증문자(otp 포함) 전송
      * @param phone
+     * @param isSignup
      * @return
      */
     @PostMapping("/send-otp/{phone}")
-    public ResponseEntity<String> sendOtp(@PathVariable String phone) {
+    public ResponseEntity<String> sendOtp(@PathVariable String phone, @RequestParam boolean isSignup) {
         try {
-            userAccountService.sendOtp(phone); // OTP 전송 로직 호출
+            userAccountService.sendOtp(phone, isSignup); // OTP 전송 로직 호출
             return ResponseEntity.ok("OTP sent successfully to " + phone);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to send OTP: " + e.getMessage());
         }
