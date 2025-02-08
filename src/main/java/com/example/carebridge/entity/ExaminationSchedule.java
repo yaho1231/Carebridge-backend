@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "examination_schedule")
+@Table(name = "Examination_Schedule")
 public class ExaminationSchedule {
 
     /**
