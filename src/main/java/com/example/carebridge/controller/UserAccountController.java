@@ -29,36 +29,36 @@ public class UserAccountController {
 
     /**
      * User profile 검색
-     * @param phone
+     * @param phoneNumber
      * @return
      */
-    @GetMapping("/profile/{phone}")
-    public UserAccountDto openProfile(@PathVariable("phone") String phone) {
-        return userAccountService.getUserAccount(phone);
+    @GetMapping("/profile/{phoneNumber}")
+    public UserAccountDto openProfile(@PathVariable("phoneNumber") String phoneNumber) {
+        return userAccountService.getUserAccount(phoneNumber);
     }
 
     /**
      * User profile 수정
-     * @param phone
+     * @param phoneNumber
      * @param userAccountDto
      * @return
      */
-    @PutMapping("/profile/{phone}")
-    public UserAccountDto modifyProfile(@PathVariable("phone") String phone, @RequestBody UserAccountDto userAccountDto) {
-        return userAccountService.updateUserAccount(phone, userAccountDto);
+    @PutMapping("/profile/{phoneNumber}")
+    public UserAccountDto modifyProfile(@PathVariable("phoneNumber") String phoneNumber, @RequestBody UserAccountDto userAccountDto) {
+        return userAccountService.updateUserAccount(phoneNumber, userAccountDto);
     }
 
     /**
      * phone 으로 인증문자(otp 포함) 전송
-     * @param phone
+     * @param phoneNumber
      * @param isSignup
      * @return
      */
-    @PostMapping("/send-otp/{phone}")
-    public ResponseEntity<String> sendOtp(@PathVariable String phone, @RequestParam boolean isSignup) {
+    @PostMapping("/send-otp/{phoneNumber}")
+    public ResponseEntity<String> sendOtp(@PathVariable String phoneNumber, @RequestParam boolean isSignup) {
         try {
-            userAccountService.sendOtp(phone, isSignup); // OTP 전송 로직 호출
-            return ResponseEntity.ok("OTP sent successfully to " + phone);
+            userAccountService.sendOtp(phoneNumber, isSignup); // OTP 전송 로직 호출
+            return ResponseEntity.ok("OTP sent successfully to " + phoneNumber);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
