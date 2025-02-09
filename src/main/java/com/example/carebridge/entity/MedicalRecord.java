@@ -14,7 +14,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "medical_record")
+@Table(name = "Medical_Record")
 public class MedicalRecord {
 
     /**

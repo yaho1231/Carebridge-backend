@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "request")
+@Table(name = "Request")
 public class Request {
 
     /**

@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "macro")
+@Table(name = "Macro")
 public class Macro {
 
     @Id
