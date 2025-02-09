@@ -3,6 +3,7 @@ package com.example.carebridge.service;
 import com.example.carebridge.dto.ChatRoomDto;
 import com.example.carebridge.dto.RequestDto;
 import com.example.carebridge.entity.ChatRoom;
+import com.example.carebridge.entity.Message;
 import com.example.carebridge.entity.Request;
 import com.example.carebridge.mapper.ChatRoomMapper;
 import com.example.carebridge.mapper.RequestMapper;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -41,6 +43,21 @@ public class CallBellService {
         this.chatRoomMapper = chatRoomMapper;
         this.requestMapper = requestMapper;
         this.medicalStaffService = medicalStaffService;
+    }
+
+    /**
+     * 새로운 요청을 생성합니다.
+     */
+    @Transactional
+    public Request createRequest(Message message) {
+        Request request = new Request();
+        request.setPatientId(message.getPatientId());
+        request.setRequestContent(message.getMessageContent());
+        request.setStatus(Request.RequestStatus.PENDING);
+        request.setRequestTime(LocalDateTime.now());
+        request.setMedicalStaffId(message.getMedicalStaffId());
+        request = requestRepository.save(request);
+        return request;
     }
 
     /**

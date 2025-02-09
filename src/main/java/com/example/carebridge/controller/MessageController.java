@@ -2,7 +2,10 @@ package com.example.carebridge.controller;
 
 import com.example.carebridge.dto.ChatMessageDto;
 import com.example.carebridge.dto.MessageSummaryDto;
+import com.example.carebridge.dto.RequestDto;
 import com.example.carebridge.entity.Message;
+import com.example.carebridge.entity.Request;
+import com.example.carebridge.service.CallBellService;
 import com.example.carebridge.service.MessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,10 +25,12 @@ public class MessageController {
     private static final Logger logger = LoggerFactory.getLogger(MessageController.class);
     private final MessageService messageService;
     private final SimpMessageSendingOperations messagingTemplate;
+    private final CallBellService callBellService;
 
-    public MessageController(MessageService messageService, SimpMessageSendingOperations messagingTemplate) {
+    public MessageController(MessageService messageService, SimpMessageSendingOperations messagingTemplate, CallBellService callBellService) {
         this.messageService = messageService;
         this.messagingTemplate = messagingTemplate;
+        this.callBellService = callBellService;
     }
 
     /**
@@ -48,6 +53,9 @@ public class MessageController {
         if (savedMessage.getCategory().equals("정보성 질문") && message.getIsPatient()){
             Message chatGptMessage = messageService.chatGptMessage(message);
             messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), chatGptMessage);
+        } else if (savedMessage.getCategory().equals("의료진 도움요청") && message.getIsPatient()) {
+            Request req = callBellService.createRequest(savedMessage);
+            messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), req);
         }
     }
 
@@ -61,6 +69,9 @@ public class MessageController {
 //            Message chatGptMessage = messageService.chatGptMessage(message);
 //            messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), chatGptMessage);
 //            return new ResponseEntity<>(chatGptMessage, HttpStatus.OK);
+//        } else if (savedMessage.getCategory().equals("의료진 도움요청") && message.getIsPatient()) {
+//            Request req = callBellService.createRequest(savedMessage);
+//            messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), req);
 //        }
 //        return ResponseEntity.ok(savedMessage);
 //    }
