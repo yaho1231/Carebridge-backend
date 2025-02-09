@@ -27,11 +27,11 @@ public class MedicalRecord {
     private Integer id;
 
     /**
-     * 환자 전화번호
-     * 필수 입력 값이며 최대 20자까지 저장 가능
+     * 환자 ID
+     * 필수 입력 값
      */
-    @Column(name = "patient_phone", nullable = false, length = 20)
-    private String patientPhone;
+    @Column(name = "patient_id", nullable = false)
+    private Integer patientId;
 
     /**
      * 질병 정보
@@ -39,20 +39,6 @@ public class MedicalRecord {
      */
     @Column(name = "disease_info", length = 500)
     private String diseaseInfo;
-
-    /**
-     * 처방 내용
-     * 최대 500자까지 저장 가능
-     */
-    @Column(name = "prescription", length = 500)
-    private String prescription;
-
-    /**
-     * 검진 일정
-     * 최대 255자까지 저장 가능
-     */
-    @Column(name = "exam_schedule", length = 255)
-    private String examSchedule;
 
     /**
      * 병원 ID
@@ -65,12 +51,9 @@ public class MedicalRecord {
      * 의료 기록 생성을 위한 빌더 패턴 생성자
      */
     @Builder
-    public MedicalRecord(String patientPhone, String diseaseInfo, 
-                        String prescription, String examSchedule, Integer hospitalId) {
-        this.patientPhone = patientPhone;
+    public MedicalRecord(Integer patientId, String diseaseInfo, Integer hospitalId) {
+        this.patientId = patientId;
         this.diseaseInfo = diseaseInfo;
-        this.prescription = prescription;
-        this.examSchedule = examSchedule;
         this.hospitalId = hospitalId;
     }
 }
