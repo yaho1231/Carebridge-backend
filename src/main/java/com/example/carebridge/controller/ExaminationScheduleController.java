@@ -1,9 +1,7 @@
 package com.example.carebridge.controller;
 
 import com.example.carebridge.dto.ExaminationScheduleDto;
-import com.example.carebridge.entity.Patient;
 import com.example.carebridge.service.ExaminationScheduleService;
-import com.example.carebridge.service.PatientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -27,7 +25,6 @@ import java.util.List;
 public class ExaminationScheduleController {
 
     private final ExaminationScheduleService scheduleService;
-    private final PatientService patientService;
 
     /**
      * 서비스 계층 의존성 주입을 위한 생성자
@@ -35,9 +32,8 @@ public class ExaminationScheduleController {
      * @param scheduleService 검사 일정 서비스
      * @param patientService 환자 정보 서비스
      */
-    public ExaminationScheduleController(ExaminationScheduleService scheduleService, PatientService patientService) {
+    public ExaminationScheduleController(ExaminationScheduleService scheduleService) {
         this.scheduleService = scheduleService;
-        this.patientService = patientService;
     }
 
     /**
@@ -62,14 +58,8 @@ public class ExaminationScheduleController {
             @PathVariable("patient_id") Integer patientId) {
         try {
             log.debug("환자 ID {}의 검사 일정 조회 요청", patientId);
-            Patient patient = patientService.getPatientById(patientId);
             
-            if (patient == null) {
-                log.warn("환자를 찾을 수 없음 - ID: {}", patientId);
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            
-            List<ExaminationScheduleDto> schedules = scheduleService.getSchedules(patient);
+            List<ExaminationScheduleDto> schedules = scheduleService.getSchedules(patientId);
             log.debug("환자 ID {}의 검사 일정 조회 성공 - {} 건", patientId, schedules.size());
             return new ResponseEntity<>(schedules, HttpStatus.OK);
             

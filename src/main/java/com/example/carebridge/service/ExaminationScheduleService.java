@@ -2,7 +2,6 @@ package com.example.carebridge.service;
 
 import com.example.carebridge.dto.ExaminationScheduleDto;
 import com.example.carebridge.entity.ExaminationSchedule;
-import com.example.carebridge.entity.Patient;
 import com.example.carebridge.mapper.ExaminationScheduleMapper;
 import com.example.carebridge.repository.ExaminationScheduleRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +26,7 @@ public class ExaminationScheduleService {
      * ExaminationScheduleRepository와 ExaminationScheduleMapper를 주입받는 생성자
      */
     public ExaminationScheduleService(ExaminationScheduleRepository scheduleRepository,
-                                    ExaminationScheduleMapper scheduleMapper) {
+                                       ExaminationScheduleMapper scheduleMapper) {
         this.scheduleRepository = scheduleRepository;
         this.scheduleMapper = scheduleMapper;
     }
@@ -35,21 +34,21 @@ public class ExaminationScheduleService {
     /**
      * 환자 ID로 스케줄을 조회합니다.
      *
-     * @param patient 환자 정보
+     * @param patientId 환자 ID
      * @return 환자의 검사 일정 목록
-     * @throws IllegalArgumentException 환자 정보가 유효하지 않은 경우
+     * @throws IllegalArgumentException 환자 ID가 유효하지 않은 경우
      */
     @Transactional(readOnly = true)
-    public List<ExaminationScheduleDto> getSchedules(Patient patient) {
-        if (patient == null) {
-            log.error("환자 정보가 null입니다.");
-            throw new IllegalArgumentException("환자 정보는 필수입니다.");
+    public List<ExaminationScheduleDto> getSchedules(Integer patientId) {
+        if (patientId == null) {
+            log.error("환자 ID가 null입니다.");
+            throw new IllegalArgumentException("환자 ID는 필수입니다.");
         }
 
         try {
-            List<ExaminationSchedule> schedules = scheduleRepository.findByPatientId(patient);
+            List<ExaminationSchedule> schedules = scheduleRepository.findByPatientId(patientId);
             log.debug("검사 일정 조회 성공 - 환자 ID: {}, 일정 수: {}", 
-                    patient.getPatientId(), schedules.size());
+                    patientId, schedules.size());
             
             return schedules.stream()
                     .map(scheduleMapper::toDto)

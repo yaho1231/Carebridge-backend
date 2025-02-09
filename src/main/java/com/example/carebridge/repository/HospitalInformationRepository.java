@@ -20,22 +20,22 @@ public interface HospitalInformationRepository extends JpaRepository<HospitalInf
     /**
      * 특정 병원의 모든 정보를 조회합니다.
      * 
-     * @param hospital 조회할 병원 엔티티
+     * @param hospitalId 조회할 병원 ID
      * @return 해당 병원의 모든 정보 목록
      */
-    @Query("SELECT hi FROM HospitalInformation hi WHERE hi.hospital = :hospital ORDER BY hi.title")
-    List<HospitalInformation> findAllByHospital(@Param("hospital") Hospital hospital);
+    @Query("SELECT hi FROM HospitalInformation hi WHERE hi.hospital.hospitalId = :hospitalId ORDER BY hi.title")
+    List<HospitalInformation> findAllByHospitalId(@Param("hospitalId") Integer hospitalId);
     
     /**
      * 특정 병원의 특정 제목에 해당하는 정보를 조회합니다.
      * 
-     * @param hospital 조회할 병원 엔티티
+     * @param hospitalId 조회할 병원 ID
      * @param title 조회할 정보의 제목
      * @return 해당하는 병원 정보
      */
-    @Query("SELECT hi FROM HospitalInformation hi WHERE hi.hospital = :hospital AND hi.title = :title")
-    Optional<HospitalInformation> findByHospitalAndTitle(
-        @Param("hospital") Hospital hospital, 
+    @Query("SELECT hi FROM HospitalInformation hi WHERE hi.hospital.hospitalId = :hospitalId AND hi.title = :title")
+    Optional<HospitalInformation> findByHospitalIdAndTitle(
+        @Param("hospitalId") Integer hospitalId, 
         @Param("title") String title
     );
 }

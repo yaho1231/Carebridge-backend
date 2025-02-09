@@ -7,13 +7,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.springframework.stereotype.Component;
 
 /**
  * ChatRoom 엔티티와 ChatRoomDto 간의 변환을 처리하는 매퍼 인터페이스
  * MapStruct 를 사용하여 자동으로 변환 구현체를 생성합니다.
  */
-@Component
 @Mapper(componentModel = "spring")
 @Tag(name = "ChatRoom Mapper", description = "채팅방 엔티티-DTO 변환 매퍼")
 public interface ChatRoomMapper {

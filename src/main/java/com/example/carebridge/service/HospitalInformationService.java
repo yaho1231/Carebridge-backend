@@ -57,17 +57,11 @@ public class HospitalInformationService {
             throw new IllegalArgumentException("프롬프트는 필수 입력값입니다.");
         }
 
-        Hospital hospital = hospitalRepository.findByHospitalId(hospitalId)
-                .orElseThrow(() -> {
-                    log.error("병원을 찾을 수 없습니다. ID: {}", hospitalId);
-                    return new IllegalArgumentException("해당 ID의 병원을 찾을 수 없습니다: " + hospitalId);
-                });
-
         CosineSimilarity cosineSimilarity = new CosineSimilarity();
         double maxSimilarity = -1;
         HospitalInformation mostSimilarInfo = null;
 
-        List<HospitalInformation> hospitalInfoList = hospitalInformationRepository.findAllByHospital(hospital);
+        List<HospitalInformation> hospitalInfoList = hospitalInformationRepository.findAllByHospitalId(hospitalId);
         if (hospitalInfoList.isEmpty()) {
             log.warn("병원 정보가 없습니다. 병원 ID: {}", hospitalId);
             return null;
@@ -94,13 +88,7 @@ public class HospitalInformationService {
      */
     @Transactional(readOnly = true)
     public List<HospitalInformationDto> getHospitalInformationList(int hospitalId) {
-        Hospital hospital = hospitalRepository.findByHospitalId(hospitalId)
-                .orElseThrow(() -> {
-                    log.error("병원을 찾을 수 없습니다. ID: {}", hospitalId);
-                    return new IllegalArgumentException("해당 ID의 병원을 찾을 수 없습니다: " + hospitalId);
-                });
-
-        List<HospitalInformation> infoList = hospitalInformationRepository.findAllByHospital(hospital);
+        List<HospitalInformation> infoList = hospitalInformationRepository.findAllByHospitalId(hospitalId);
         List<HospitalInformationDto> dtoList = infoList.stream()
                 .map(hospitalInformationMapper::toDto)
                 .collect(Collectors.toList());
@@ -124,13 +112,7 @@ public class HospitalInformationService {
             throw new IllegalArgumentException("제목은 필수 입력값입니다.");
         }
 
-        Hospital hospital = hospitalRepository.findByHospitalId(hospitalId)
-                .orElseThrow(() -> {
-                    log.error("병원을 찾을 수 없습니다. ID: {}", hospitalId);
-                    return new IllegalArgumentException("해당 ID의 병원을 찾을 수 없습니다: " + hospitalId);
-                });
-
-        return hospitalInformationRepository.findByHospitalAndTitle(hospital, title)
+        return hospitalInformationRepository.findByHospitalIdAndTitle(hospitalId, title)
                 .map(HospitalInformation::getInformation)
                 .orElseThrow(() -> {
                     log.error("병원 정보를 찾을 수 없습니다. 병원 ID: {}, 제목: {}", hospitalId, title);
@@ -175,13 +157,7 @@ public class HospitalInformationService {
      */
     @Transactional
     public void updateHospitalInformation(int hospitalId, String title, String information) {
-        Hospital hospital = hospitalRepository.findByHospitalId(hospitalId)
-                .orElseThrow(() -> {
-                    log.error("병원을 찾을 수 없습니다. ID: {}", hospitalId);
-                    return new IllegalArgumentException("해당 ID의 병원을 찾을 수 없습니다.");
-                });
-
-        HospitalInformation hospitalInfo = hospitalInformationRepository.findByHospitalAndTitle(hospital, title)
+        HospitalInformation hospitalInfo = hospitalInformationRepository.findByHospitalIdAndTitle(hospitalId, title)
                 .orElseThrow(() -> {
                     log.error("병원 정보를 찾을 수 없습니다. 병원 ID: {}, 제목: {}", hospitalId, title);
                     return new IllegalArgumentException("해당 제목의 병원 정보를 찾을 수 없습니다.");
@@ -201,13 +177,7 @@ public class HospitalInformationService {
      */
     @Transactional
     public void deleteHospitalInformation(int hospitalId, String title) {
-        Hospital hospital = hospitalRepository.findByHospitalId(hospitalId)
-                .orElseThrow(() -> {
-                    log.error("병원을 찾을 수 없습니다. ID: {}", hospitalId);
-                    return new IllegalArgumentException("해당 ID의 병원을 찾을 수 없습니다.");
-                });
-
-        HospitalInformation hospitalInfo = hospitalInformationRepository.findByHospitalAndTitle(hospital, title)
+        HospitalInformation hospitalInfo = hospitalInformationRepository.findByHospitalIdAndTitle(hospitalId, title)
                 .orElseThrow(() -> {
                     log.error("병원 정보를 찾을 수 없습니다. 병원 ID: {}, 제목: {}", hospitalId, title);
                     return new IllegalArgumentException("해당 제목의 병원 정보를 찾을 수 없습니다.");
