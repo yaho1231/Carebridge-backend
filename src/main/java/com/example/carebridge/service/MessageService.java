@@ -67,15 +67,18 @@ public class MessageService {
             ChatCompletionDto chatCompletionDto = new ChatCompletionDto(
                     "gpt-4o-mini-2024-07-18",
                     Collections.singletonList(new ChatRequestMsgDto("user",
-                            "다음 메시지를 반드시 정보성 질문, 의료진 도움요청 2개의 카테고리 중 하나로만 단답으로 분류하라. " +
+                            "다음 메시지를 반드시 정보성 질문, 의료진 도움요청, 기타 3개의 카테고리 중 하나로만 단답으로 분류하라. " +
+                                    "대부분의 메세지를 정보성 질문 혹은 의료진 도움요청이 되도록 하라." +
                                     "단순히 웹에서 정보 제공을 통해 처리 가능한 요청사항의 경우 정보성 질문에 해당한다. " +
-                                    "웹에서 처리 불가능하며 의료진이 필요한 요청사항의 경우 의료진 도움요청에 해당한다." +
+                                    "웹에서 처리 불가능하며 간호 간병 의료진이 필요한(~하고 싶다, ~해달라, ~하고 싶어요 등 의료진의 도움을 바라는) 요청사항의 경우 의료진 도움요청에 해당한다." +
+                                    "그리고 알겠습니다, 네 등과 같이 사용자의 답변을 필요로하지 않는 일부 메세지만 기타에 해당한다." +
                                     "메시지 :" + chatMessageDto.getMessageContent()))
             );
             Map<String, Object> result = chatGPTService.prompt(chatCompletionDto);
             List<Map<String, Object>> choices = (List<Map<String, Object>>) result.get("choices");
             Map<String, Object> getMessage = (Map<String, Object>) choices.get(0).get("message");
             category = (String) getMessage.get("content");
+            System.out.println(category);
         } else {
             medicalStaffId = chatMessageDto.getSenderId();
             patientId = chatRoomRepository.findByChatRoomId(roomId)
@@ -93,7 +96,8 @@ public class MessageService {
         message.setTimestamp(LocalDateTime.parse(chatMessageDto.getTimestamp()));
         message.setHospitalId(chatMessageDto.getHospitalId());
         message.setCategory(category);
-
+        if(category.equals("기타"))
+            return message;
         messageRepository.save(message);
 
         return message;
