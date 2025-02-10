@@ -42,4 +42,10 @@ public class Message {
 
     @Column(name = "category")
     private String category;
+
+    @Column(name = "isRequest")
+    private Boolean isRequest;
+
+    @Column(name = "isPatient")
+    private Boolean isPatient;
 }

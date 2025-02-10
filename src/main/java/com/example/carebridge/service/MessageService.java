@@ -57,6 +57,7 @@ public class MessageService {
         String category = chatMessageDto.getCategory();
 
         if (chatMessageDto.getIsPatient()) {
+            message.setIsPatient(true);
             patientId = chatMessageDto.getSenderId();
             medicalStaffId = chatRoomRepository.findByChatRoomId(roomId)
                 .orElseThrow(() -> {
@@ -78,8 +79,9 @@ public class MessageService {
             List<Map<String, Object>> choices = (List<Map<String, Object>>) result.get("choices");
             Map<String, Object> getMessage = (Map<String, Object>) choices.get(0).get("message");
             category = (String) getMessage.get("content");
-            System.out.println(category);
+//            System.out.println(category);
         } else {
+            message.setIsPatient(false);
             medicalStaffId = chatMessageDto.getSenderId();
             patientId = chatRoomRepository.findByChatRoomId(roomId)
                 .orElseThrow(() -> {
@@ -96,8 +98,7 @@ public class MessageService {
         message.setTimestamp(LocalDateTime.parse(chatMessageDto.getTimestamp()));
         message.setHospitalId(chatMessageDto.getHospitalId());
         message.setCategory(category);
-        if(category.equals("기타"))
-            return message;
+        message.setIsRequest(false);
         messageRepository.save(message);
 
         return message;
@@ -142,7 +143,9 @@ public class MessageService {
         message.setReadStatus(chatMessageDto.getReadStatus());
         message.setTimestamp(LocalDateTime.now());
         message.setHospitalId(chatMessageDto.getHospitalId());
-        message.setCategory("정보성 질문");
+        message.setCategory("정보성 질문 답변자동생성");
+        message.setIsRequest(false);
+        message.setIsPatient(false);
         messageRepository.save(message);
 
         return message;

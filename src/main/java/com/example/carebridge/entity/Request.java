@@ -71,6 +71,9 @@ public class Request {
     @Column(name = "status", nullable = false)
     private RequestStatus status;
 
+    @Column(name = "isRequest")
+    private Boolean isRequest;
+
     /**
      * 요청 상태를 나타내는 열거형
      */

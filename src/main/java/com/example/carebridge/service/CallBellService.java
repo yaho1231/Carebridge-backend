@@ -1,7 +1,6 @@
 package com.example.carebridge.service;
 
-import com.example.carebridge.dto.ChatRoomDto;
-import com.example.carebridge.dto.RequestDto;
+import com.example.carebridge.dto.*;
 import com.example.carebridge.entity.ChatRoom;
 import com.example.carebridge.entity.Message;
 import com.example.carebridge.entity.Request;
@@ -49,13 +48,14 @@ public class CallBellService {
      * 새로운 요청을 생성합니다.
      */
     @Transactional
-    public Request createRequest(Message message) {
+    public Request createRequestByMessage(Message message) {
         Request request = new Request();
         request.setPatientId(message.getPatientId());
         request.setRequestContent(message.getMessageContent());
         request.setStatus(Request.RequestStatus.PENDING);
         request.setRequestTime(LocalDateTime.now());
         request.setMedicalStaffId(message.getMedicalStaffId());
+        request.setIsRequest(true);
         request = requestRepository.save(request);
         return request;
     }

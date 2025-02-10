@@ -7,6 +7,9 @@ import com.example.carebridge.entity.Message;
 import com.example.carebridge.entity.Request;
 import com.example.carebridge.service.CallBellService;
 import com.example.carebridge.service.MessageService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -40,40 +43,73 @@ public class MessageController {
      */
     @MessageMapping("chat/message")
     public void message(ChatMessageDto message) {
-        // 수신된 메시지를 로그에 기록합니다.
-        logger.info("Received message: {}", message);
+        try {
+            // 수신된 메시지를 로그에 기록합니다.
+            logger.info("Received message: {}", message);
 
-        // 메시지를 데이터베이스에 저장합니다.
-        Message savedMessage = messageService.saveMessage(message);
+            // 메시지를 데이터베이스에 저장합니다.
+            Message savedMessage = messageService.saveMessage(message);
 
-        // 수신된 메시지를 해당 채팅방의 구독자들에게 전송합니다.
-        messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), savedMessage);
+            // 환자의 메세지를 의료진에게 전송합니다.
+            if(savedMessage.getIsPatient())
+                messagingTemplate.convertAndSend("/sub/user/chat" + message.getMedicalStaffId(), savedMessage);
+            // 의료진의 메세지를 환자에게 전송합니다.
+            else
+                messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), savedMessage);
 
-        // 정보성 질문이라면 gpt를 통한 답변을 구독자들에게 전송합니다.
-        if (savedMessage.getCategory().equals("정보성 질문") && message.getIsPatient()){
-            Message chatGptMessage = messageService.chatGptMessage(message);
-            messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), chatGptMessage);
-        } else if (savedMessage.getCategory().equals("의료진 도움요청") && message.getIsPatient()) {
-            Request req = callBellService.createRequest(savedMessage);
-            messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), req);
+            // 환자가 보낸 정보성 질문이라면 gpt를 통한 답변을 구독자들에게 전송합니다.
+            if (savedMessage.getCategory().equals("정보성 질문") && message.getIsPatient()){
+                Message chatGptMessage = messageService.chatGptMessage(message);
+                messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), chatGptMessage);
+            }
+            // 환자가 보낸 의료진 도움요청이라면 Request를 생성합니다. 생성한 Request를 전송합니다.
+            else if (savedMessage.getCategory().equals("의료진 도움요청") && message.getIsPatient()) {
+                Request req = callBellService.createRequestByMessage(savedMessage);
+                messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), req);
+            }
+        } catch (IllegalArgumentException e) {
+            logger.error("잘못된 메시지 데이터: {}", e.getMessage(), e);
+        } catch (Exception e) {
+            logger.error("메시지 처리 중 오류 발생: {}", e.getMessage(), e);
         }
+
     }
 
     //테스트용
 //    @PostMapping
 //    public ResponseEntity<Message> sendMessage(@RequestBody ChatMessageDto message) {
-//        logger.info("Received message via REST: {}", message);
-//        Message savedMessage = messageService.saveMessage(message);
-//        messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), savedMessage);
-//        if (savedMessage.getCategory().equals("정보성 질문") && message.getIsPatient()){
-//            Message chatGptMessage = messageService.chatGptMessage(message);
-//            messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), chatGptMessage);
-//            return new ResponseEntity<>(chatGptMessage, HttpStatus.OK);
-//        } else if (savedMessage.getCategory().equals("의료진 도움요청") && message.getIsPatient()) {
-//            Request req = callBellService.createRequest(savedMessage);
-//            messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), req);
+//        try {
+//            // 수신된 메시지를 로그에 기록합니다.
+//            logger.info("Received message: {}", message);
+//
+//            // 메시지를 데이터베이스에 저장합니다.
+//            Message savedMessage = messageService.saveMessage(message);
+//
+//            // 환자의 메세지를 의료진에게 전송합니다.
+//            if (savedMessage.getIsPatient())
+//                messagingTemplate.convertAndSend("/sub/user/chat" + message.getMedicalStaffId(), savedMessage);
+//                // 의료진의 메세지를 환자에게 전송합니다.
+//            else
+//                messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), savedMessage);
+//
+//            // 환자가 보낸 정보성 질문이라면 gpt를 통한 답변을 구독자들에게 전송합니다.
+//            if (savedMessage.getCategory().equals("정보성 질문") && message.getIsPatient()) {
+//                Message chatGptMessage = messageService.chatGptMessage(message);
+//                messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), chatGptMessage);
+//                return ResponseEntity.ok(chatGptMessage);
+//            }
+//            // 환자가 보낸 의료진 도움요청이라면 Request를 생성합니다. 생성한 Request를 전송합니다.
+//            else if (savedMessage.getCategory().equals("의료진 도움요청") && message.getIsPatient()) {
+//                Request req = callBellService.createRequestByMessage(savedMessage);
+//                messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), req);
+//            }
+//            return ResponseEntity.status(HttpStatus.CREATED).body(savedMessage);
+//        } catch (IllegalArgumentException e) {
+//            logger.error("잘못된 메시지 데이터: {}", e.getMessage(), e);
+//        } catch (Exception e) {
+//            logger.error("메시지 처리 중 오류 발생: {}", e.getMessage(), e);
 //        }
-//        return ResponseEntity.ok(savedMessage);
+//        return null;
 //    }
 
     /**
