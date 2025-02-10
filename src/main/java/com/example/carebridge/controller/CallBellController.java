@@ -1,6 +1,7 @@
 package com.example.carebridge.controller;
 
 import com.example.carebridge.dto.RequestDto;
+import com.example.carebridge.entity.Request;
 import com.example.carebridge.service.CallBellService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

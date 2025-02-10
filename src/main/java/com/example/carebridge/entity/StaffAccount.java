@@ -7,7 +7,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "StaffAccount") // MySQL 의 Patient 테이블과 매핑
+@Table(name = "Staff_Account") // MySQL 의 Patient 테이블과 매핑
 public class StaffAccount {
 
     @Id
