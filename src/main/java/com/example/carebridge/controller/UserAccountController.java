@@ -160,10 +160,10 @@ public class UserAccountController {
      * @return
      */
     @GetMapping("/social-login/kakao/token")
-    public String kakaoLogin(HttpServletRequest request, HttpSession session) throws Exception {
+    public ResponseEntity<String> kakaoLogin(HttpServletRequest request, HttpSession session) throws Exception {
         String code = request.getParameter("code");
         if (code == null)
-            throw new IllegalArgumentException("Authorization code is missing");
+            return ResponseEntity.badRequest().body("Authorization code is missing");
         // 1. Access Token 발급
         String accessToken = oAuthService.getKakaoToken(code);
         // 2. 사용자 정보 조회
@@ -172,11 +172,11 @@ public class UserAccountController {
         UserAccountDto kakaoUserAccount = oAuthService.ifNeedKakaoInfo(kakaoDto);
         if (kakaoUserAccount != null) {
             session.setAttribute("loginUser", kakaoUserAccount);
-            session.setMaxInactiveInterval(60 * 30); // 30분 유지
+            session.setMaxInactiveInterval(60 * 60); // 60분 유지
             session.setAttribute("kakaoToken", accessToken);
-            return "redirect:/dashboard";
+            return ResponseEntity.ok("Login successful. Redirect to /dashboard");
         } else {
-            return "redirect:/login?error";
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login failed. Redirect to /login?error");
         }
     }
 
@@ -185,30 +185,28 @@ public class UserAccountController {
      * @return
      */
     @GetMapping("/social-login/kakao/logout")
-    public String kakaoLogout(HttpSession session) throws JsonProcessingException {
+    public ResponseEntity<String> kakaoLogout(HttpSession session) throws JsonProcessingException {
         String accessToken = (String) session.getAttribute("kakaoToken");
         if (accessToken != null) {
             oAuthService.kakaoDisconnect(accessToken);
         }
         session.invalidate(); // 세션 완전 종료
-        return "redirect:/";
+        return ResponseEntity.ok("Logout successful");
     }
 
     /**
-     * 로그인시 생성한 session 확인
+     * 자동으로 로그인 상태를 유지하기 위해
+     * 세션에 저장된 정보를 확인
      * @param session
      * @return
      */
-    @GetMapping("/check-session")
-    public String checkSession(HttpSession session) {
-        // 세션에서 특정 속성을 가져오기
-        Object user = session.getAttribute("loginUser");
-
-        if (user == null) {
-            // 세션 속성이 없으면 세션이 삭제되었다고 간주
-            return "세션이 삭제되었습니다.";
+    @GetMapping("/session-check")
+    public ResponseEntity<String> checkSession(HttpSession session) {
+        String userPhone = (String) session.getAttribute("userPhone");
+        if (userPhone != null) {
+            return ResponseEntity.ok("User is logged in with phone: " + userPhone);
         } else {
-            return "세션이 유지 중입니다. 사용자: " + user.toString();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
         }
     }
 }
