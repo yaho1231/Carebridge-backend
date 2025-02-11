@@ -1,6 +1,5 @@
 package com.example.carebridge.repository;
 
-import com.example.carebridge.entity.Hospital;
 import com.example.carebridge.entity.HospitalInformation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

@@ -92,6 +92,8 @@ dependencies {
     // MapStruct 어노테이션 프로세서
     // 컴파일 시점에 매퍼 구현체를 자동으로 생성
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+
+    implementation 'com.google.firebase:firebase-admin:9.1.1'
 }
 
 tasks.named('test') {
