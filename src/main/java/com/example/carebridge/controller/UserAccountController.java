@@ -3,8 +3,10 @@ package com.example.carebridge.controller;
 import com.example.carebridge.dto.KakaoDto;
 import com.example.carebridge.dto.UserAccountDto;
 import com.example.carebridge.dto.VerifyAccountDto;
+import com.example.carebridge.entity.Patient;
 import com.example.carebridge.entity.UserAccount;
 import com.example.carebridge.service.OAuthService;
+import com.example.carebridge.service.PatientService;
 import com.example.carebridge.service.UserAccountService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,10 +23,12 @@ public class UserAccountController {
 
     private final UserAccountService userAccountService;
     private final OAuthService oAuthService;
+    private final PatientService patientService;
 
-    public UserAccountController(UserAccountService userAccountService, OAuthService oAuthService) {
+    public UserAccountController(UserAccountService userAccountService, OAuthService oAuthService, PatientService patientService) {
         this.userAccountService = userAccountService;
         this.oAuthService = oAuthService;
+        this.patientService = patientService;
     }
 
     /**
@@ -109,16 +113,21 @@ public class UserAccountController {
      * @return
      */
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody VerifyAccountDto verifyAccountDto, HttpSession session) {
+    public ResponseEntity<Integer> login(@RequestBody VerifyAccountDto verifyAccountDto, HttpSession session) {
         boolean isVerified = userAccountService.verifyOtp(verifyAccountDto);
         boolean isValid = userAccountService.isValidUserAccount(verifyAccountDto.getPhone());
+        Patient patient = patientService.getPatientByPhone(verifyAccountDto.getPhone());
+        if (patient == null)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        Integer patientId = patient.getPatientId();
 
-        if (isVerified && isValid){
+        if (isVerified && isValid) {
+            // 세션에 사용자 전화번호 저장 (자동 로그인 기능을 위한 세션 활용)
             session.setAttribute("userPhone", verifyAccountDto.getPhone());
-            return ResponseEntity.ok("Login successful!");
+            return ResponseEntity.ok(patientId);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
-        else
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid phone number or otp.");
     }
 
     /**
