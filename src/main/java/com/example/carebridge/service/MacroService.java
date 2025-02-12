@@ -133,30 +133,31 @@ public class MacroService {
     /**
      * 기존 매크로의 내용을 수정합니다.
      *
-     * @param medical_staff_id 의료진 ID
-     * @param macroDto 수정할 매크로 정보
-     * @throws IllegalArgumentException 매크로를 찾을 수 없거나 필수 정보가 누락된 경우
+     * @param medical_staff_id 의료진의 ID
+     * @param macroDto 수정할 매크로의 정보
+     * @throws IllegalArgumentException 매크로를 찾을 수 없거나 필수 정보가 누락된 경우 발생
      */
     @Transactional
     public void updateMacro(Integer medical_staff_id, MacroDto macroDto) {
-        if (macroDto == null || macroDto.getMacroName() == null) {
+        if (macroDto == null) {
             log.error("매크로 정보가 유효하지 않습니다.");
             throw new IllegalArgumentException("유효한 매크로 정보가 필요합니다.");
         }
-
-        Macro macro = macroRepository.findByMedicalStaffIdAndMacroName(medical_staff_id, macroDto.getMacroName())
+        // macroId를 사용하여 매크로를 조회합니다.
+        Macro macro = macroRepository.findById(macroDto.getMacroId())
                 .orElseThrow(() -> {
-                    log.error("수정할 매크로를 찾을 수 없습니다 - 의료진 ID: {}, 매크로 이름: {}", 
-                            medical_staff_id, macroDto.getMacroName());
+                    log.error("수정할 매크로를 찾을 수 없습니다 - 매크로 ID: {}", macroDto.getMacroId());
                     return new IllegalArgumentException("수정할 매크로를 찾을 수 없습니다.");
                 });
-
+        if (!macro.getMedicalStaffId().equals(medical_staff_id)) {
+            log.error("의료진 ID가 일치하지 않습니다. DB의 의료진 ID: {}, 요청 의료진 ID: {}", macro.getMedicalStaffId(), medical_staff_id);
+            throw new IllegalArgumentException("의료진 정보가 일치하지 않습니다.");
+        }
         try {
             macro.setMacroName(macroDto.getMacroName());
             macro.setText(macroDto.getText());
             macroRepository.save(macro);
-            log.info("매크로 수정 성공 - 의료진 ID: {}, 매크로 이름: {}", 
-                    medical_staff_id, macroDto.getMacroName());
+            log.info("매크로 수정 성공 - 의료진 ID: {}, 매크로 ID: {}", medical_staff_id, macroDto.getMacroId());
         } catch (Exception e) {
             log.error("매크로 수정 중 오류 발생: {}", e.getMessage(), e);
             throw new RuntimeException("매크로 수정에 실패했습니다.", e);
