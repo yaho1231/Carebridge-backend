@@ -95,6 +95,15 @@ public class PatientService {
                 });
     }
 
+    @Transactional
+    public Patient getPatientByPhone(String phone) {
+        return patientRepository.findByPhoneNumber(phone)
+                .orElseThrow(() -> {
+                    log.error("환자를 찾을 수 없습니다. Phone Number: {}", phone);
+                    return new IllegalArgumentException("해당 전화번호의 환자를 찾을 수 없습니다: " + phone);
+                });
+    }
+
     /**
      * 새로운 환자 정보를 생성합니다.
      * 환자 정보 생성 전 사용자 계정이 존재하는지 확인합니다.

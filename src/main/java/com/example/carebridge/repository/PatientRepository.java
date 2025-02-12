@@ -49,4 +49,7 @@ public interface PatientRepository extends JpaRepository<Patient, Integer> {
         @Param("hospitalId") Integer hospitalId, 
         @Param("department") String department
     );
+
+    @Query("SELECT p FROM Patient p WHERE p.phoneNumber = :phone")
+    Optional<Patient> findByPhoneNumber(@Param("phone") String phone);
 }
