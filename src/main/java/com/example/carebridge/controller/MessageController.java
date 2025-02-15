@@ -1,6 +1,7 @@
 package com.example.carebridge.controller;
 
 import com.example.carebridge.dto.ChatMessageDto;
+import com.example.carebridge.dto.MessageNotificationDto;
 import com.example.carebridge.dto.MessageSummaryDto;
 import com.example.carebridge.dto.RequestDto;
 import com.example.carebridge.entity.Message;
@@ -18,6 +19,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.bind.annotation.*;
 
+import javax.management.Notification;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +54,7 @@ public class MessageController {
 
             // 환자의 메세지를 의료진에게 전송합니다.
             if(savedMessage.getIsPatient())
-                messagingTemplate.convertAndSend("/sub/user/chat" + message.getMedicalStaffId(), savedMessage);
+                messagingTemplate.convertAndSend("/sub/user/chat/" + message.getMedicalStaffId(), savedMessage);
             // 의료진의 메세지를 환자에게 전송합니다.
             else
                 messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), savedMessage);
@@ -62,10 +64,10 @@ public class MessageController {
                 Message chatGptMessage = messageService.chatGptMessage(message);
                 messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), chatGptMessage);
             }
-            // 환자가 보낸 의료진 도움요청이라면 Request를 생성합니다. 생성한 Request를 전송합니다.
+            // 환자가 보낸 의료진 도움요청이라면 Request를 생성합니다. 생성한 Request를 의료진에게 전송합니다.
             else if (savedMessage.getCategory().equals("의료진 도움요청") && message.getIsPatient()) {
                 Request req = callBellService.createRequestByMessage(savedMessage);
-                messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), req);
+                messagingTemplate.convertAndSend("/sub/user/chat/" + message.getMedicalStaffId(), req);
             }
         } catch (IllegalArgumentException e) {
             logger.error("잘못된 메시지 데이터: {}", e.getMessage(), e);
@@ -87,7 +89,7 @@ public class MessageController {
 //
 //            // 환자의 메세지를 의료진에게 전송합니다.
 //            if (savedMessage.getIsPatient())
-//                messagingTemplate.convertAndSend("/sub/user/chat" + message.getMedicalStaffId(), savedMessage);
+//                messagingTemplate.convertAndSend("/sub/user/chat/" + message.getMedicalStaffId(), savedMessage);
 //                // 의료진의 메세지를 환자에게 전송합니다.
 //            else
 //                messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), savedMessage);
@@ -101,7 +103,7 @@ public class MessageController {
 //            // 환자가 보낸 의료진 도움요청이라면 Request를 생성합니다. 생성한 Request를 전송합니다.
 //            else if (savedMessage.getCategory().equals("의료진 도움요청") && message.getIsPatient()) {
 //                Request req = callBellService.createRequestByMessage(savedMessage);
-//                messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), req);
+//                messagingTemplate.convertAndSend("/sub/user/chat/" + message.getMedicalStaffId(), req);
 //            }
 //            return ResponseEntity.status(HttpStatus.CREATED).body(savedMessage);
 //        } catch (IllegalArgumentException e) {
@@ -233,6 +235,17 @@ public class MessageController {
         try {
             // 메시지의 읽음 상태를 업데이트합니다.
             messageService.updateReadStatus(messageId);
+
+            MessageNotificationDto notificationDto = new MessageNotificationDto();
+            notificationDto.setMessageId(messageId);
+            notificationDto.setMessageType(MessageNotificationDto.MessageType.NOTIFICATION);
+            Message message = messageService.getMessageById(messageId);
+
+            if(message.getIsPatient())
+                messagingTemplate.convertAndSend("/sub/user/chat/" + message.getMedicalStaffId(), notificationDto);
+            else
+                messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), notificationDto);
+
             // HTTP 상태 코드 200(OK)을 반환합니다.
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {

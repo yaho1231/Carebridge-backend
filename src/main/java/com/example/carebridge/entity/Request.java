@@ -71,8 +71,9 @@ public class Request {
     @Column(name = "status", nullable = false)
     private RequestStatus status;
 
-    @Column(name = "isRequest")
-    private Boolean isRequest;
+    @Enumerated(EnumType.STRING)  // Enum을 문자열로 저장
+    @Column(nullable = false)
+    private MessageType type;
 
     /**
      * 요청 상태를 나타내는 열거형
@@ -92,6 +93,12 @@ public class Request {
         public String getDescription() {
             return description;
         }
+    }
+
+    public enum MessageType {
+        MESSAGE,
+        REQUEST,
+        NOTIFICATION
     }
 
     /**
