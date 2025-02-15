@@ -43,9 +43,16 @@ public class Message {
     @Column(name = "category")
     private String category;
 
-    @Column(name = "isRequest")
-    private Boolean isRequest;
-
     @Column(name = "isPatient")
     private Boolean isPatient;
+
+    @Enumerated(EnumType.STRING)  // Enum을 문자열로 저장
+    @Column(name = "type", nullable = false)
+    private MessageType type;
+
+    public enum MessageType {
+        MESSAGE,
+        REQUEST,
+        NOTIFICATION
+    }
 }

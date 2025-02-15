@@ -88,6 +88,7 @@ public class MessageService {
                     logger.error("채팅방을 찾을 수 없습니다 - 방 ID: {}", roomId);
                     return new IllegalArgumentException("해당 채팅방이 존재하지 않습니다.");
                 }).getPatientId();
+            category = "의료진 메세지";
         }
         message.setPatientId(patientId);
         message.setMedicalStaffId(medicalStaffId);
@@ -98,7 +99,7 @@ public class MessageService {
         message.setTimestamp(LocalDateTime.parse(chatMessageDto.getTimestamp()));
         message.setHospitalId(chatMessageDto.getHospitalId());
         message.setCategory(category);
-        message.setIsRequest(false);
+        message.setType(Message.MessageType.MESSAGE);
         messageRepository.save(message);
 
         return message;
@@ -144,7 +145,7 @@ public class MessageService {
         message.setTimestamp(LocalDateTime.now());
         message.setHospitalId(chatMessageDto.getHospitalId());
         message.setCategory("정보성 질문 답변자동생성");
-        message.setIsRequest(false);
+        message.setType(Message.MessageType.MESSAGE);
         message.setIsPatient(false);
         messageRepository.save(message);
 
@@ -203,6 +204,16 @@ public class MessageService {
         } catch (Exception e) {
             logger.error("Error fetching messages for patientId: {}", patientId, e);
             return new ArrayList<>();
+        }
+    }
+
+    public Message getMessageById(Integer messageId) {
+        try {
+            return messageRepository.findByMessageId(messageId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 메시지를 찾을 수 없습니다."));
+        } catch (Exception e) {
+            logger.error("Error fetching messages for patientId: {}", messageId, e);
+            return null;
         }
     }
 
