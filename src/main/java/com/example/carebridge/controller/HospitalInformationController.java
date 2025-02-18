@@ -173,15 +173,18 @@ public class HospitalInformationController {
         @ApiResponse(responseCode = "404", description = "수정할 정보를 찾을 수 없음"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @PutMapping("/{hospital_id}/{title}")
+    @PutMapping("/{hospital_id}/{id}")
     @ResponseBody
     public ResponseEntity<String> updateHospitalInformation(
             @Parameter(description = "병원 ID", required = true)
             @PathVariable("hospital_id") int hospitalId,
-            @Parameter(description = "정보 제목", required = true)
-            @PathVariable String title,
+            @Parameter(description = "정보 ID", required = true)
+            @PathVariable("id") int id,
             @Parameter(description = "새로운 정보 내용", required = true)
-            @RequestParam String information) {
+            @RequestParam String information,
+            @Parameter(description = "새로운 정보 제목", required = true)
+            @RequestParam String title
+            ) {
         try {
             log.debug("병원 정보 수정 요청 - 병원 ID: {}, 제목: {}", hospitalId, title);
             
@@ -190,7 +193,7 @@ public class HospitalInformationController {
                 return new ResponseEntity<>("정보 내용은 비워둘 수 없습니다.", HttpStatus.BAD_REQUEST);
             }
             
-            hospitalInformationService.updateHospitalInformation(hospitalId, title, information);
+            hospitalInformationService.updateHospitalInformation(hospitalId, id, title, information);
             log.info("병원 정보 수정 성공 - 병원 ID: {}, 제목: {}", hospitalId, title);
             return new ResponseEntity<>("병원 정보가 성공적으로 수정되었습니다.", HttpStatus.OK);
             
