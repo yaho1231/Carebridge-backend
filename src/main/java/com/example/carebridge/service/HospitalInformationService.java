@@ -156,14 +156,16 @@ public class HospitalInformationService {
      * @throws IllegalArgumentException 병원이나 정보를 찾을 수 없는 경우
      */
     @Transactional
-    public void updateHospitalInformation(int hospitalId, String title, String information) {
-        HospitalInformation hospitalInfo = hospitalInformationRepository.findByHospitalIdAndTitle(hospitalId, title)
+    public void updateHospitalInformation(int hospitalId, int id, String title, String information) {
+//        HospitalInformation hospitalInfo = hospitalInformationRepository.findByHospitalIdAndTitle(hospitalId, title)
+        HospitalInformation hospitalInfo = hospitalInformationRepository.findByHospitalIdAndId(hospitalId, id)
                 .orElseThrow(() -> {
                     log.error("병원 정보를 찾을 수 없습니다. 병원 ID: {}, 제목: {}", hospitalId, title);
                     return new IllegalArgumentException("해당 제목의 병원 정보를 찾을 수 없습니다.");
                 });
 
         hospitalInfo.setInformation(information);
+        hospitalInfo.setTitle(title);
         hospitalInformationRepository.save(hospitalInfo);
         log.info("병원 정보 업데이트 완료 - 병원 ID: {}, 제목: {}", hospitalId, title);
     }

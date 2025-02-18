@@ -37,4 +37,7 @@ public interface HospitalInformationRepository extends JpaRepository<HospitalInf
         @Param("hospitalId") Integer hospitalId, 
         @Param("title") String title
     );
+
+    @Query("SELECT hi FROM HospitalInformation hi WHERE hi.hospital.hospitalId = :hospitalId AND hi.id = :id")
+    Optional<HospitalInformation> findByHospitalIdAndId(Integer hospitalId, Integer id);
 }
