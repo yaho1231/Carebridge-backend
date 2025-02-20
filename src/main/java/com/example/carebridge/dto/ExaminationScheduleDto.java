@@ -1,6 +1,9 @@
 package com.example.carebridge.dto;
 
+import com.example.carebridge.entity.ExaminationSchedule;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -52,24 +55,6 @@ public class ExaminationScheduleDto {
      * SURGERY(수술), OUTPATIENT(외래), EXAMINATION(검진)
      */
     @NotNull(message = "진료 종류는 필수입니다")
-    private Category category;
+    private ExaminationSchedule.Category category;
 
-    /**
-     * 진료 종류를 정의하는 열거형
-     */
-    public enum Category {
-        SURGERY("수술"),
-        OUTPATIENT("외래"),
-        EXAMINATION("검진");
-
-        private final String description;
-
-        Category(String description) {
-            this.description = description;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-    }
 }

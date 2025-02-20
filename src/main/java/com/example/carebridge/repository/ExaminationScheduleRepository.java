@@ -30,4 +30,10 @@ public interface ExaminationScheduleRepository extends JpaRepository<Examination
     @NonNull
     @Query("SELECT e FROM ExaminationSchedule e WHERE e.medicalStaffId = :medicalStaffId ORDER BY e.scheduleDate ASC")
     List<ExaminationSchedule> findByMedicalStaffId(@Param("medicalStaffId") Integer medicalStaffId);
+
+    @Query("SELECT e FROM ExaminationSchedule e WHERE DATE(e.scheduleDate) = CURRENT_DATE AND e.patientId = :patientId ORDER BY e.scheduleDate ASC")
+    List<ExaminationSchedule> findTodaySchedulesByPatientId(@Param("patientId") Integer patientId);
+
+    @Query("SELECT e FROM ExaminationSchedule e WHERE e.id = :id")
+    ExaminationSchedule findById(@Param("id") int id);
 }
