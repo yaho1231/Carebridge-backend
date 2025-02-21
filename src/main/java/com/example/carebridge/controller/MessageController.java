@@ -63,11 +63,14 @@ public class MessageController {
             if (savedMessage.getCategory().equals("정보성 질문") && message.getIsPatient()){
                 Message chatGptMessage = messageService.chatGptMessage(message);
                 messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), chatGptMessage);
+                logger.info("Gpt Message : "+chatGptMessage.getMessageContent());
+                logger.info("ChatRoomId : "+message.getChatRoomId());
             }
             // 환자가 보낸 의료진 도움요청이라면 Request를 생성합니다. 생성한 Request를 의료진에게 전송합니다.
             else if (savedMessage.getCategory().equals("의료진 도움요청") && message.getIsPatient()) {
                 Request req = callBellService.createRequestByMessage(savedMessage);
                 messagingTemplate.convertAndSend("/sub/user/chat/" + message.getMedicalStaffId(), req);
+                logger.info("Request : "+req.getRequestContent());
             }
         } catch (IllegalArgumentException e) {
             logger.error("잘못된 메시지 데이터: {}", e.getMessage(), e);
@@ -77,7 +80,7 @@ public class MessageController {
 
     }
 
-    //테스트용
+//    //테스트용
 //    @PostMapping
 //    public ResponseEntity<Message> sendMessage(@RequestBody ChatMessageDto message) {
 //        try {
@@ -88,22 +91,24 @@ public class MessageController {
 //            Message savedMessage = messageService.saveMessage(message);
 //
 //            // 환자의 메세지를 의료진에게 전송합니다.
-//            if (savedMessage.getIsPatient())
+//            if(savedMessage.getIsPatient())
 //                messagingTemplate.convertAndSend("/sub/user/chat/" + message.getMedicalStaffId(), savedMessage);
 //                // 의료진의 메세지를 환자에게 전송합니다.
 //            else
 //                messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), savedMessage);
 //
 //            // 환자가 보낸 정보성 질문이라면 gpt를 통한 답변을 구독자들에게 전송합니다.
-//            if (savedMessage.getCategory().equals("정보성 질문") && message.getIsPatient()) {
+//            if (savedMessage.getCategory().equals("정보성 질문") && message.getIsPatient()){
 //                Message chatGptMessage = messageService.chatGptMessage(message);
 //                messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), chatGptMessage);
-//                return ResponseEntity.ok(chatGptMessage);
+//                logger.info(chatGptMessage.getMessageContent());
+//                logger.info(message.getChatRoomId());
 //            }
-//            // 환자가 보낸 의료진 도움요청이라면 Request를 생성합니다. 생성한 Request를 전송합니다.
+//            // 환자가 보낸 의료진 도움요청이라면 Request를 생성합니다. 생성한 Request를 의료진에게 전송합니다.
 //            else if (savedMessage.getCategory().equals("의료진 도움요청") && message.getIsPatient()) {
 //                Request req = callBellService.createRequestByMessage(savedMessage);
 //                messagingTemplate.convertAndSend("/sub/user/chat/" + message.getMedicalStaffId(), req);
+//                logger.info(req.getRequestContent());
 //            }
 //            return ResponseEntity.status(HttpStatus.CREATED).body(savedMessage);
 //        } catch (IllegalArgumentException e) {
@@ -242,9 +247,9 @@ public class MessageController {
             Message message = messageService.getMessageById(messageId);
 
             if(message.getIsPatient())
-                messagingTemplate.convertAndSend("/sub/user/chat/" + message.getMedicalStaffId(), notificationDto);
-            else
                 messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), notificationDto);
+            else
+                messagingTemplate.convertAndSend("/sub/user/chat/" + message.getMedicalStaffId(), notificationDto);
 
             // HTTP 상태 코드 200(OK)을 반환합니다.
             return new ResponseEntity<>(HttpStatus.OK);
