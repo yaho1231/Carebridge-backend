@@ -124,6 +124,7 @@ public class UserAccountController {
         if (isVerified && isValid) {
             // 세션에 사용자 전화번호 저장 (자동 로그인 기능을 위한 세션 활용)
             session.setAttribute("userPhone", verifyAccountDto.getPhone());
+            System.out.println("세션 생성됨: " + session.getId()); // 세션 ID 로그 확인 테스트용
             return ResponseEntity.ok(patientId);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
