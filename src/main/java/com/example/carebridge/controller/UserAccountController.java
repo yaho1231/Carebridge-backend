@@ -11,12 +11,17 @@ import com.example.carebridge.service.UserAccountService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
+@Slf4j
 @RestController
 @RequestMapping("/api/users")
 public class UserAccountController {
@@ -113,19 +118,24 @@ public class UserAccountController {
      * @return
      */
     @PostMapping("/login")
-    public ResponseEntity<Integer> login(@RequestBody VerifyAccountDto verifyAccountDto, HttpSession session) {
+    public ResponseEntity<Map<String, Integer>> login(@RequestBody VerifyAccountDto verifyAccountDto, HttpSession session) {
         boolean isVerified = userAccountService.verifyOtp(verifyAccountDto);
         boolean isValid = userAccountService.isValidUserAccount(verifyAccountDto.getPhone());
         Patient patient = patientService.getPatientByPhone(verifyAccountDto.getPhone());
         if (patient == null)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         Integer patientId = patient.getPatientId();
+        Integer userId = patient.getUserId();
 
         if (isVerified && isValid) {
             // 세션에 사용자 전화번호 저장 (자동 로그인 기능을 위한 세션 활용)
             session.setAttribute("userPhone", verifyAccountDto.getPhone());
             System.out.println("세션 생성됨: " + session.getId()); // 세션 ID 로그 확인 테스트용
-            return ResponseEntity.ok(patientId);
+
+            Map<String, Integer> response = new HashMap<>();
+            response.put("userId", userId);
+            response.put("patientId", patientId);
+            return ResponseEntity.ok(response);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
@@ -213,6 +223,8 @@ public class UserAccountController {
     @GetMapping("/session-check")
     public ResponseEntity<String> checkSession(HttpSession session) {
         String userPhone = (String) session.getAttribute("userPhone");
+        System.out.println(userPhone);
+        log.info(String.valueOf(userPhone));
         if (userPhone != null) {
             return ResponseEntity.ok("User is logged in with phone: " + userPhone);
         } else {
