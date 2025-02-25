@@ -1,6 +1,7 @@
 package com.example.carebridge.service;
 
-import com.example.carebridge.dto.*;
+import com.example.carebridge.dto.ChatRoomDto;
+import com.example.carebridge.dto.RequestDto;
 import com.example.carebridge.entity.ChatRoom;
 import com.example.carebridge.entity.Message;
 import com.example.carebridge.entity.Request;
@@ -13,8 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 콜벨 서비스
@@ -201,6 +205,33 @@ public class CallBellService {
         } catch (Exception e) {
             log.error("요청 삭제 실패 - 요청 ID: {}, 오류: {}", requestId, e.getMessage());
             throw new IllegalArgumentException("요청 삭제에 실패했습니다: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 요청 수락 시간을 업데이트합니다.
+     *
+     * @param requestId 요청 ID
+     * @param acceptTime 수락 시간
+     */
+    @Transactional
+    public void updateRequestAcceptTime(Integer requestId, String acceptTime) {
+        log.debug("요청 수락 시간 업데이트 시도 - 요청 ID: {}, 수락 시간: {}", requestId, acceptTime);
+        try {
+            Request request = requestRepository.findByRequestId(requestId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 요청을 찾을 수 없습니다."));
+
+            LocalDateTime Time = LocalDateTime.ofInstant(
+                    Instant.parse(acceptTime),
+                    ZoneId.systemDefault()
+            );
+
+            request.setAcceptTime(Time);
+            requestRepository.save(request);
+            log.info("요청 수락 시간 업데이트 완료 - 요청 ID: {}, 수락 시간: {}", requestId, acceptTime);
+        } catch (IllegalArgumentException e) {
+            log.error("요청 수락 시간 업데이트 실패 - 요청 ID: {}, 수락 시간: {}, 오류: {}", requestId, acceptTime, e.getMessage());
+            throw new IllegalArgumentException("요청 수락 시간 업데이트에 실패했습니다: " + e.getMessage());
         }
     }
 }
