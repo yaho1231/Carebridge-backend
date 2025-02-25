@@ -1,6 +1,5 @@
 package com.example.carebridge.dto;
 
-import com.example.carebridge.service.MedicalStaffService;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,11 +11,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ChatRoomDto {
-    /**
-     * MedicalStaffService 인스턴스
-     */
-    private MedicalStaffService medicalStaffService;
-
     /**
      * 채팅방의 고유 ID
      */

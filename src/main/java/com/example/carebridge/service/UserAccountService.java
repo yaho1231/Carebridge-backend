@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import net.nurigo.sdk.message.service.DefaultMessageService;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -27,37 +28,56 @@ public class UserAccountService {
     }
 
     public UserAccountDto getUserAccount(String phone_number){
-        UserAccount userAccount = userAccountRepository.findByPhoneNumber(phone_number);
+        UserAccount userAccount = userAccountRepository.findByPhoneNumber(phone_number)
+                .orElseThrow(() -> new IllegalArgumentException("해당 전화번호의 사용자를 찾을 수 없습니다."));
         return convertUserAccountToUserAccountDto(userAccount);
     }
 
-    public UserAccountDto createUserAccount(UserAccountDto userAccountDto){
-        UserAccount userAccount = new UserAccount();
+    public void createUserAccount(UserAccountDto userAccountDto){
+        UserAccount userAccount = userAccountRepository.findByPhoneNumber(userAccountDto.getPhoneNumber())
+                .orElse(new UserAccount());
         userAccount.update(userAccountDto);
         userAccountRepository.save(userAccount);
-        return convertUserAccountToUserAccountDto(userAccount);
     }
 
     public UserAccountDto updateUserAccount(String phone_number, UserAccountDto userAccountDto){
-        UserAccount userAccount = userAccountRepository.findByPhoneNumber(phone_number);
+        UserAccount userAccount = userAccountRepository.findByPhoneNumber(phone_number)
+                .orElseThrow(() -> new IllegalArgumentException("해당 전화번호의 사용자를 찾을 수 없습니다."));
         userAccount.update(userAccountDto);
         userAccountRepository.save(userAccount);
         return convertUserAccountToUserAccountDto(userAccount);
     }
 
-    public void sendOtp(String phone_number){
+    public void sendOtp(String phone_number, boolean isSignup){
+
+        Optional<UserAccount> optionalUserAccount = userAccountRepository.findByPhoneNumber(phone_number);
+
+        if (isSignup){
+            // 회원가입: 이미 등록된 전화번호인지 확인
+            if (optionalUserAccount.isPresent() && !optionalUserAccount.get().getName().equals("UserName"))
+                throw new IllegalArgumentException("이미 가입된 전화번호입니다.");
+        }
+        else {
+            // 로그인: 등록된 전화번호인지 확인
+            if (optionalUserAccount.isEmpty())
+                throw new IllegalArgumentException("등록되지 않은 전화번호입니다.");
+            else if(optionalUserAccount.get().getName().equals("UserName"))
+                throw new IllegalArgumentException("회원가입이 정상적으로 등록되지 않았습니다.");
+        }
+
         String otp = generateRandomNumber(6);
         LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(5);
 
-        UserAccount userAccount = userAccountRepository.findByPhoneNumber(phone_number);
-        if(userAccount == null){
-            userAccount = new UserAccount();
-            userAccount.setName("UserName");
-            userAccount.setPhoneNumber(phone_number);
-            userAccount.setBirthDate(LocalDateTime.now());
-            userAccount.setGender(UserAccount.Gender.Male);
-            userAccount.setEmail("email@email.com");
-        }
+        UserAccount userAccount = optionalUserAccount.orElseGet(() -> {
+            UserAccount newAccount = new UserAccount();
+            newAccount.setName("UserName");
+            newAccount.setPhoneNumber(phone_number);
+            newAccount.setBirthDate(LocalDateTime.now());
+            newAccount.setGender(UserAccount.Gender.Male);
+            newAccount.setEmail("email@email.com");
+            return newAccount;
+        });
+
         userAccount.setOtp(otp);
         userAccount.setOtpExpiry(expiryTime);
         userAccountRepository.save(userAccount);
@@ -71,14 +91,16 @@ public class UserAccountService {
     }
 
     public boolean verifyOtp(VerifyAccountDto verifyAccountDto) {
-        UserAccount userAccount = userAccountRepository.findByPhoneNumber(verifyAccountDto.getPhone());
+        UserAccount userAccount = userAccountRepository.findByPhoneNumber(verifyAccountDto.getPhone())
+                .orElseThrow(() -> new IllegalArgumentException("해당 전화번호의 사용자를 찾을 수 없습니다."));
 
         return userAccount.getOtp().equals(verifyAccountDto.getOtp()) &&
                 userAccount.getOtpExpiry().isAfter(LocalDateTime.now());
     }
 
     public boolean isValidUserAccount(String phone_number){
-        UserAccount userAccount = userAccountRepository.findByPhoneNumber(phone_number);
+        UserAccount userAccount = userAccountRepository.findByPhoneNumber(phone_number)
+                .orElseThrow(() -> new IllegalArgumentException("해당 전화번호의 사용자를 찾을 수 없습니다."));
         return !userAccount.getName().equals("UserName") &&
                 !userAccount.getEmail().equals("email@email.com");
     }

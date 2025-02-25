@@ -35,5 +35,24 @@ public class Message {
     private String chatRoomId; // 채팅방 ID
 
     @Column(name = "sender_id", nullable = false) // 발신자 ID 컬럼과 매핑
-    private Integer sender_id; // 발신자 ID
+    private Integer senderId; // 발신자 ID
+
+    @Column(name = "hospital_id")
+    private Integer hospitalId;
+
+    @Column(name = "category")
+    private String category;
+
+    @Column(name = "isPatient")
+    private Boolean isPatient;
+
+    @Enumerated(EnumType.STRING)  // Enum을 문자열로 저장
+    @Column(name = "type", nullable = false)
+    private MessageType type;
+
+    public enum MessageType {
+        MESSAGE,
+        REQUEST,
+        NOTIFICATION
+    }
 }

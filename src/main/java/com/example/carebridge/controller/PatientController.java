@@ -3,6 +3,12 @@ package com.example.carebridge.controller;
 import com.example.carebridge.dto.PatientDto;
 import com.example.carebridge.entity.Patient;
 import com.example.carebridge.service.PatientService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,77 +16,148 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 환자 정보 관리 컨트롤러
+ * 환자의 기본 정보 조회, 생성, 수정 등의 기능을 제공합니다.
+ */
+@Slf4j
 @RestController
 @RequestMapping("/api/patient")
+@Tag(name = "Patient Controller", description = "환자 정보 관리 API")
 public class PatientController {
     private final PatientService patientService;
+
     public PatientController(PatientService patientService) {
         this.patientService = patientService;
     }
 
     /**
-     * 모든 담당 환자 정보를 조회합니다.
+     * 의료진이 담당하는 모든 환자 정보를 조회합니다.
      *
-     * @return 환자 리스트
+     * @param staffId 의료진 ID
+     * @return 환자 목록과 HTTP 상태 코드
      */
+    @Operation(summary = "담당 환자 목록 조회", description = "의료진 ID로 담당하는 모든 환자의 정보를 조회합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "환자 목록 조회 성공"),
+        @ApiResponse(responseCode = "204", description = "조회된 환자가 없음"),
+        @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     @GetMapping("/users/{staff_id}")
     @ResponseBody
-    public ResponseEntity<List<PatientDto>> getPatientList(@PathVariable("staff_id") int staffId) {
+    public ResponseEntity<List<PatientDto>> getPatientList(
+            @Parameter(description = "의료진 ID", required = true)
+            @PathVariable("staff_id") int staffId) {
         try {
+            log.debug("의료진 ID {}의 담당 환자 목록 조회 요청", staffId);
             List<PatientDto> patientDtoList = patientService.getPatientList(staffId);
+            
             if (patientDtoList.isEmpty()) {
+                log.info("의료진 ID {}의 담당 환자가 없습니다.", staffId);
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
+            
+            log.debug("의료진 ID {}의 담당 환자 {}명 조회 성공", staffId, patientDtoList.size());
             return new ResponseEntity<>(patientDtoList, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            log.error("잘못된 의료진 ID: {}", staffId, e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
+            log.error("환자 목록 조회 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
-     * 환자의 ID로 환자 정보를 조회합니다.
+     * 특정 환자의 상세 정보를 조회합니다.
      *
-     * @param patientId 환자의 ID
-     * @return 환자 객체
+     * @param patientId 환자 ID
+     * @return 환자 정보와 HTTP 상태 코드
      */
+    @Operation(summary = "환자 상세 정보 조회", description = "환자 ID로 특정 환자의 상세 정보를 조회합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "환자 정보 조회 성공"),
+        @ApiResponse(responseCode = "404", description = "환자를 찾을 수 없음"),
+        @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     @GetMapping("/user/{patient_id}")
     @ResponseBody
-    public ResponseEntity<PatientDto> getPatientById(@PathVariable("patient_id") int patientId) {
-        PatientDto patientDto = patientService.convertToDto(patientService.getPatientById(patientId));
-        return new ResponseEntity<>(patientDto, HttpStatus.OK);
+    public ResponseEntity<PatientDto> getPatientById(
+            @Parameter(description = "환자 ID", required = true)
+            @PathVariable("patient_id") int patientId) {
+        try {
+            log.debug("환자 ID {} 정보 조회 요청", patientId);
+            Patient patient = patientService.getPatientById(patientId);
+            
+            if (patient == null) {
+                log.info("환자 ID {}를 찾을 수 없습니다.", patientId);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            
+            PatientDto patientDto = patientService.convertToDto(patient);
+            log.debug("환자 ID {} 정보 조회 성공", patientId);
+            return new ResponseEntity<>(patientDto, HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("환자 정보 조회 중 오류 발생: {}", e.getMessage(), e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
      * 환자의 채팅방 존재 여부를 확인합니다.
      *
-     * @param patientId 환자의 ID
-     * @return 채팅방 존재 여부
+     * @param patientId 환자 ID
+     * @return 채팅방 존재 여부와 HTTP 상태 코드
      */
+    @Operation(summary = "채팅방 존재 여부 확인", description = "환자 ID로 해당 환자의 채팅방 존재 여부를 확인합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "채팅방 존재 여부 확인 성공"),
+        @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     @GetMapping("/chatroom/{patient_id}")
     @ResponseBody
-    public ResponseEntity<Boolean> isChatRoomExist(@PathVariable("patient_id") int patientId) {
+    public ResponseEntity<Boolean> isChatRoomExist(
+            @Parameter(description = "환자 ID", required = true)
+            @PathVariable("patient_id") int patientId) {
         try {
+            log.debug("환자 ID {}의 채팅방 존재 여부 확인 요청", patientId);
             boolean isChatRoomExist = patientService.isChatRoomExist(patientId);
+            log.debug("환자 ID {}의 채팅방 존재 여부: {}", patientId, isChatRoomExist);
             return new ResponseEntity<>(isChatRoomExist, HttpStatus.OK);
         } catch (Exception e) {
+            log.error("채팅방 존재 여부 확인 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
-     * 환자 정보를 생성합니다.
-     * User\_Account 가 이미 생성되어 있어야 합니다.
+     * 새로운 환자 정보를 생성합니다.
+     * 사용자 계정이 이미 생성되어 있어야 합니다.
      *
-     * @param patientDto 환자 DTO
-     * @return 생성된 환자 객체와 HTTP 상태 코드
+     * @param patientDto 환자 정보 DTO
+     * @return 생성된 환자 정보와 HTTP 상태 코드
      */
+    @Operation(summary = "환자 정보 생성", description = "새로운 환자 정보를 생성합니다. 사용자 계정이 필요합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "환자 정보 생성 성공"),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+        @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     @PostMapping("/user")
     @ResponseBody
-    public ResponseEntity<Patient> createPatient(@RequestBody PatientDto patientDto) {
+    public ResponseEntity<Patient> createPatient(
+            @Parameter(description = "환자 정보", required = true)
+            @RequestBody PatientDto patientDto) {
         try {
-            Patient patient1 = patientService.createPatient(patientDto);
-            return new ResponseEntity<>(patient1, HttpStatus.OK);
+            log.debug("새로운 환자 정보 생성 요청: {}", patientDto);
+            Patient patient = patientService.createPatient(patientDto);
+            log.info("새로운 환자 정보 생성 성공. ID: {}", patient.getPatientId());
+            return new ResponseEntity<>(patient, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            log.error("잘못된 환자 정보: {}", e.getMessage(), e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
+            log.error("환자 정보 생성 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -88,17 +165,41 @@ public class PatientController {
     /**
      * 환자의 전화번호를 업데이트합니다.
      *
-     * @param patientId 환자의 ID
-     * @param request {"phoneNumber": "010xxxxxxxx"}
+     * @param patientId 환자 ID
+     * @param request 새로운 전화번호 정보 {"phoneNumber": "010xxxxxxxx"}
      * @return HTTP 상태 코드
      */
+    @Operation(summary = "환자 전화번호 수정", description = "환자의 전화번호 정보를 업데이트합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "전화번호 수정 성공"),
+        @ApiResponse(responseCode = "400", description = "잘못된 전화번호 형식"),
+        @ApiResponse(responseCode = "404", description = "환자를 찾을 수 없음"),
+        @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     @PutMapping("/phone/{patient_id}")
     @ResponseBody
-    public ResponseEntity<Void> updatePhoneNumber(@PathVariable("patient_id") int patientId, @RequestBody Map<String, String> request) {
+    public ResponseEntity<Void> updatePhoneNumber(
+            @Parameter(description = "환자 ID", required = true)
+            @PathVariable("patient_id") int patientId,
+            @Parameter(description = "새로운 전화번호", required = true)
+            @RequestBody Map<String, String> request) {
         try {
-            patientService.updatePhoneNumber(patientId, request.get("phoneNumber"));
+            log.debug("환자 ID {}의 전화번호 수정 요청", patientId);
+            String newPhoneNumber = request.get("phoneNumber");
+            
+            if (newPhoneNumber == null || !newPhoneNumber.matches("^01(?:0|1|[6-9])[.-]?(\\d{3}|\\d{4})[.-]?(\\d{4})$")) {
+                log.error("잘못된 전화번호 형식: {}", newPhoneNumber);
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            
+            patientService.updatePhoneNumber(patientId, newPhoneNumber);
+            log.info("환자 ID {}의 전화번호 수정 성공", patientId);
             return new ResponseEntity<>(HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            log.error("환자를 찾을 수 없음. ID: {}", patientId, e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
+            log.error("전화번호 수정 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

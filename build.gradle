@@ -42,7 +42,7 @@ dependencies {
     // Spring Web Services - 웹 서비스 기능 제공
     implementation 'org.springframework.boot:spring-boot-starter-web-services'
 
-    // Thymeleaf Spring Security Extras - Thymeleaf와 Spring Security 통합
+    // Thymeleaf Spring Security Extras - Thymeleaf 와 Spring Security 통합
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
 
     // Spring WebSocket - WebSocket 지원
@@ -84,6 +84,16 @@ dependencies {
 
     // Hospital Information service - 가장 유사한 내용 찾기 기능
     implementation 'org.apache.commons:commons-text:1.10.0'
+
+    // MapStruct - 객체 간 매핑을 자동화하는 라이브러리
+    // 컴파일 시점에 매핑 코드를 생성하여 높은 성능 제공
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+    
+    // MapStruct 어노테이션 프로세서
+    // 컴파일 시점에 매퍼 구현체를 자동으로 생성
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+
+    implementation 'com.google.firebase:firebase-admin:9.1.1'
 }
 
 tasks.named('test') {

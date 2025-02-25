@@ -11,7 +11,8 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChatCompletionDto {
 
     // 사용할 모델

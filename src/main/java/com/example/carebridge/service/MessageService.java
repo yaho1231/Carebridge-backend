@@ -1,9 +1,12 @@
 package com.example.carebridge.service;
 
+import com.example.carebridge.dto.ChatCompletionDto;
 import com.example.carebridge.dto.ChatMessageDto;
+import com.example.carebridge.dto.ChatRequestMsgDto;
 import com.example.carebridge.dto.MessageSummaryDto;
 import com.example.carebridge.entity.Message;
 import com.example.carebridge.repository.ChatRoomRepository;
+import com.example.carebridge.repository.HospitalRepository;
 import com.example.carebridge.repository.MessageRepository;
 import com.example.carebridge.repository.PatientRepository;
 import org.slf4j.Logger;
@@ -14,6 +17,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,11 +27,17 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final PatientRepository patientRepository;
+    private final ChatGPTService chatGPTService;
+    private final HospitalInformationService hospitalInformationService;
+    private final HospitalRepository hospitalRepository;
 
-    public MessageService(MessageRepository messageRepository, ChatRoomRepository chatRoomRepository, PatientRepository patientRepository) {
+    public MessageService(MessageRepository messageRepository, ChatRoomRepository chatRoomRepository, PatientRepository patientRepository, ChatGPTService chatGPTService, HospitalInformationService hospitalInformationService, HospitalRepository hospitalRepository) {
         this.messageRepository = messageRepository;
         this.chatRoomRepository = chatRoomRepository;
         this.patientRepository = patientRepository;
+        this.chatGPTService = chatGPTService;
+        this.hospitalInformationService = hospitalInformationService;
+        this.hospitalRepository = hospitalRepository;
     }
 
     @Autowired
@@ -44,21 +54,99 @@ public class MessageService {
         Integer patientId;
         Integer medicalStaffId;
         String roomId = chatMessageDto.getChatRoomId();
+        String category = chatMessageDto.getCategory();
 
         if (chatMessageDto.getIsPatient()) {
-            patientId = chatMessageDto.getSender_id();
-            medicalStaffId = chatRoomRepository.findByChatRoomId(roomId).getMedicalStaffId();
+            message.setIsPatient(true);
+            patientId = chatMessageDto.getSenderId();
+            medicalStaffId = chatRoomRepository.findByChatRoomId(roomId)
+                .orElseThrow(() -> {
+                    logger.error("채팅방을 찾을 수 없습니다 - 방 ID: {}", roomId);
+                    return new IllegalArgumentException("해당 채팅방이 존재하지 않습니다.");
+                }).getMedicalStaffId();
+
+            ChatCompletionDto chatCompletionDto = new ChatCompletionDto(
+                    "gpt-4o-mini-2024-07-18",
+                    Collections.singletonList(new ChatRequestMsgDto("user",
+                            "다음 메시지를 반드시 정보성 질문, 의료진 도움요청, 기타 3개의 카테고리 중 하나로만 단답으로 분류하라. " +
+                                    "대부분의 메세지를 정보성 질문 혹은 의료진 도움요청이 되도록 하라." +
+                                    "단순히 웹에서 정보 제공을 통해 처리 가능한 요청사항의 경우 정보성 질문에 해당한다. " +
+                                    "웹에서 처리 불가능하며 간호 간병 의료진이 필요한(~하고 싶다, ~해달라, ~하고 싶어요 등 의료진의 도움을 바라는) 요청사항의 경우 의료진 도움요청에 해당한다." +
+                                    "그리고 알겠습니다, 네 등과 같이 사용자가 답변을 필요로하지 않는 일부 메세지만 기타에 해당한다." +
+                                    "메시지 :" + chatMessageDto.getMessageContent()))
+            );
+            Map<String, Object> result = chatGPTService.prompt(chatCompletionDto);
+            List<Map<String, Object>> choices = (List<Map<String, Object>>) result.get("choices");
+            Map<String, Object> getMessage = (Map<String, Object>) choices.get(0).get("message");
+            category = (String) getMessage.get("content");
+//            System.out.println(category);
         } else {
-            medicalStaffId = chatMessageDto.getSender_id();
-            patientId = chatRoomRepository.findByChatRoomId(roomId).getPatientId();
+            message.setIsPatient(false);
+            medicalStaffId = chatMessageDto.getSenderId();
+            patientId = chatRoomRepository.findByChatRoomId(roomId)
+                .orElseThrow(() -> {
+                    logger.error("채팅방을 찾을 수 없습니다 - 방 ID: {}", roomId);
+                    return new IllegalArgumentException("해당 채팅방이 존재하지 않습니다.");
+                }).getPatientId();
+            category = "의료진 메세지";
         }
         message.setPatientId(patientId);
         message.setMedicalStaffId(medicalStaffId);
         message.setChatRoomId(roomId);
         message.setMessageContent(chatMessageDto.getMessageContent());
-        message.setSender_id(chatMessageDto.getSender_id());
+        message.setSenderId(chatMessageDto.getSenderId());
         message.setReadStatus(chatMessageDto.getReadStatus());
-        message.setTimestamp(chatMessageDto.getTimestamp());
+        message.setTimestamp(LocalDateTime.parse(chatMessageDto.getTimestamp()));
+        message.setHospitalId(chatMessageDto.getHospitalId());
+        message.setCategory(category);
+        message.setType(Message.MessageType.MESSAGE);
+        messageRepository.save(message);
+
+        return message;
+    }
+
+    public Message chatGptMessage(ChatMessageDto chatMessageDto) {
+        Message message = new Message();
+        Integer patientId = chatMessageDto.getSenderId();
+        String roomId = chatMessageDto.getChatRoomId();
+        Integer medicalStaffId = chatRoomRepository.findByChatRoomId(roomId)
+            .orElseThrow(() -> {
+                logger.error("채팅방을 찾을 수 없습니다 - 방 ID: {}", roomId);
+                return new IllegalArgumentException("해당 채팅방이 존재하지 않습니다.");
+            }).getMedicalStaffId();
+        String hospitalName = hospitalRepository.findByHospitalId(chatMessageDto.getHospitalId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 병원을 찾을 수 없습니다."))
+                .getName();
+
+        String mostSimilarInfo = Optional.ofNullable(hospitalInformationService.findMostSimilarHospitalInformation(
+                chatMessageDto.getMessageContent(), chatMessageDto.getHospitalId()))
+                .orElseThrow(() -> new IllegalArgumentException("관련된 병원 정보를 찾을 수 없습니다."))
+                .getInformation();
+        ChatCompletionDto chatCompletionDto = new ChatCompletionDto(
+                "gpt-4o-mini-2024-07-18",
+                Collections.singletonList(new ChatRequestMsgDto("user",
+                        "지금부터 너는 " + hospitalName +
+                                "병원에 소속된 의료진이다." +
+                                "다음 내용을 기반으로 varchar(255) 크기를 넘지 않게 답변하라 " + mostSimilarInfo +
+                                "답변해야할 메시지 :" + chatMessageDto.getMessageContent()))
+        );
+
+        Map<String, Object> result = chatGPTService.prompt(chatCompletionDto);
+        List<Map<String, Object>> choices = (List<Map<String, Object>>) result.get("choices");
+        Map<String, Object> getMessage = (Map<String, Object>) choices.get(0).get("message");
+        String content = (String) getMessage.get("content");
+
+        message.setPatientId(patientId);
+        message.setMedicalStaffId(medicalStaffId);
+        message.setChatRoomId(roomId);
+        message.setMessageContent(content);
+        message.setSenderId(medicalStaffId);
+        message.setReadStatus(chatMessageDto.getReadStatus());
+        message.setTimestamp(LocalDateTime.now());
+        message.setHospitalId(chatMessageDto.getHospitalId());
+        message.setCategory("정보성 질문 답변자동생성");
+        message.setType(Message.MessageType.MESSAGE);
+        message.setIsPatient(false);
         messageRepository.save(message);
 
         return message;
@@ -70,7 +158,8 @@ public class MessageService {
      * @param messageId 메시지의 ID
      */
     public void updateReadStatus(Integer messageId) {
-        Message message = messageRepository.findByMessageId(messageId);
+        Message message = messageRepository.findByMessageId(messageId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 메시지를 찾을 수 없습니다."));
         message.setReadStatus(true);
         messageRepository.save(message);
     }
@@ -115,6 +204,16 @@ public class MessageService {
         } catch (Exception e) {
             logger.error("Error fetching messages for patientId: {}", patientId, e);
             return new ArrayList<>();
+        }
+    }
+
+    public Message getMessageById(Integer messageId) {
+        try {
+            return messageRepository.findByMessageId(messageId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 메시지를 찾을 수 없습니다."));
+        } catch (Exception e) {
+            logger.error("Error fetching messages for patientId: {}", messageId, e);
+            return null;
         }
     }
 
@@ -170,40 +269,33 @@ public class MessageService {
      * @return 메시지 요약 정보 리스트
      */
     public List<MessageSummaryDto> getSummaryMessageInformation(Integer medicalStaffId) {
-        // 의료진 ID로 메시지 목록을 조회합니다.
         List<Message> messages = messageRepository.findByMedicalStaffId(medicalStaffId);
 
-        // 메시지를 환자 ID 별로 그룹화합니다.
         Map<Integer, List<Message>> messagesByPatient = messages.stream()
                 .collect(Collectors.groupingBy(Message::getPatientId));
 
-        // 메시지 요약 정보를 저장할 리스트를 생성합니다.
         List<MessageSummaryDto> summaryList = new ArrayList<>();
 
-        // 각 환자별로 메시지 요약 정보를 생성합니다.
         for (Map.Entry<Integer, List<Message>> entry : messagesByPatient.entrySet()) {
             List<Message> patientMessages = entry.getValue();
 
-            // 메시지를 타임스탬프 기준으로 내림차순 정렬하여 가장 최근 메시지를 가져옵니다.
             patientMessages.sort(Comparator.comparing(Message::getTimestamp).reversed());
 
-            // 가장 최근 메시지를 가져옵니다.
             Message recentMessage = patientMessages.get(0);
 
-            // 메시지 요약 정보를 생성합니다.
             MessageSummaryDto summary = new MessageSummaryDto(
-                    patientRepository.findByPatientId(recentMessage.getPatientId()).getName(), // 발신자 이름을 문자열로 변환하여 사용
+                    patientRepository.findByPatientId(recentMessage.getPatientId())
+                            .orElseThrow(() -> new IllegalArgumentException("해당 환자를 찾을 수 없습니다."))
+                            .getName(),
                     recentMessage.getChatRoomId(),
                     recentMessage.getMessageContent(),
                     Timestamp.valueOf(recentMessage.getTimestamp()).toLocalDateTime(),
                     recentMessage.getReadStatus()
             );
 
-            // 메시지 요약 정보를 리스트에 추가합니다.
             summaryList.add(summary);
         }
 
-        // 메시지 요약 정보 리스트를 반환합니다.
         return summaryList;
     }
 }

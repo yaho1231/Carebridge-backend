@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Setter
 @Getter
@@ -43,6 +42,9 @@ public class UserAccount {
 
     @Column(name = "otp_expiry")
     private LocalDateTime otpExpiry; // OTP 만료 시간
+
+    @Column(name = "fcm_token")
+    private String fcmToken; // FCM 토큰
 
     public enum Gender {
         Male, Female

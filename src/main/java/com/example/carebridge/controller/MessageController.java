@@ -1,9 +1,16 @@
 package com.example.carebridge.controller;
 
 import com.example.carebridge.dto.ChatMessageDto;
+import com.example.carebridge.dto.MessageNotificationDto;
 import com.example.carebridge.dto.MessageSummaryDto;
+import com.example.carebridge.dto.RequestDto;
 import com.example.carebridge.entity.Message;
+import com.example.carebridge.entity.Request;
+import com.example.carebridge.service.CallBellService;
 import com.example.carebridge.service.MessageService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -12,6 +19,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.bind.annotation.*;
 
+import javax.management.Notification;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -22,10 +30,12 @@ public class MessageController {
     private static final Logger logger = LoggerFactory.getLogger(MessageController.class);
     private final MessageService messageService;
     private final SimpMessageSendingOperations messagingTemplate;
+    private final CallBellService callBellService;
 
-    public MessageController(MessageService messageService, SimpMessageSendingOperations messagingTemplate) {
+    public MessageController(MessageService messageService, SimpMessageSendingOperations messagingTemplate, CallBellService callBellService) {
         this.messageService = messageService;
         this.messagingTemplate = messagingTemplate;
+        this.callBellService = callBellService;
     }
 
     /**
@@ -35,15 +45,79 @@ public class MessageController {
      */
     @MessageMapping("chat/message")
     public void message(ChatMessageDto message) {
-        // 수신된 메시지를 로그에 기록합니다.
-        logger.info("Received message: {}", message);
+        try {
+            // 수신된 메시지를 로그에 기록합니다.
+            logger.info("Received message: {}", message);
 
-        // 메시지를 데이터베이스에 저장합니다.
-        Message savedMessage = messageService.saveMessage(message);
+            // 메시지를 데이터베이스에 저장합니다.
+            Message savedMessage = messageService.saveMessage(message);
 
-        // 수신된 메시지를 해당 채팅방의 구독자들에게 전송합니다.
-        messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), savedMessage);
+            // 환자의 메세지를 의료진에게 전송합니다.
+            if(savedMessage.getIsPatient())
+                messagingTemplate.convertAndSend("/sub/user/chat/" + message.getMedicalStaffId(), savedMessage);
+            // 의료진의 메세지를 환자에게 전송합니다.
+            else
+                messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), savedMessage);
+
+            // 환자가 보낸 정보성 질문이라면 gpt를 통한 답변을 구독자들에게 전송합니다.
+            if (savedMessage.getCategory().equals("정보성 질문") && message.getIsPatient()){
+                Message chatGptMessage = messageService.chatGptMessage(message);
+                messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), chatGptMessage); // 자동 답변 환자에게 전송
+
+                messagingTemplate.convertAndSend("/sub/user/chat/" + message.getMedicalStaffId(), chatGptMessage); // 환자에게 보낸 자동 답변 의료진한테도 전송
+            }
+            // 환자가 보낸 의료진 도움요청이라면 Request를 생성합니다. 생성한 Request를 의료진에게 전송합니다.
+            else if (savedMessage.getCategory().equals("의료진 도움요청") && message.getIsPatient()) {
+                Request req = callBellService.createRequestByMessage(savedMessage);
+                messagingTemplate.convertAndSend("/sub/user/chat/" + message.getMedicalStaffId(), req);
+                logger.info("Request : "+req.getRequestContent());
+            }
+        } catch (IllegalArgumentException e) {
+            logger.error("잘못된 메시지 데이터: {}", e.getMessage(), e);
+        } catch (Exception e) {
+            logger.error("메시지 처리 중 오류 발생: {}", e.getMessage(), e);
+        }
+
     }
+
+//    //테스트용
+//    @PostMapping
+//    public ResponseEntity<Message> sendMessage(@RequestBody ChatMessageDto message) {
+//        try {
+//            // 수신된 메시지를 로그에 기록합니다.
+//            logger.info("Received message: {}", message);
+//
+//            // 메시지를 데이터베이스에 저장합니다.
+//            Message savedMessage = messageService.saveMessage(message);
+//
+//            // 환자의 메세지를 의료진에게 전송합니다.
+//            if(savedMessage.getIsPatient())
+//                messagingTemplate.convertAndSend("/sub/user/chat/" + message.getMedicalStaffId(), savedMessage);
+//                // 의료진의 메세지를 환자에게 전송합니다.
+//            else
+//                messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), savedMessage);
+//
+//            // 환자가 보낸 정보성 질문이라면 gpt를 통한 답변을 구독자들에게 전송합니다.
+//            if (savedMessage.getCategory().equals("정보성 질문") && message.getIsPatient()){
+//                Message chatGptMessage = messageService.chatGptMessage(message);
+//                messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), chatGptMessage);
+//                logger.info(chatGptMessage.getMessageContent());
+//                logger.info(message.getChatRoomId());
+//            }
+//            // 환자가 보낸 의료진 도움요청이라면 Request를 생성합니다. 생성한 Request를 의료진에게 전송합니다.
+//            else if (savedMessage.getCategory().equals("의료진 도움요청") && message.getIsPatient()) {
+//                Request req = callBellService.createRequestByMessage(savedMessage);
+//                messagingTemplate.convertAndSend("/sub/user/chat/" + message.getMedicalStaffId(), req);
+//                logger.info(req.getRequestContent());
+//            }
+//            return ResponseEntity.status(HttpStatus.CREATED).body(savedMessage);
+//        } catch (IllegalArgumentException e) {
+//            logger.error("잘못된 메시지 데이터: {}", e.getMessage(), e);
+//        } catch (Exception e) {
+//            logger.error("메시지 처리 중 오류 발생: {}", e.getMessage(), e);
+//        }
+//        return null;
+//    }
 
     /**
      * 모든 환자의 메시지 목록을 반환합니다.
@@ -166,6 +240,17 @@ public class MessageController {
         try {
             // 메시지의 읽음 상태를 업데이트합니다.
             messageService.updateReadStatus(messageId);
+
+            MessageNotificationDto notificationDto = new MessageNotificationDto();
+            notificationDto.setMessageId(messageId);
+            notificationDto.setMessageType(MessageNotificationDto.MessageType.NOTIFICATION);
+            Message message = messageService.getMessageById(messageId);
+
+            if(message.getIsPatient())
+                messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), notificationDto);
+            else
+                messagingTemplate.convertAndSend("/sub/user/chat/" + message.getMedicalStaffId(), notificationDto);
+
             // HTTP 상태 코드 200(OK)을 반환합니다.
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
