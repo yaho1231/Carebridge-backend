@@ -8,6 +8,7 @@ import com.example.carebridge.entity.UserAccount;
 import com.example.carebridge.service.OAuthService;
 import com.example.carebridge.service.PatientService;
 import com.example.carebridge.service.UserAccountService;
+import com.example.carebridge.util.JwtUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -29,11 +30,13 @@ public class UserAccountController {
     private final UserAccountService userAccountService;
     private final OAuthService oAuthService;
     private final PatientService patientService;
+    private final JwtUtil jwtUtil;
 
-    public UserAccountController(UserAccountService userAccountService, OAuthService oAuthService, PatientService patientService) {
+    public UserAccountController(UserAccountService userAccountService, OAuthService oAuthService, PatientService patientService, JwtUtil jwtUtil) {
         this.userAccountService = userAccountService;
         this.oAuthService = oAuthService;
         this.patientService = patientService;
+        this.jwtUtil = jwtUtil;
     }
 
     /**
@@ -118,7 +121,7 @@ public class UserAccountController {
      * @return
      */
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Integer>> login(@RequestBody VerifyAccountDto verifyAccountDto, HttpSession session) {
+    public ResponseEntity<Map<String, String>> login(@RequestBody VerifyAccountDto verifyAccountDto, HttpSession session) {
         boolean isVerified = userAccountService.verifyOtp(verifyAccountDto);
         boolean isValid = userAccountService.isValidUserAccount(verifyAccountDto.getPhone());
         Patient patient = patientService.getPatientByPhone(verifyAccountDto.getPhone());
@@ -128,13 +131,17 @@ public class UserAccountController {
         Integer userId = patient.getUserId();
 
         if (isVerified && isValid) {
-            // 세션에 사용자 전화번호 저장 (자동 로그인 기능을 위한 세션 활용)
-            session.setAttribute("userPhone", verifyAccountDto.getPhone());
-            log.info("세션 생성됨: " + session.getId());
+            //jwt 발급
+            String token = jwtUtil.generateToken(verifyAccountDto.getPhone());
 
-            Map<String, Integer> response = new HashMap<>();
-            response.put("userId", userId);
-            response.put("patientId", patientId);
+            // 세션에 사용자 전화번호 저장 (자동 로그인 기능을 위한 세션 활용)
+//            session.setAttribute("userPhone", verifyAccountDto.getPhone());
+//            log.info("세션 생성됨: " + session.getId());
+//            log.info("세션 확인용" + session.getAttribute("userPhone"));
+            Map<String, String > response = new HashMap<>();
+//            response.put("userId", userId);
+//            response.put("patientId", patientId);
+            response.put("accessToken", token);
             return ResponseEntity.ok(response);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
@@ -225,7 +232,7 @@ public class UserAccountController {
     public ResponseEntity<String> checkSession(HttpSession session) {
         String userPhone = (String) session.getAttribute("userPhone");
         log.info("세션 확인: " + session.getId());
-        log.info("세션 전화번호 확인: " + session.getAttribute(userPhone));
+        log.info("세션 전화번호 확인: " + session.getAttribute("userPhone"));
 
         if (userPhone != null) {
             return ResponseEntity.ok("User is logged in with phone: " + userPhone);
@@ -233,4 +240,33 @@ public class UserAccountController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
         }
     }
+
+    //자동 로그인 (JWT 검증)
+    @PostMapping("/auto-login")
+    public ResponseEntity<Map<String, String>> autoLogin(@RequestHeader(value = "Authorization") String token) {
+        Map<String, String> response = new HashMap<>();
+
+        if (token == null || token.isBlank()) {
+            response.put("message", "토큰이 제공되지 않았습니다.");
+            log.info("token : " + token);
+            return ResponseEntity.status(400).body(response);
+        }
+
+        try {
+            // "Bearer "가 포함된 경우 제거, 그렇지 않으면 그대로 사용
+            String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+
+            if (jwtUtil.isTokenValid(jwtToken)) {
+                response.put("message", "자동 로그인 성공");
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("message", "유효하지 않은 토큰입니다.");
+                return ResponseEntity.status(401).body(response);
+            }
+        } catch (Exception e) {
+            response.put("message", "토큰 검증 중 오류 발생");
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
 }
