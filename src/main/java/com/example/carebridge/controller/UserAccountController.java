@@ -14,11 +14,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -188,10 +190,10 @@ public class UserAccountController {
      * @return
      */
     @GetMapping("/social-login/kakao/token")
-    public ResponseEntity<String> kakaoLogin(HttpServletRequest request, HttpSession session) throws Exception {
+    public ResponseEntity<Void> kakaoLogin(HttpServletRequest request, HttpSession session) throws Exception {
         String code = request.getParameter("code");
         if (code == null)
-            return ResponseEntity.badRequest().body("Authorization code is missing");
+            return ResponseEntity.status(HttpStatus.FOUND).location(URI.create("/login?error=missing_code")).build();
         // 1. Access Token 발급
         String accessToken = oAuthService.getKakaoToken(code);
         // 2. 사용자 정보 조회
@@ -202,9 +204,11 @@ public class UserAccountController {
             session.setAttribute("loginUser", kakaoUserAccount);
             session.setMaxInactiveInterval(60 * 60); // 60분 유지
             session.setAttribute("kakaoToken", accessToken);
-            return ResponseEntity.ok("Login successful. Redirect to /dashboard");
+            HttpHeaders headers = new HttpHeaders();
+            headers.setLocation(URI.create("http://localhost:5173/choose-patient-type"));
+            return new ResponseEntity<>(headers, HttpStatus.FOUND);
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login failed. Redirect to /login?error");
+            return ResponseEntity.status(HttpStatus.FOUND).location(URI.create("/login?error=unauthorized")).build();
         }
     }
 
