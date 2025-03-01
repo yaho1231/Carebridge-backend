@@ -2,6 +2,7 @@ package com.example.carebridge.controller;
 
 import com.example.carebridge.dto.KakaoDto;
 import com.example.carebridge.dto.UserAccountDto;
+import com.example.carebridge.dto.UserLoginDto;
 import com.example.carebridge.dto.VerifyAccountDto;
 import com.example.carebridge.entity.Patient;
 import com.example.carebridge.entity.UserAccount;
@@ -123,7 +124,7 @@ public class UserAccountController {
      * @return
      */
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody VerifyAccountDto verifyAccountDto, HttpSession session) {
+    public ResponseEntity<UserLoginDto> login(@RequestBody VerifyAccountDto verifyAccountDto, HttpSession session) {
         boolean isVerified = userAccountService.verifyOtp(verifyAccountDto);
         boolean isValid = userAccountService.isValidUserAccount(verifyAccountDto.getPhone());
         Patient patient = patientService.getPatientByPhone(verifyAccountDto.getPhone());
@@ -140,11 +141,13 @@ public class UserAccountController {
 //            session.setAttribute("userPhone", verifyAccountDto.getPhone());
 //            log.info("세션 생성됨: " + session.getId());
 //            log.info("세션 확인용" + session.getAttribute("userPhone"));
-            Map<String, String > response = new HashMap<>();
-//            response.put("userId", userId);
-//            response.put("patientId", patientId);
-            response.put("accessToken", token);
-            return ResponseEntity.ok(response);
+
+            UserLoginDto userLoginDto = new UserLoginDto();
+            userLoginDto.setUserId(userId);
+            userLoginDto.setAccessToken(token);
+            userLoginDto.setPatientId(patientId);
+
+            return ResponseEntity.ok(userLoginDto);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
@@ -226,24 +229,24 @@ public class UserAccountController {
         return ResponseEntity.ok("Logout successful");
     }
 
-    /**
-     * 자동으로 로그인 상태를 유지하기 위해
-     * 세션에 저장된 정보를 확인
-     * @param session
-     * @return
-     */
-    @GetMapping("/session-check")
-    public ResponseEntity<String> checkSession(HttpSession session) {
-        String userPhone = (String) session.getAttribute("userPhone");
-        log.info("세션 확인: " + session.getId());
-        log.info("세션 전화번호 확인: " + session.getAttribute("userPhone"));
-
-        if (userPhone != null) {
-            return ResponseEntity.ok("User is logged in with phone: " + userPhone);
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
-        }
-    }
+//    /**
+//     * 자동으로 로그인 상태를 유지하기 위해
+//     * 세션에 저장된 정보를 확인
+//     * @param session
+//     * @return
+//     */
+//    @GetMapping("/session-check")
+//    public ResponseEntity<String> checkSession(HttpSession session) {
+//        String userPhone = (String) session.getAttribute("userPhone");
+//        log.info("세션 확인: " + session.getId());
+//        log.info("세션 전화번호 확인: " + session.getAttribute("userPhone"));
+//
+//        if (userPhone != null) {
+//            return ResponseEntity.ok("User is logged in with phone: " + userPhone);
+//        } else {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
+//        }
+//    }
 
     //자동 로그인 (JWT 검증)
     @PostMapping("/auto-login")
