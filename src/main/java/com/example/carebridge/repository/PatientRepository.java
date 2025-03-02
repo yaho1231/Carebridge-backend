@@ -52,4 +52,10 @@ public interface PatientRepository extends JpaRepository<Patient, Integer> {
 
     @Query("SELECT p FROM Patient p WHERE p.phoneNumber = :phone")
     Optional<Patient> findByPhoneNumber(@Param("phone") String phone);
+
+    @Query("SELECT p FROM Patient p WHERE p.userId = :userId")
+    Optional<Patient> findByUserId(@Param("userId") Integer userId);
+
+    @Query("SELECT p FROM Patient p WHERE p.email = :email")
+    Optional<Patient> findByEmail(@Param("email") String email);
 }

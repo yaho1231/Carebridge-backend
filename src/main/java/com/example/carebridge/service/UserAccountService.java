@@ -8,10 +8,12 @@ import lombok.Getter;
 import lombok.Setter;
 import net.nurigo.sdk.message.model.Message;
 import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import net.nurigo.sdk.message.service.DefaultMessageService;
 
 import java.time.LocalDateTime;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Random;
 
@@ -33,11 +35,19 @@ public class UserAccountService {
         return convertUserAccountToUserAccountDto(userAccount);
     }
 
+    public UserAccountDto getUserAccountByEmail(String email){
+        UserAccount userAccount = userAccountRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("해당 이메일을 가진 사용자를 찾을 수 없습니다."));
+        return convertUserAccountToUserAccountDto(userAccount);
+    }
+
     public void createUserAccount(UserAccountDto userAccountDto){
-        UserAccount userAccount = userAccountRepository.findByPhoneNumber(userAccountDto.getPhoneNumber())
-                .orElse(new UserAccount());
-        userAccount.update(userAccountDto);
-        userAccountRepository.save(userAccount);
+        Optional<UserAccount> userAccount = userAccountRepository.findByPhoneNumber(userAccountDto.getPhoneNumber());
+        if(userAccount.isPresent())
+            throw new DuplicateKeyException("이미 등록된 전화번호입니다.");
+        UserAccount newUserAccount = new UserAccount();
+        newUserAccount.update(userAccountDto);
+        userAccountRepository.save(newUserAccount);
     }
 
     public UserAccountDto updateUserAccount(String phone_number, UserAccountDto userAccountDto){
@@ -60,9 +70,9 @@ public class UserAccountService {
         else {
             // 로그인: 등록된 전화번호인지 확인
             if (optionalUserAccount.isEmpty())
-                throw new IllegalArgumentException("등록되지 않은 전화번호입니다.");
+                throw new NoSuchElementException("등록되지 않은 전화번호입니다.");
             else if(optionalUserAccount.get().getName().equals("UserName"))
-                throw new IllegalArgumentException("회원가입이 정상적으로 등록되지 않았습니다.");
+                throw new IllegalStateException("회원가입이 정상적으로 등록되지 않았습니다.");
         }
 
         String otp = generateRandomNumber(6);
@@ -92,7 +102,7 @@ public class UserAccountService {
 
     public boolean verifyOtp(VerifyAccountDto verifyAccountDto) {
         UserAccount userAccount = userAccountRepository.findByPhoneNumber(verifyAccountDto.getPhone())
-                .orElseThrow(() -> new IllegalArgumentException("해당 전화번호의 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("해당 전화번호의 사용자를 찾을 수 없습니다."));
 
         return userAccount.getOtp().equals(verifyAccountDto.getOtp()) &&
                 userAccount.getOtpExpiry().isAfter(LocalDateTime.now());
@@ -100,7 +110,7 @@ public class UserAccountService {
 
     public boolean isValidUserAccount(String phone_number){
         UserAccount userAccount = userAccountRepository.findByPhoneNumber(phone_number)
-                .orElseThrow(() -> new IllegalArgumentException("해당 전화번호의 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("해당 전화번호의 사용자를 찾을 수 없습니다."));
         return !userAccount.getName().equals("UserName") &&
                 !userAccount.getEmail().equals("email@email.com");
     }
