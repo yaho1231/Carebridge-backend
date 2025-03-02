@@ -127,7 +127,7 @@ public class MessageService {
                 Collections.singletonList(new ChatRequestMsgDto("user",
                         "지금부터 너는 " + hospitalName +
                                 "병원에 소속된 의료진이다." +
-                                "다음 내용을 기반으로 varchar(255) 크기를 넘지 않게 답변하라 " + mostSimilarInfo +
+                                "다음 내용을 기반으로 varchar(240) 크기를 넘지 않게 답변하라 " + mostSimilarInfo +
                                 "답변해야할 메시지 :" + chatMessageDto.getMessageContent()))
         );
 
@@ -139,7 +139,7 @@ public class MessageService {
         message.setPatientId(patientId);
         message.setMedicalStaffId(medicalStaffId);
         message.setChatRoomId(roomId);
-        message.setMessageContent(content);
+        message.setMessageContent("[ChatGPT로 자동 생성된 답변 입니다.]\n" + content);
         message.setSenderId(medicalStaffId);
         message.setReadStatus(chatMessageDto.getReadStatus());
         message.setTimestamp(LocalDateTime.now());

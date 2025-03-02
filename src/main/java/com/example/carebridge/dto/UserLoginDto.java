@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 public class UserLoginDto {
     private String accessToken;
 
+    private String refreshToken;
+
     private Integer userId;
 
     private Integer patientId;

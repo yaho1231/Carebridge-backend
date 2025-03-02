@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.time.LocalDateTime;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -152,7 +153,8 @@ public class OAuthService {
     public UserAccountDto ifNeedKakaoInfo (KakaoDto kakaoDto) {
         // DB에 중복되는 email이 있는지 확인
         String kakaoEmail = kakaoDto.getEmail();
-        UserAccount kakaoMember = userAccountRepository.findByEmail(kakaoEmail);
+        UserAccount kakaoMember = userAccountRepository.findByEmail(kakaoEmail)
+                .orElse(null);
 
         // DB에 정보가 없다면 회원가입 진행
         if (kakaoMember == null) {
@@ -175,7 +177,8 @@ public class OAuthService {
             userAccountRepository.save(registerMember);
 
             // DB 재조회
-            kakaoMember = userAccountRepository.findByEmail(kakaoEmail);
+            kakaoMember = userAccountRepository.findByEmail(kakaoEmail)
+                    .orElseThrow(() -> new NoSuchElementException("해당 이메일을 가진 사용자를 찾을 수 없습니다."));;
         }
 
         return userAccountService.convertUserAccountToUserAccountDto(kakaoMember);
