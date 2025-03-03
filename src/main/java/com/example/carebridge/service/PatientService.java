@@ -108,8 +108,8 @@ public class PatientService {
     public Patient getPatientByEmail(String email) {
         return patientRepository.findByEmail(email)
                 .orElseThrow(() -> {
-                    log.error("환자를 찾을 수 없습니다. Phone Number: {}", email);
-                    return new IllegalArgumentException("해당 User Id를 가진 환자를 찾을 수 없습니다: " + email);
+                    log.error("환자를 찾을 수 없습니다. Email: {}", email);
+                    return new IllegalArgumentException("해당 Email을 가진 환자를 찾을 수 없습니다: " + email);
                 });
     }
 

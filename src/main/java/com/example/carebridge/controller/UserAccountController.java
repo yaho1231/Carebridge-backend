@@ -280,7 +280,7 @@ public class UserAccountController {
             @ApiResponse(responseCode = "500", description = "서버 오류로 인해 로그인 실패")
     })
     @GetMapping("/social-login/kakao/token")
-    public ResponseEntity<Map<String, Object>> kakaoLogin(HttpServletRequest request, HttpSession session) throws Exception {
+    public ResponseEntity<?> kakaoLogin(HttpServletRequest request, HttpSession session) throws Exception {
         try {
             String code = request.getParameter("code");
             if (code == null) {
@@ -304,12 +304,10 @@ public class UserAccountController {
                 Patient patient = patientService.getPatientByEmail(email);
                 Integer patientId = patient.getPatientId();
 
-//            HttpHeaders headers = new HttpHeaders();
-//            headers.setLocation(URI.create("http://localhost:5173/choose-patient-type"));
-                Map<String, Object> responseBody = new HashMap<>();
-                responseBody.put("patientId", patientId);
-//            return new ResponseEntity<>(responseBody, headers, HttpStatus.FOUND);
-                return ResponseEntity.ok(responseBody);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setLocation(URI.create("http://localhost:5173/redirection?patientId=" + patientId));
+            return new ResponseEntity<>(headers, HttpStatus.FOUND);
+//                return ResponseEntity.ok(patientId);
             } else {
 //            return ResponseEntity.status(HttpStatus.FOUND)
 //                    .location(URI.create("/login?error=unauthorized"))
