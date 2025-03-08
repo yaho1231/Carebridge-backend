@@ -194,6 +194,7 @@ public class UserAccountController {
                 userLoginDto.setAccessToken(token.accessToken);
                 userLoginDto.setRefreshToken(token.refreshToken);
                 userLoginDto.setPatientId(patientId);
+                userLoginDto.setPhoneNumber(verifyAccountDto.getPhone());
 
                 return ResponseEntity.ok(userLoginDto);
             } else {

@@ -17,4 +17,6 @@ public class UserLoginDto {
     private Integer userId;
 
     private Integer patientId;
+
+    private String phoneNumber;
 }
