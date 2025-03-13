@@ -1,7 +1,6 @@
 package com.example.carebridge.controller;
 
 import com.example.carebridge.dto.RequestDto;
-import com.example.carebridge.entity.Request;
 import com.example.carebridge.service.CallBellService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -49,21 +48,21 @@ public class CallBellController {
     public ResponseEntity<String> acceptRequest(
             @Parameter(description = "요청 ID", required = true)
             @PathVariable("request_id") int requestId,
-            @Parameter(description = "새로운 상태", required = true, example = "ACCEPTED/COMPLETED/REJECTED")
+            @Parameter(description = "새로운 상태", required = true, example = "PENDING/COMPLETED/IN_PROGRESS/SCHEDULED")
             @RequestParam("status") String status) {
         try {
             log.debug("요청 상태 업데이트 시도 - 요청 ID: {}, 새로운 상태: {}", requestId, status);
-            
+
             // 상태값 유효성 검사
             if (!isValidStatus(status)) {
                 log.error("잘못된 상태값: {}", status);
                 return new ResponseEntity<>("유효하지 않은 상태값입니다.", HttpStatus.BAD_REQUEST);
             }
-            
+
             callBellService.updateRequestStatus(requestId, status);
             log.info("요청 상태 업데이트 성공 - 요청 ID: {}, 상태: {}", requestId, status);
             return new ResponseEntity<>("요청 상태가 성공적으로 업데이트되었습니다.", HttpStatus.OK);
-            
+
         } catch (IllegalArgumentException e) {
             log.error("요청을 찾을 수 없음 - 요청 ID: {}", requestId, e);
             return new ResponseEntity<>("해당 요청을 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
@@ -180,6 +179,33 @@ public class CallBellController {
         }
     }
 
+    @Operation(summary = "요청 수락 시간 업데이트", description = "특정 요청의 수락 시간을 업데이트합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "수락 시간 업데이트 성공"),
+        @ApiResponse(responseCode = "404", description = "요청을 찾을 수 없음"),
+        @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    @PatchMapping("/request/{request_id}")
+    @ResponseBody
+    public ResponseEntity<String> updateRequestAcceptTime(
+            @Parameter(description = "요청 ID", required = true)
+            @PathVariable("request_id") Integer requestId,
+            @Parameter(description = "수락 시간", required = true)
+            @RequestParam("acceptTime") String acceptTime) {
+        try {
+            log.debug("요청 수락 시간 업데이트 시도 - 요청 ID: {}, 수락 시간: {}", requestId, acceptTime);
+            callBellService.updateRequestAcceptTime(requestId, acceptTime);
+            log.info("요청 수락 시간 업데이트 성공 - 요청 ID: {}, 수락 시간: {}", requestId, acceptTime);
+            return new ResponseEntity<>("요청 수락 시간이 성공적으로 업데이트되었습니다.", HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            log.error("요청을 찾을 수 없음 - 요청 ID: {}", requestId, e);
+            return new ResponseEntity<>("해당 요청을 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            log.error("요청 수락 시간 업데이트 중 오류 발생: {}", e.getMessage(), e);
+            return new ResponseEntity<>("서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     /**
      * 상태값의 유효성을 검사합니다.
      *
@@ -188,9 +214,10 @@ public class CallBellController {
      */
     private boolean isValidStatus(String status) {
         return status != null && (
-            status.equals("ACCEPTED") ||
+            status.equals("PENDING") ||
             status.equals("COMPLETED") ||
-            status.equals("REJECTED")
+            status.equals("IN_PROGRESS") ||
+            status.equals("SCHEDULED")
         );
     }
 }

@@ -18,7 +18,7 @@ public class StaffAccountService {
         this.staffAccountRepository = staffAccountRepository;
     }
 
-    public Boolean veriftStaffAccount(StaffAccountDto staffAccountDto) {
+    public Boolean verifyStaffAccount(StaffAccountDto staffAccountDto) {
         StaffAccount staffAccount1 = staffAccountRepository.getStaffAccountByUserId(staffAccountDto.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 사용자를 찾을 수 없습니다."));
         return staffAccountDto.getUserId().equals(staffAccount1.getUserId()) &&
@@ -47,5 +47,11 @@ public class StaffAccountService {
             throw new IllegalArgumentException("새로운 비밀번호가 기존의 비밀번호와 일치합니다.");
         staffAccount.setPassword(newPassword);
         staffAccountRepository.save(staffAccount);
+    }
+
+    public StaffAccount findStaffAccountByUserId(String userId) {
+        return staffAccountRepository
+                .getStaffAccountByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 사용자를 찾을 수 없습니다."));
     }
 }

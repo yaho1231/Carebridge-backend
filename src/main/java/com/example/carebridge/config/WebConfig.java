@@ -67,6 +67,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "GET",              // 리소스 조회
                         "POST",             // 리소스 생성
                         "PUT",              // 리소스 수정
+                        "PATCH",            // 리소스 일부 수정
                         "DELETE"            // 리소스 삭제
                 )
                 .allowedHeaders(            // 허용할 요청 헤더
