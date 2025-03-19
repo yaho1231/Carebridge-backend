@@ -6,6 +6,23 @@ on:
   push:
     branches: [ dev ]
 
+env:
+  SPRING_PROFILES_ACTIVE: test
+
+  SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
+  SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
+  SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
+
+  OPENAI_SECRET_KEY: ${{ secrets.OPENAI_SECRET_KEY }}
+
+  MESSAGE_API_KEY: ${{ secrets.MESSAGE_API_KEY }}
+  MESSAGE_API_SECRET: ${{ secrets.MESSAGE_API_SECRET }}
+
+  KAKAO_CLIENT_ID: ${{ secrets.KAKAO_CLIENT_ID }}
+  KAKAO_REDIRECT_URL: ${{ secrets.KAKAO_REDIRECT_URL }}
+  KAKAO_CLIENT_SECTRET: ${{ secrets.KAKAO_CLIENT_SECTRET }}
+
+
 jobs:
   build:
     runs-on: ubuntu-latest  # 실행 환경 지정
