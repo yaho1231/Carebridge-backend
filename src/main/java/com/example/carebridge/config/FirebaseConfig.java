@@ -5,6 +5,7 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ import java.io.InputStream;
  * 2. FCM을 통한 푸시 알림 전송 기능 활성화
  * 3. 애플리케이션 시작 시 자동으로 Firebase 초기화
  */
+@Profile("!test") // Test 환경에서는 일시적 비활성화
 @Configuration
 public class FirebaseConfig {
     
