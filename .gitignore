@@ -40,4 +40,3 @@ out/
 ### Firebase ###
 src/main/resources/fcmSecretKey.json
 carebridgekey.pem
-Dockerfile
