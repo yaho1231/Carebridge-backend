@@ -90,20 +90,26 @@ jobs:
             # 기존 컨테이너 중지 및 삭제
             docker stop carebridge-container || true
             docker rm carebridge-container || true
-            docker rmi carebridge-app || true
+            docker rmi -f carebridge-app || true
             
-            # 새 Docker 이미지 로드 및 실행
+            # 새 Docker 이미지 로드
             docker load -i carebridge-app.tar
-            docker run -d --name carebridge-container --restart always \
-            -p 8080:8080 \
-            --env SPRING_PROFILES_ACTIVE=${{ secrets.SPRING_PROFILES_ACTIVE }} \
-            --env SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \
-            --env SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
-            --env SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
-            --env OPENAI_SECRET_KEY=${{ secrets.OPENAI_SECRET_KEY }} \
-            --env MESSAGE_API_KEY=${{ secrets.MESSAGE_API_KEY }} \
-            --env MESSAGE_API_SECRET=${{ secrets.MESSAGE_API_SECRET }} \
+            
+            # 이미지 태그 확인 및 설정
+            IMAGE_ID=$(docker images -q | head -n 1)  # 최신 로드된 이미지 ID 가져오기
+            docker tag $IMAGE_ID carebridge-app  # 태그 부여
+            
+            # 환경 변수 확인 (디버깅용)
+            env | grep SPRING
+            
+            docker run -d -p 8080:8080 --name carebridge-container --restart always  \
+              --env SPRING_PROFILES_ACTIVE=test \
+              --env SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \
+              --env SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
+              --env SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
+              --env OPENAI_SECRET_KEY=${{ secrets.OPENAI_SECRET_KEY }} \
+              --env MESSAGE_API_KEY=${{ secrets.MESSAGE_API_KEY }} \
+              --env MESSAGE_API_SECRET=${{ secrets.MESSAGE_API_SECRET }} \
             --env KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }} \
             --env KAKAO_REDIRECT_URL=${{ secrets.KAKAO_REDIRECT_URL }} \
-            --env KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }} \
-            carebridge-app
+            --env KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }} carebridge-app
