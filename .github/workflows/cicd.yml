@@ -112,4 +112,4 @@ jobs:
               --env MESSAGE_API_SECRET=${{ secrets.MESSAGE_API_SECRET }} \
             --env KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }} \
             --env KAKAO_REDIRECT_URL=${{ secrets.KAKAO_REDIRECT_URL }} \
-            --env KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }} carebridge-app
+            --env KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECTRET }} carebridge-app
