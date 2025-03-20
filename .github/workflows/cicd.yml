@@ -105,14 +105,14 @@ jobs:
             docker load -i carebridge-app.tar
             docker run -d --name carebridge-container --restart always \
             -p 8080:8080 \
-            -e SPRING_PROFILES_ACTIVE=${{ secrets.SPRING_PROFILES_ACTIVE }} \
-            -e SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \
-            -e SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
-            -e SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
-            -e OPENAI_SECRET_KEY=${{ secrets.OPENAI_SECRET_KEY }} \
-            -e MESSAGE_API_KEY=${{ secrets.MESSAGE_API_KEY }} \
-            -e MESSAGE_API_SECRET=${{ secrets.MESSAGE_API_SECRET }} \
-            -e KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }} \
-            -e KAKAO_REDIRECT_URL=${{ secrets.KAKAO_REDIRECT_URL }} \
-            -e KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }} \
+            --env SPRING_PROFILES_ACTIVE=${{ secrets.SPRING_PROFILES_ACTIVE }} \
+            --env SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \
+            --env SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
+            --env SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
+            --env OPENAI_SECRET_KEY=${{ secrets.OPENAI_SECRET_KEY }} \
+            --env MESSAGE_API_KEY=${{ secrets.MESSAGE_API_KEY }} \
+            --env MESSAGE_API_SECRET=${{ secrets.MESSAGE_API_SECRET }} \
+            --env KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }} \
+            --env KAKAO_REDIRECT_URL=${{ secrets.KAKAO_REDIRECT_URL }} \
+            --env KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }} \
             carebridge-app
