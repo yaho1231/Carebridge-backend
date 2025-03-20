@@ -36,6 +36,9 @@ jobs:
           chmod +x gradlew
           ./gradlew clean build -x test # 필요 시 -x test 제거하여 테스트 실행 가능
 
+      - name: Check if Dockerfile exists
+        run: ls -al
+
       - name: Build Docker Image
         run: |
           docker build -t carebridge-app .
