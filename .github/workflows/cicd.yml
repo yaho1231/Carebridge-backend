@@ -53,10 +53,9 @@ jobs:
       # 빌드 이후 생성된 jar 파일을 찾아 "artifact"라는 환경 변수에 값을 넣어준다.
       # $GITHUB-ENV를 사용해 깃허브 워크플로 전체적으로 사용할 수 있는 환경 변수를 설정할 수 있다.
       - name: Set artifact
-        run: echo "artifact=$(ls ./build/libs)" >> $GITHUB_ENV
+        id: artifact
+        run: echo "name=$(ls ./build/libs)" >> $GITHUB_OUTPUT
 
-      # 빈스토크 배포
-      # einaregilsson/beanstalk-deploy 플러그인을 사용해 빈스토크 배포를 진행
       - name: Beanstalk Deploy
         uses: einaregilsson/beanstalk-deploy@v20
         with:
@@ -64,6 +63,6 @@ jobs:
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           application_name: spring-boot-developer
           environment_name: SpringBootDeveloper-env
-          version_label: github-action-${{steps.current-time.outputs.formattedTime}}
+          version_label: github-action-${{ steps.current-time.outputs.formattedTime }}
           region: ap-northeast-2
-          deployment_package: ./build/libs/${{env.artifact}}
+          deployment_package: ./build/libs/${{ steps.artifact.outputs.name }}
