@@ -95,9 +95,20 @@ jobs:
             # 새 Docker 이미지 로드
             docker load -i carebridge-app.tar
             
-            # 이미지 태그 확인 및 설정
-            IMAGE_ID=$(docker images -q | head -n 1)  # 최신 로드된 이미지 ID 가져오기
-            docker tag $IMAGE_ID carebridge-app  # 태그 부여
+            # 이미지가 정상적으로 로드되었는지 확인
+            docker images
+
+            # 최신 로드된 이미지 ID 가져오기
+            IMAGE_ID=$(docker images --format "{{.ID}}" --filter=since=none | head -n 1)
+            
+            # 이미지 ID가 비어 있으면 오류 처리
+            if [ -z "$IMAGE_ID" ]; then
+              echo "❌ Error: No IMAGE_ID found. Docker image might not have been loaded properly."
+              exit 1
+            fi
+            
+            # 이미지 태그 설정
+            docker tag $IMAGE_ID carebridge-app
             
             # 환경 변수 확인 (디버깅용)
             env | grep SPRING
