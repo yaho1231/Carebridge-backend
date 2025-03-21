@@ -119,24 +119,20 @@ jobs:
             fi
 
             echo "✅ Docker 이미지가 정상적으로 로드됨: IMAGE_ID=$IMAGE_ID"
-
-      - name: Create .env file
-        run: |
-          echo "SPRING_PROFILES_ACTIVE=test" > .env
-          echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}" >> .env
-          echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}" >> .env
-          echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}" >> .env
-          echo "OPENAI_SECRET_KEY=${{ secrets.OPENAI_SECRET_KEY }}" >> .env
-          echo "MESSAGE_API_KEY=${{ secrets.MESSAGE_API_KEY }}" >> .env
-          echo "MESSAGE_API_SECRET=${{ secrets.MESSAGE_API_SECRET }}" >> .env
-          echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
-          echo "KAKAO_REDIRECT_URL=${{ secrets.KAKAO_REDIRECT_URL }}" >> .env
-          echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
-          cat .env  # 로그 확인용 (필요하면 제거)
-
-      - name: Run Docker Container with .env file
-        run: |
-          docker run -d -p 8080:8080 --name carebridge-container --restart always --env-file .env carebridge-app
-          echo "📌 실행 중인 컨테이너 확인"
-          docker ps
-          echo "✅ EC2 배포가 완료되었습니다!"
+            
+            echo "SPRING_PROFILES_ACTIVE=test" > .env
+            echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}" >> .env
+            echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}" >> .env
+            echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}" >> .env
+            echo "OPENAI_SECRET_KEY=${{ secrets.OPENAI_SECRET_KEY }}" >> .env
+            echo "MESSAGE_API_KEY=${{ secrets.MESSAGE_API_KEY }}" >> .env
+            echo "MESSAGE_API_SECRET=${{ secrets.MESSAGE_API_SECRET }}" >> .env
+            echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
+            echo "KAKAO_REDIRECT_URL=${{ secrets.KAKAO_REDIRECT_URL }}" >> .env
+            echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
+            cat .env  # 로그 확인용 (필요하면 제거)
+            
+            docker run -d -p 8080:8080 --name carebridge-container --restart always --env-file .env carebridge-app
+            echo "📌 실행 중인 컨테이너 확인"
+            docker ps
+            echo "✅ EC2 배포가 완료되었습니다!"
