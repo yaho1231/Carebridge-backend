@@ -85,35 +85,43 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            set -e  # 오류 발생 시 즉시 종료
+
+            echo "📌 EC2에 접속하여 배포를 시작합니다."
+
             cd /home/ec2-user/app/
-            
-            # 기존 컨테이너 중지 및 삭제
+
+            echo "📌 기존 컨테이너 중지 및 삭제"
+            docker ps -a
             docker stop carebridge-container || true
             docker rm carebridge-container || true
+
+            echo "📌 기존 Docker 이미지 삭제"
+            docker images
             docker rmi -f carebridge-app || true
-            
-            # 새 Docker 이미지 로드
+
+            echo "📌 Docker 이미지 로드 시작"
+            if [ ! -f "carebridge-app.tar" ]; then
+              echo "❌ Error: Docker image file 'carebridge-app.tar' not found!"
+              exit 1
+            fi
             docker load -i carebridge-app.tar
-            
-            # 이미지가 정상적으로 로드되었는지 확인
+
+            echo "📌 Docker 이미지 목록 확인"
             docker images
 
-            # 최신 로드된 이미지 ID 가져오기
-            IMAGE_ID=$(docker images --format "{{.ID}}" --filter=since=none | head -n 1)
-            
-            # 이미지 ID가 비어 있으면 오류 처리
+            echo "📌 최신 로드된 Docker 이미지 ID 확인"
+            IMAGE_ID=$(docker images --format "{{.Repository}} {{.ID}}" | grep "carebridge-app" | awk '{print $2}')
+
             if [ -z "$IMAGE_ID" ]; then
               echo "❌ Error: No IMAGE_ID found. Docker image might not have been loaded properly."
               exit 1
             fi
-            
-            # 이미지 태그 설정
-            docker tag $IMAGE_ID carebridge-app
-            
-            # 환경 변수 확인 (디버깅용)
-            env | grep SPRING
-            
-            docker run -d -p 8080:8080 --name carebridge-container --restart always  \
+
+            echo "✅ Docker 이미지가 정상적으로 로드됨: IMAGE_ID=$IMAGE_ID"
+
+            echo "📌 새로운 컨테이너 실행"
+            docker run -d -p 8080:8080 --name carebridge-container --restart always \
               --env SPRING_PROFILES_ACTIVE=test \
               --env SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \
               --env SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
@@ -121,6 +129,11 @@ jobs:
               --env OPENAI_SECRET_KEY=${{ secrets.OPENAI_SECRET_KEY }} \
               --env MESSAGE_API_KEY=${{ secrets.MESSAGE_API_KEY }} \
               --env MESSAGE_API_SECRET=${{ secrets.MESSAGE_API_SECRET }} \
-            --env KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }} \
-            --env KAKAO_REDIRECT_URL=${{ secrets.KAKAO_REDIRECT_URL }} \
-            --env KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECTRET }} carebridge-app
+              --env KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }} \
+              --env KAKAO_REDIRECT_URL=${{ secrets.KAKAO_REDIRECT_URL }} \
+              --env KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }} carebridge-app
+
+            echo "📌 실행 중인 컨테이너 확인"
+            docker ps
+
+            echo "✅ EC2 배포가 완료되었습니다!"
