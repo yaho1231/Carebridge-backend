@@ -62,7 +62,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(@NonNull CorsRegistry registry) {
         registry.addMapping("/**")          // 모든 경로에 대해 CORS 설정 적용
-                .allowedOriginPatterns("*") // 모든 출처 허용 (개발 환경용) -> 이후 상황에 따라 수정해야할듯.
+                .allowedOriginPatterns("*") // 모든 출처 허용 (개발 환경용) -> 이후 상황에 따라 수정해야할듯
                 .allowedMethods(            // HTTP 메서드 허용 설정
                         "GET",              // 리소스 조회
                         "POST",             // 리소스 생성
