@@ -61,6 +61,24 @@ public class ExaminationScheduleService {
     }
 
     @Transactional(readOnly = true)
+    public ExaminationSchedule getSchedulesById(Integer id) {
+        if (id == null) {
+            log.error("ID가 null입니다.");
+            throw new IllegalArgumentException("ID는 필수입니다.");
+        }
+        try {
+            return scheduleRepository.findById(id)
+                    .orElseThrow(() -> {
+                        log.error("스케줄을 찾을 수 없습니다. ID: {}", id);
+                        return new IllegalArgumentException("해당 id의 스케줄을 찾을 수 없습니다.");
+                    });
+        } catch (Exception e) {
+            log.error("검사 일정 조회 중 오류 발생: {}", e.getMessage(), e);
+            throw new RuntimeException("검사 일정 조회에 실패했습니다.", e);
+        }
+    }
+
+    @Transactional(readOnly = true)
     public List<ExaminationScheduleDto> getSchedulesByMedicalStaffId(Integer medicalStaffId) {
         if (medicalStaffId == null) {
             log.error("의료진 ID가 null입니다.");

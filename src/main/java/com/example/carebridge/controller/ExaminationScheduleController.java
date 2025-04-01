@@ -163,4 +163,19 @@ public class ExaminationScheduleController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @Operation(summary = "스케줄 조회", description = "파라미터의 id를 기준으로 Examination Schedule DB에서 해당하는 데이터를 찾아 리턴")
+    @GetMapping("/{id}")
+    public ResponseEntity<ExaminationSchedule> getSchedule(@PathVariable("id") Integer id) {
+        try {
+            ExaminationSchedule examinationSchedule = scheduleService.getSchedulesById(id);
+            return new ResponseEntity<>(examinationSchedule, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            log.error("잘못된 스케줄 ID: {}", id, e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            log.error("검사 일정 조회 중 오류 발생 - 스케줄 ID: {}", id, e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
