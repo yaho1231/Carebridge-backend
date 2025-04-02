@@ -2,7 +2,7 @@
 <p align="center"><i>간호간병통합서비스 플랫폼</i></p>
 
 <div align="center">
-  <img src="./logo.png" alt="CareBridge 로고" width="250">
+  <img src="./logo.jpg" alt="CareBridge 로고" width="250">
   <h3>병원 입원 생활을 더 스마트하게, 더 편리하게</h3>
   
   [![SpringBoot](https://img.shields.io/badge/SpringBoot-3.x-brightgreen.svg)](https://spring.io/projects/spring-boot)
@@ -21,9 +21,9 @@
 
 ## 🎯 핵심 기능
 
-<table>
+<table style="width: 100%; border-collapse: separate; border-spacing: 0 10px;">
   <tr>
-    <td width="50%">
+    <td width="50%" style="padding: 15px; vertical-align: top;">
       <h3>📱 스마트 콜벨 서비스</h3>
       <ul>
         <li>환자와 간병인이 메시지 기반으로 필요한 서비스(식사, 청소, 간호 등)를 요청하면 AI가 자동 분류</li>
@@ -36,7 +36,7 @@
         </li>
       </ul>
     </td>
-    <td width="50%">
+    <td width="50%" style="padding: 15px; vertical-align: top;">
       <h3>🏥 입원 생활 편의성 향상</h3>
       <ul>
         <li>입퇴원 절차, 병실 생활 정보, 의료 행정 서비스 등의 정보를 쉽게 확인</li>
@@ -45,14 +45,14 @@
     </td>
   </tr>
   <tr>
-    <td>
+    <td style="padding: 15px; vertical-align: top;">
       <h3>🩺 의료 정보 전달 효율화</h3>
       <ul>
         <li>진료 및 검사 일정, 검진 전 주의사항 등을 환자와 간병인에게 사전 알림</li>
         <li>의료진이 반복적인 문의와 절차에서 벗어나 본연의 의료 서비스에 집중할 수 있도록 지원</li>
       </ul>
     </td>
-    <td>
+    <td style="padding: 15px; vertical-align: top;">
       <h3>📚 AI 기반 지능형 환자 케어 시스템</h3>
       <ul>
         <li>Chat GPT Open API 활용 챗봇으로 24시간 정보 제공 및 기초 상담 지원</li>
@@ -81,17 +81,17 @@ graph TD
     F --> J[GPT LLM 기반 프롬프트 활용]
     J --> K[병원 정보 및 의료 지식 자동 응답]
 
-    style A fill:#f9f9f9,stroke:#333,stroke-width:1px
-    style B fill:#e6f7ff,stroke:#333,stroke-width:1px
-    style C fill:#e6f7ff,stroke:#333,stroke-width:1px
-    style D fill:#f0f0f0,stroke:#333,stroke-width:1px
-    style E fill:#f0f0f0,stroke:#333,stroke-width:1px
-    style F fill:#f0f0f0,stroke:#333,stroke-width:1px
-    style G fill:#f0f0f0,stroke:#333,stroke-width:1px
-    style H fill:#f0f0f0,stroke:#333,stroke-width:1px
-    style I fill:#f0f0f0,stroke:#333,stroke-width:1px
-    style J fill:#f0f0f0,stroke:#333,stroke-width:1px
-    style K fill:#f0f0f0,stroke:#333,stroke-width:1px
+    style A fill:#f9f9f9,stroke:#333,stroke-width:1px,color:#000000,font-weight:bold
+    style B fill:#e6f7ff,stroke:#333,stroke-width:1px,color:#000000,font-weight:bold
+    style C fill:#e6f7ff,stroke:#333,stroke-width:1px,color:#000000,font-weight:bold
+    style D fill:#f0f0f0,stroke:#333,stroke-width:1px,color:#000000,font-weight:bold
+    style E fill:#f0f0f0,stroke:#333,stroke-width:1px,color:#000000,font-weight:bold
+    style F fill:#f0f0f0,stroke:#333,stroke-width:1px,color:#000000,font-weight:bold
+    style G fill:#f0f0f0,stroke:#333,stroke-width:1px,color:#000000,font-weight:bold
+    style H fill:#f0f0f0,stroke:#333,stroke-width:1px,color:#000000,font-weight:bold
+    style I fill:#f0f0f0,stroke:#333,stroke-width:1px,color:#000000,font-weight:bold
+    style J fill:#f0f0f0,stroke:#333,stroke-width:1px,color:#000000,font-weight:bold
+    style K fill:#f0f0f0,stroke:#333,stroke-width:1px,color:#000000,font-weight:bold
 ```
 
 <br>
