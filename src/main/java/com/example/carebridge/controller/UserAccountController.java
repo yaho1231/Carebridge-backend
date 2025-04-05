@@ -306,7 +306,7 @@ public class UserAccountController {
                 Integer patientId = patient.getPatientId();
 
             HttpHeaders headers = new HttpHeaders();
-            headers.setLocation(URI.create("http://localhost:5173/redirection?patientId=" + patientId));
+            headers.setLocation(URI.create("https://carebridge-frontend.vercel.app/redirection?patientId=" + patientId));
             return new ResponseEntity<>(headers, HttpStatus.FOUND);
 //                return ResponseEntity.ok(patientId);
             } else {
