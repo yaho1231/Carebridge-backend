@@ -2,24 +2,25 @@ package com.example.carebridge.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .cors(withDefaults()) // ✅ CORS 설정 사용하도록 명시
-                .csrf(csrf -> csrf.disable()) // CSRF는 API 서버라면 보통 비활성화
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .cors(withDefaults()) // ✅ CorsConfig에서 정의한 설정 사용
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/**").permitAll() // 모든 경로 허용 (필요시 조정)
+                        .requestMatchers("/**").permitAll()
                         .anyRequest().authenticated()
-                );
-
-        return http.build();
+                )
+                .build();
     }
 }
