@@ -68,7 +68,11 @@ public class PatientService {
         String department = medicalStaff.getDepartment();
         Integer hospitalId = medicalStaff.getHospitalId();
         
-        List<Patient> patients = patientRepository.findByHospitalIdAndDepartment(hospitalId, department);
+        List<Patient> patients = patientRepository.findByHospitalIdAndDepartment(hospitalId, department)
+                .orElseThrow(() -> {
+                    log.error("요청이 존재하지 않습니다.");
+                    return new IllegalArgumentException("요청이 존재하지 않습니다.");
+                });
         List<PatientDto> patientDtoList = new ArrayList<>();
         
         for (Patient patient : patients) {
