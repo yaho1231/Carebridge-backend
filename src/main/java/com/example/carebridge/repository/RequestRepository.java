@@ -34,7 +34,7 @@ public interface RequestRepository extends JpaRepository<Request, Integer> {
      * @return 정렬된 요청 목록
      */
     @Query("SELECT r FROM Request r WHERE r.medicalStaffId = :medicalStaffId ORDER BY r.requestTime DESC")
-    List<Request> findByMedicalStaffId(@Param("medicalStaffId") Integer medicalStaffId);
+    Optional<List<Request>> findByMedicalStaffId(@Param("medicalStaffId") Integer medicalStaffId);
 
     /**
      * 환자 ID로 요청 목록을 조회합니다.
@@ -44,7 +44,7 @@ public interface RequestRepository extends JpaRepository<Request, Integer> {
      * @return 정렬된 요청 목록
      */
     @Query("SELECT r FROM Request r WHERE r.patientId = :patientId ORDER BY r.requestTime DESC")
-    List<Request> findByPatientIdOrderByRequestTime(@Param("patientId") Integer patientId);
+    Optional<List<Request>> findByPatientIdOrderByRequestTime(@Param("patientId") Integer patientId);
 
     /**
      * 요청 ID로 요청 정보를 삭제합니다.

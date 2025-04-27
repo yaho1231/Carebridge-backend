@@ -7,6 +7,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Query;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ExaminationScheduleRepository extends JpaRepository<ExaminationSchedule, Integer> {
@@ -19,7 +20,7 @@ public interface ExaminationScheduleRepository extends JpaRepository<Examination
      */
     @NonNull
     @Query("SELECT e FROM ExaminationSchedule e WHERE e.patientId = :patientId ORDER BY e.scheduleDate ASC")
-    List<ExaminationSchedule> findByPatientId(@Param("patientId") Integer patientId);
+    Optional<List<ExaminationSchedule>> findByPatientId(@Param("patientId") Integer patientId);
 
     /**
      * 의료진 ID로 검사 일정을 조회합니다.
@@ -29,11 +30,11 @@ public interface ExaminationScheduleRepository extends JpaRepository<Examination
      */
     @NonNull
     @Query("SELECT e FROM ExaminationSchedule e WHERE e.medicalStaffId = :medicalStaffId ORDER BY e.scheduleDate ASC")
-    List<ExaminationSchedule> findByMedicalStaffId(@Param("medicalStaffId") Integer medicalStaffId);
+    Optional<List<ExaminationSchedule>> findByMedicalStaffId(@Param("medicalStaffId") Integer medicalStaffId);
 
     @Query("SELECT e FROM ExaminationSchedule e WHERE DATE(e.scheduleDate) = CURRENT_DATE AND e.patientId = :patientId ORDER BY e.scheduleDate ASC")
-    List<ExaminationSchedule> findTodaySchedulesByPatientId(@Param("patientId") Integer patientId);
+    Optional<List<ExaminationSchedule>> findTodaySchedulesByPatientId(@Param("patientId") Integer patientId);
 
     @Query("SELECT e FROM ExaminationSchedule e WHERE e.id = :id")
-    ExaminationSchedule findById(@Param("id") int id);
+    Optional<ExaminationSchedule> findById(@Param("id") int id);
 }

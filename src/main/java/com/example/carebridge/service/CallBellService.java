@@ -151,7 +151,11 @@ public class CallBellService {
     @Transactional(readOnly = true)
     public List<RequestDto> getAllRequests(Integer medicalStaffId) {
         log.debug("의료진 ID {}의 모든 요청 조회 시도", medicalStaffId);
-        List<Request> requests = requestRepository.findByMedicalStaffId(medicalStaffId);
+        List<Request> requests = requestRepository.findByMedicalStaffId(medicalStaffId)
+                .orElseThrow(() -> {
+                    log.error("요청이 존재하지 않습니다.");
+                    return new IllegalArgumentException("요청이 존재하지 않습니다.");
+                });
         if (requests.isEmpty()) {
             log.info("의료진 ID {}의 요청이 없습니다.", medicalStaffId);
             return new ArrayList<>();
@@ -174,7 +178,11 @@ public class CallBellService {
     @Transactional(readOnly = true)
     public List<RequestDto> getPatientRequests(Integer patientId) {
         log.debug("환자 ID {}의 모든 요청 조회 시도", patientId);
-        List<Request> requests = requestRepository.findByPatientIdOrderByRequestTime(patientId);
+        List<Request> requests = requestRepository.findByPatientIdOrderByRequestTime(patientId)
+                .orElseThrow(() -> {
+                    log.error("요청이 존재하지 않습니다.");
+                    return new IllegalArgumentException("요청이 존재하지 않습니다.");
+                });
         if (requests.isEmpty()) {
             log.info("환자 ID {}의 요청이 없습니다.", patientId);
             return new ArrayList<>();

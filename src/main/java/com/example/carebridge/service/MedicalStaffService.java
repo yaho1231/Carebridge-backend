@@ -57,7 +57,11 @@ public class MedicalStaffService {
             log.error("병원 Id가 null 이거나 빈 문자열입니다.");
             throw new IllegalArgumentException("병원 ID는 필수 입력값입니다.");
         }
-        List<MedicalStaff> medicalStaffList = medicalStaffRepository.findByHospitalId(hospitalId);
+        List<MedicalStaff> medicalStaffList = medicalStaffRepository.findByHospitalId(hospitalId)
+                .orElseThrow(() -> {
+                    log.error("병원 아이디 : {}에 해당하는 의료진을 찾을 수 없습니다.", hospitalId);
+                    return new IllegalArgumentException("해당 병원 아이디의 의료진을 찾을 수 없습니다: " + hospitalId);
+                });
         if (medicalStaffList == null || medicalStaffList.isEmpty()) {
             throw new IllegalArgumentException("존재하지 않는 병원 ID");
         }

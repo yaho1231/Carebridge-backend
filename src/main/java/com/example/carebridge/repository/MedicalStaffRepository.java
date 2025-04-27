@@ -42,5 +42,5 @@ public interface MedicalStaffRepository extends JpaRepository<MedicalStaff, Inte
      * @return 해당하는 병원의 모든 의료진 List
      */
     @Query("SELECT ms FROM MedicalStaff ms WHERE ms.hospitalId = :hospitalId")
-    List<MedicalStaff> findByHospitalId(@Param("hospitalId") Integer hospitalId);
+    Optional<List<MedicalStaff>> findByHospitalId(@Param("hospitalId") Integer hospitalId);
 }
