@@ -72,7 +72,8 @@ public class GuardianService {
         }
 
         try {
-            List<Guardian> guardianList = guardianRepository.findAllByPatientId(patientId);
+            List<Guardian> guardianList = guardianRepository.findAllByPatientId(patientId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 보호자 목록을 찾을 수 없습니다."));
             log.debug("보호자 목록 조회 성공 - 환자 ID: {}, 보호자 수: {}", patientId, guardianList.size());
             return guardianList.stream()
                     .map(guardianMapper::toDto)

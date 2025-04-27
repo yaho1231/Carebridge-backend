@@ -24,7 +24,7 @@ public interface MacroRepository extends JpaRepository<Macro, Integer> {
      * @return 정렬된 매크로 목록
      */
     @Query("SELECT m FROM Macro m WHERE m.medicalStaffId = :medicalStaffId ORDER BY m.macroName")
-    List<Macro> findAllByMedicalStaffId(@Param("medicalStaffId") Integer medicalStaffId);
+    Optional<List<Macro>> findAllByMedicalStaffId(@Param("medicalStaffId") Integer medicalStaffId);
 
     /**
      * 특정 의료진의 특정 매크로를 조회합니다.

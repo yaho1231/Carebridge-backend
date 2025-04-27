@@ -16,15 +16,16 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, String> {
      * 모든 채팅방을 조회합니다.
      * @return 모든 채팅방 목록
      */
-    @Override
     @NonNull
-    List<ChatRoom> findAll();
+    @Query("SELECT c FROM ChatRoom c ORDER BY c.chatRoomId ASC")
+    Optional<List<ChatRoom>> findAllChatRoom();
 
     /**
      * 환자의 ID로 채팅방을 조회합니다.
      * @param patientId 환자의 ID
      * @return 환자의 채팅방
      */
+    @NonNull
     @Query("SELECT c FROM ChatRoom c WHERE c.patientId = :patientId")
     Optional<ChatRoom> findByPatientId(@Param("patientId") Integer patientId);
 
@@ -33,6 +34,7 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, String> {
      * @param chatRoomId 채팅방의 ID
      * @return 채팅방
      */
+    @NonNull
     @Query("SELECT c FROM ChatRoom c WHERE c.chatRoomId = :chatRoomId")
     Optional<ChatRoom> findByChatRoomId(@Param("chatRoomId") String chatRoomId);
 }

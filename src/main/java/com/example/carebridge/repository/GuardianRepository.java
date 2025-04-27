@@ -41,7 +41,7 @@ public interface GuardianRepository extends JpaRepository<Guardian, String> {
      */
     @NonNull
     @Query("SELECT g FROM Guardian g WHERE g.patientId = :patientId ORDER BY g.name ASC")
-    List<Guardian> findAllByPatientId(@Param("patientId") Integer patientId);
+    Optional<List<Guardian>> findAllByPatientId(@Param("patientId") Integer patientId);
 
     /**
      * 전화번호로 보호자 존재 여부를 확인합니다.
@@ -71,7 +71,7 @@ public interface GuardianRepository extends JpaRepository<Guardian, String> {
     @NonNull
     @Query("SELECT g FROM Guardian g WHERE g.patientId = :patientId " +
            "AND g.name LIKE %:name% ORDER BY g.name ASC")
-    List<Guardian> searchByPatientIdAndName(
+    Optional<List<Guardian>> searchByPatientIdAndName(
             @Param("patientId") Integer patientId,
             @Param("name") String name);
 
@@ -83,5 +83,5 @@ public interface GuardianRepository extends JpaRepository<Guardian, String> {
      */
     @NonNull
     @Query("SELECT g FROM Guardian g WHERE g.patientId IN :patientIds ORDER BY g.patientId, g.name")
-    List<Guardian> findByPatientIdIn(@Param("patientIds") List<Integer> patientIds);
+    Optional<List<Guardian>> findByPatientIdIn(@Param("patientIds") List<Integer> patientIds);
 }

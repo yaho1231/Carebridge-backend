@@ -170,7 +170,11 @@ public class MessageService {
      * @return 환자 ID를 키로 하고 메시지 리스트를 값으로 가지는 맵
      */
     public Map<Integer, List<Message>> getAll() {
-        List<Message> messages = messageRepository.findAll();
+        List<Message> messages = messageRepository.findAllMessage()
+                .orElseThrow(() -> {
+                    logger.error("메세지가 존재하지 않습니다.");
+                    return new IllegalArgumentException("메세지가 존재하지 않습니다.");
+                });
         Map<Integer, List<Message>> messageMap = new HashMap<>();
 
         for (Message message : messages) {
@@ -196,7 +200,11 @@ public class MessageService {
      */
     public List<Message> getMessagesByPatientId(Integer patientId) {
         try {
-            List<Message> messages = messageRepository.findMessageContentByPatientId(patientId);
+            List<Message> messages = messageRepository.findMessageContentByPatientId(patientId)
+                    .orElseThrow(() -> {
+                        logger.error("메세지가 존재하지 않습니다.");
+                        return new IllegalArgumentException("메세지가 존재하지 않습니다.");
+                    });
             // 메시지 리스트를 타임스탬프 기준으로 내림차순 정렬합니다.
             return messages.stream()
                     .sorted(Comparator.comparing(Message::getTimestamp).reversed())
@@ -269,7 +277,11 @@ public class MessageService {
      * @return 메시지 요약 정보 리스트
      */
     public List<MessageSummaryDto> getSummaryMessageInformation(Integer medicalStaffId) {
-        List<Message> messages = messageRepository.findByMedicalStaffId(medicalStaffId);
+        List<Message> messages = messageRepository.findByMedicalStaffId(medicalStaffId)
+                .orElseThrow(() -> {
+                    logger.error("메세지가 존재하지 않습니다.");
+                    return new IllegalArgumentException("메세지가 존재하지 않습니다.");
+                });
 
         Map<Integer, List<Message>> messagesByPatient = messages.stream()
                 .collect(Collectors.groupingBy(Message::getPatientId));

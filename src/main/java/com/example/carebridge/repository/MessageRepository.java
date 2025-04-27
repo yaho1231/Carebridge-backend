@@ -25,7 +25,7 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
      * @return 환자의 메시지 목록
      */
     @Query("SELECT m FROM Message m WHERE m.patientId = :patientId ORDER BY m.timestamp DESC")
-    List<Message> findMessageContentByPatientId(@Param("patientId") Integer patientId);
+    Optional<List<Message>> findMessageContentByPatientId(@Param("patientId") Integer patientId);
 
     /**
      * 모든 메시지를 시간 순으로 조회합니다.
@@ -34,7 +34,7 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
      */
     @NonNull
     @Query("SELECT m FROM Message m ORDER BY m.timestamp DESC")
-    List<Message> findAll();
+    Optional<List<Message>> findAllMessage();
 
     /**
      * 메시지 ID로 메시지를 조회합니다.
@@ -54,5 +54,5 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
      * @return 의료진의 메시지 목록
      */
     @Query("SELECT m FROM Message m WHERE m.medicalStaffId = :medicalStaffId ORDER BY m.timestamp DESC")
-    List<Message> findByMedicalStaffId(@Param("medicalStaffId") Integer medicalStaffId);
+    Optional<List<Message>> findByMedicalStaffId(@Param("medicalStaffId") Integer medicalStaffId);
 }

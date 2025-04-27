@@ -34,7 +34,7 @@ public interface PatientRepository extends JpaRepository<Patient, Integer> {
      */
     @NonNull
     @Query("SELECT p FROM Patient p ORDER BY p.name")
-    List<Patient> findAll();
+    Optional<List<Patient>> findAllPatient();
 
     /**
      * 병원 ID와 부서로 환자 정보를 조회합니다.
@@ -45,7 +45,7 @@ public interface PatientRepository extends JpaRepository<Patient, Integer> {
      * @return 해당 병원과 부서에 속한 환자 목록
      */
     @Query("SELECT p FROM Patient p WHERE p.hospitalId = :hospitalId AND p.department = :department ORDER BY p.name")
-    List<Patient> findByHospitalIdAndDepartment(
+    Optional<List<Patient>> findByHospitalIdAndDepartment(
         @Param("hospitalId") Integer hospitalId, 
         @Param("department") String department
     );

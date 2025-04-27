@@ -45,12 +45,10 @@ public class ExaminationScheduleService {
             log.error("환자 ID가 null입니다.");
             throw new IllegalArgumentException("환자 ID는 필수입니다.");
         }
-
         try {
-            List<ExaminationSchedule> schedules = scheduleRepository.findByPatientId(patientId);
-            log.debug("검사 일정 조회 성공 - 환자 ID: {}, 일정 수: {}", 
-                    patientId, schedules.size());
-            
+            List<ExaminationSchedule> schedules = scheduleRepository.findByPatientId(patientId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 스케줄을 찾을 수 없습니다."));
+            log.debug("검사 일정 조회 성공 - 환자 ID: {}, 일정 수: {}", patientId, schedules.size());
             return schedules.stream()
                     .map(scheduleMapper::toDto)
                     .collect(Collectors.toList());
@@ -85,10 +83,9 @@ public class ExaminationScheduleService {
             throw new IllegalArgumentException("의료진 ID는 필수입니다.");
         }
         try {
-            List<ExaminationSchedule> schedules = scheduleRepository.findByMedicalStaffId(medicalStaffId);
-            log.debug("검사 일정 조회 성공 - 환자 ID: {}, 일정 수: {}",
-                    medicalStaffId, schedules.size());
-
+            List<ExaminationSchedule> schedules = scheduleRepository.findByMedicalStaffId(medicalStaffId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 스케줄 목록을 찾을 수 없습니다."));
+            log.debug("검사 일정 조회 성공 - 환자 ID: {}, 일정 수: {}", medicalStaffId, schedules.size());
             return schedules.stream()
                     .map(scheduleMapper::toDto)
                     .collect(Collectors.toList());
@@ -105,9 +102,9 @@ public class ExaminationScheduleService {
             throw new IllegalArgumentException("환자 ID는 필수입니다.");
         }
         try {
-            List<ExaminationSchedule> schedules = scheduleRepository.findTodaySchedulesByPatientId(patientId);
+            List<ExaminationSchedule> schedules = scheduleRepository.findTodaySchedulesByPatientId(patientId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 스케줄 목록을 찾을 수 없습니다."));
             log.debug("검사 일정 조회 성공 - 환자 ID: {}, 일정 수: {}", patientId, schedules.size());
-
             return schedules.stream()
                     .map(scheduleMapper::toDto)
                     .collect(Collectors.toList());
@@ -150,7 +147,6 @@ public class ExaminationScheduleService {
             examinationSchedule.setScheduleDate(LocalDateTime.parse(examinationScheduleDto.getScheduleDate()));
             examinationSchedule.setDetails(examinationScheduleDto.getDetails());
             examinationSchedule.setCategory(examinationScheduleDto.getCategory());
-
             return scheduleRepository.save(examinationSchedule);
         } catch (Exception e) {
             log.error("스케줄 수정 중 오류 발생: {}", e.getMessage(), e);
