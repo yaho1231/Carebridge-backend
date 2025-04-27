@@ -115,12 +115,18 @@ public class MessageService {
                 return new IllegalArgumentException("해당 채팅방이 존재하지 않습니다.");
             }).getMedicalStaffId();
         String hospitalName = hospitalRepository.findByHospitalId(chatMessageDto.getHospitalId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 병원을 찾을 수 없습니다."))
+                .orElseThrow(() -> {
+                    logger.error("해당 병원을 찾을 수 없습니다 - 검색한 병원 ID: {}", chatMessageDto.getHospitalId());
+                    return new IllegalArgumentException("해당 병원이 존재하지 않습니다.");
+                })
                 .getName();
 
         String mostSimilarInfo = Optional.ofNullable(hospitalInformationService.findMostSimilarHospitalInformation(
                 chatMessageDto.getMessageContent(), chatMessageDto.getHospitalId()))
-                .orElseThrow(() -> new IllegalArgumentException("관련된 병원 정보를 찾을 수 없습니다."))
+                .orElseThrow(() -> {
+                    logger.error("관련된 병원 정보를 찾을 수 없습니다. - 검색한 병원 ID: {}", chatMessageDto.getHospitalId());
+                    return new IllegalArgumentException("관련된 병원 정보가 존재하지 않습니다.");
+                })
                 .getInformation();
         ChatCompletionDto chatCompletionDto = new ChatCompletionDto(
                 "gpt-4o-mini-2024-07-18",
@@ -159,7 +165,10 @@ public class MessageService {
      */
     public void updateReadStatus(Integer messageId) {
         Message message = messageRepository.findByMessageId(messageId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 메시지를 찾을 수 없습니다."));
+                .orElseThrow(() -> {
+                    logger.error("해당 메세지를 찾을 수 없습니다 - 검색한 메세지 ID: {}", messageId);
+                    return new IllegalArgumentException("해당 메세지가 존재하지 않습니다.");
+                });
         message.setReadStatus(true);
         messageRepository.save(message);
     }
@@ -202,7 +211,7 @@ public class MessageService {
         try {
             List<Message> messages = messageRepository.findMessageContentByPatientId(patientId)
                     .orElseThrow(() -> {
-                        logger.error("메세지가 존재하지 않습니다.");
+                        logger.error("메세지가 존재하지 않습니다 - 검색한 환자 ID {}", patientId);
                         return new IllegalArgumentException("메세지가 존재하지 않습니다.");
                     });
             // 메시지 리스트를 타임스탬프 기준으로 내림차순 정렬합니다.
@@ -218,7 +227,10 @@ public class MessageService {
     public Message getMessageById(Integer messageId) {
         try {
             return messageRepository.findByMessageId(messageId)
-                    .orElseThrow(() -> new IllegalArgumentException("해당 메시지를 찾을 수 없습니다."));
+                    .orElseThrow(() -> {
+                        logger.error("메세지가 존재하지 않습니다 - 검색한 메세지 ID {}", messageId);
+                        return new IllegalArgumentException("메세지가 존재하지 않습니다.");
+                    });
         } catch (Exception e) {
             logger.error("Error fetching messages for patientId: {}", messageId, e);
             return null;
@@ -279,7 +291,7 @@ public class MessageService {
     public List<MessageSummaryDto> getSummaryMessageInformation(Integer medicalStaffId) {
         List<Message> messages = messageRepository.findByMedicalStaffId(medicalStaffId)
                 .orElseThrow(() -> {
-                    logger.error("메세지가 존재하지 않습니다.");
+                    logger.error("메세지가 존재하지 않습니다 - 의료진 ID {}", medicalStaffId);
                     return new IllegalArgumentException("메세지가 존재하지 않습니다.");
                 });
 
@@ -297,7 +309,10 @@ public class MessageService {
 
             MessageSummaryDto summary = new MessageSummaryDto(
                     patientRepository.findByPatientId(recentMessage.getPatientId())
-                            .orElseThrow(() -> new IllegalArgumentException("해당 환자를 찾을 수 없습니다."))
+                            .orElseThrow(() -> {
+                                logger.error("해당 환자가 존재하지 않습니다 - 환자 ID {}", recentMessage.getPatientId());
+                                return new IllegalArgumentException("해당 환자를 찾을 수 없습니다.");
+                            })
                             .getName(),
                     recentMessage.getChatRoomId(),
                     recentMessage.getMessageContent(),

@@ -20,7 +20,10 @@ public class StaffAccountService {
 
     public Boolean verifyStaffAccount(StaffAccountDto staffAccountDto) {
         StaffAccount staffAccount1 = staffAccountRepository.getStaffAccountByUserId(staffAccountDto.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 사용자를 찾을 수 없습니다."));
+//                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> {
+                    return new IllegalArgumentException("해당 아이디의 사용자를 찾을 수 없습니다 : " + staffAccountDto.getUserId());
+                });
         return staffAccountDto.getUserId().equals(staffAccount1.getUserId()) &&
                 staffAccountDto.getPassword().equals(staffAccount1.getPassword());
     }
@@ -34,13 +37,17 @@ public class StaffAccountService {
 
     public String findPassword(String id){
         StaffAccount staffAccount  = staffAccountRepository.getStaffAccountByUserId(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> {
+                    return new IllegalArgumentException("해당 아이디의 사용자를 찾을 수 없습니다 : " + id);
+                });
         return staffAccount.getPassword();
     }
 
     public void resetPassword(StaffAccountDto staffAccountDto, String newPassword) {
         StaffAccount staffAccount = staffAccountRepository.getStaffAccountByUserId(staffAccountDto.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> {
+                    return new IllegalArgumentException("해당 아이디의 사용자를 찾을 수 없습니다 : " + staffAccountDto.getUserId());
+                });
         if(!staffAccountDto.getPassword().equals(staffAccount.getPassword()))
             throw new IllegalArgumentException("기존 비밀번호와 일치하지 않습니다.");
         if(newPassword.equals(staffAccount.getPassword()))
@@ -52,6 +59,8 @@ public class StaffAccountService {
     public StaffAccount findStaffAccountByUserId(String userId) {
         return staffAccountRepository
                 .getStaffAccountByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> {
+                    return new IllegalArgumentException("해당 아이디의 사용자를 찾을 수 없습니다 : " + userId);
+                });
     }
 }

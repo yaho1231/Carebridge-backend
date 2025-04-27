@@ -31,13 +31,17 @@ public class UserAccountService {
 
     public UserAccountDto getUserAccount(String phone_number){
         UserAccount userAccount = userAccountRepository.findByPhoneNumber(phone_number)
-                .orElseThrow(() -> new IllegalArgumentException("해당 전화번호의 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> {
+                    return new IllegalArgumentException("해당 전화번호의 사용자를 찾을 수 없습니다 : " + phone_number);
+                });
         return convertUserAccountToUserAccountDto(userAccount);
     }
 
     public UserAccountDto getUserAccountByEmail(String email){
         UserAccount userAccount = userAccountRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("해당 이메일을 가진 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> {
+                    return new IllegalArgumentException("해당 이메일의 사용자를 찾을 수 없습니다 : " + email);
+                });
         return convertUserAccountToUserAccountDto(userAccount);
     }
 
@@ -52,7 +56,9 @@ public class UserAccountService {
 
     public UserAccountDto updateUserAccount(String phone_number, UserAccountDto userAccountDto){
         UserAccount userAccount = userAccountRepository.findByPhoneNumber(phone_number)
-                .orElseThrow(() -> new IllegalArgumentException("해당 전화번호의 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> {
+                    return new IllegalArgumentException("해당 전화번호의 사용자를 찾을 수 없습니다 : " + phone_number);
+                });
         userAccount.update(userAccountDto);
         userAccountRepository.save(userAccount);
         return convertUserAccountToUserAccountDto(userAccount);
@@ -102,7 +108,9 @@ public class UserAccountService {
 
     public boolean verifyOtp(VerifyAccountDto verifyAccountDto) {
         UserAccount userAccount = userAccountRepository.findByPhoneNumber(verifyAccountDto.getPhone())
-                .orElseThrow(() -> new NoSuchElementException("해당 전화번호의 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> {
+                    return new IllegalArgumentException("해당 전화번호의 사용자를 찾을 수 없습니다 : " + verifyAccountDto.getPhone());
+                });
 
         return userAccount.getOtp().equals(verifyAccountDto.getOtp()) &&
                 userAccount.getOtpExpiry().isAfter(LocalDateTime.now());
@@ -110,7 +118,9 @@ public class UserAccountService {
 
     public boolean isValidUserAccount(String phone_number){
         UserAccount userAccount = userAccountRepository.findByPhoneNumber(phone_number)
-                .orElseThrow(() -> new NoSuchElementException("해당 전화번호의 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> {
+                    return new IllegalArgumentException("해당 전화번호의 사용자를 찾을 수 없습니다 : " + phone_number);
+                });
         return !userAccount.getName().equals("UserName") &&
                 !userAccount.getEmail().equals("email@email.com");
     }
