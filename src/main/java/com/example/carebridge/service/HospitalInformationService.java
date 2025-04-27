@@ -62,7 +62,10 @@ public class HospitalInformationService {
         HospitalInformation mostSimilarInfo = null;
 
         List<HospitalInformation> hospitalInfoList = hospitalInformationRepository.findAllByHospitalId(hospitalId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 병원정보 목록을 찾을 수 없습니다."));
+                .orElseThrow(() -> {
+                    log.error("프롬프트와 유사한 병원정보 목록을 찾을 수 없습니다 - 병원 아이디: {}", hospitalId);
+                    return new IllegalArgumentException("해당 병원정보 목록을 찾을 수 없습니다.");
+                });
         if (hospitalInfoList.isEmpty()) {
             log.warn("병원 정보가 없습니다. 병원 ID: {}", hospitalId);
             return null;
@@ -90,7 +93,10 @@ public class HospitalInformationService {
     @Transactional(readOnly = true)
     public List<HospitalInformationDto> getHospitalInformationList(int hospitalId) {
         List<HospitalInformation> infoList = hospitalInformationRepository.findAllByHospitalId(hospitalId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 병원정보 목록을 찾을 수 없습니다."));
+                .orElseThrow(() -> {
+                    log.error("병원정보 목록을 찾을 수 없습니다 - 병원 아이디: {}", hospitalId);
+                    return new IllegalArgumentException("해당 병원정보 목록을 찾을 수 없습니다.");
+                });
         List<HospitalInformationDto> dtoList = infoList.stream()
                 .map(hospitalInformationMapper::toDto)
                 .collect(Collectors.toList());

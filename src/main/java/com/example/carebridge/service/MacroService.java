@@ -111,7 +111,10 @@ public class MacroService {
 
         try {
             List<Macro> macroList = macroRepository.findAllByMedicalStaffId(medical_staff_id)
-                    .orElseThrow(() -> new IllegalArgumentException("해당 매크로 목록을 찾을 수 없습니다."));
+                    .orElseThrow(() -> {
+                        log.error("매크로를 찾을 수 없습니다 - 의료진 ID: {}", medical_staff_id);
+                        return new IllegalArgumentException("해당 매크로를 찾을 수 없습니다.");
+                    });
             List<MacroDto> macroDtoList = new ArrayList<>();
             
             for (Macro macro : macroList) {

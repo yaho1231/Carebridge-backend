@@ -178,7 +178,10 @@ public class OAuthService {
 
             // DB 재조회
             kakaoMember = userAccountRepository.findByEmail(kakaoEmail)
-                    .orElseThrow(() -> new NoSuchElementException("해당 이메일을 가진 사용자를 찾을 수 없습니다."));;
+//                    .orElseThrow(() -> new NoSuchElementException("해당 이메일을 가진 사용자를 찾을 수 없습니다."));
+                    .orElseThrow(() -> {
+                        return new NoSuchElementException("메세지가 존재하지 않습니다.");
+                    });
         }
 
         return userAccountService.convertUserAccountToUserAccountDto(kakaoMember);
