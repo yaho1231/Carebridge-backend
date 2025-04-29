@@ -63,7 +63,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(@NonNull CorsRegistry registry) {
         registry.addMapping("/**")          // 모든 경로에 대해 CORS 설정 적용
                 .allowedOrigins(
-//                        "http://localhost:5173",
+                        "http://localhost:5173",
                         "https://carebridge-frontend.vercel.app"
                 )
                 .allowedMethods(            // HTTP 메서드 허용 설정
