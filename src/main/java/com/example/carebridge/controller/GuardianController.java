@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * 보호자 정보 관리 컨트롤러
@@ -76,14 +77,12 @@ public class GuardianController {
             }
             
             GuardianDto guardianDto = guardianService.getGuardianInfo(phone_number);
-            
-            if (guardianDto == null) {
-                log.info("보호자를 찾을 수 없음 - 전화번호: {}", phone_number);
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            
+
             log.debug("보호자 정보 조회 성공 - 전화번호: {}", phone_number);
             return new ResponseEntity<>(guardianDto, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            log.info("보호자를 찾을 수 없음 - 전화번호: {}", phone_number, e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             log.error("보호자 정보 조회 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -111,17 +110,15 @@ public class GuardianController {
         try {
             log.debug("환자 ID {}의 보호자 목록 조회 요청", patient_id);
             List<GuardianDto> guardianList = guardianService.getGuardianList(patient_id);
-            
-            if (guardianList.isEmpty()) {
-                log.info("환자 ID {}의 등록된 보호자가 없습니다.", patient_id);
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-            
+
             log.debug("환자 ID {}의 보호자 {}명 조회 성공", patient_id, guardianList.size());
             return new ResponseEntity<>(guardianList, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            log.error("환자를 찾을 수 없음 - ID: {}", patient_id, e);
+        } catch (NoSuchElementException e) {
+            log.error("존재하지 않는 환자 ID: {}", patient_id, e);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            log.error("잘못된 환자 ID: {}", patient_id, e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("보호자 목록 조회 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -164,6 +161,9 @@ public class GuardianController {
             guardianService.addGuardian(patient_id, name, phoneNumber);
             log.info("보호자 등록 성공 - 환자 ID: {}, 전화번호: {}", patient_id, phoneNumber);
             return new ResponseEntity<>("보호자가 성공적으로 등록되었습니다.", HttpStatus.CREATED);
+        } catch (NoSuchElementException e) {
+            log.error("보호자 등록 실패 - 환자 ID {}에 해당하는 환자를 찾을 수 없음", patient_id, e);
+            return new ResponseEntity<>("해당 환자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
             log.error("보호자 등록 실패 - 잘못된 요청: {}", e.getMessage(), e);
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -202,9 +202,12 @@ public class GuardianController {
             guardianService.deleteGuardian(phone_number);
             log.info("보호자 삭제 성공 - 전화번호: {}", phone_number);
             return new ResponseEntity<>("보호자가 성공적으로 삭제되었습니다.", HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
+        } catch (NoSuchElementException e) {
             log.error("보호자를 찾을 수 없음 - 전화번호: {}", phone_number, e);
             return new ResponseEntity<>("존재하지 않는 보호자입니다.", HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            log.error("보호자 삭제 실패 - 잘못된 요청: {}", e.getMessage(), e);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("보호자 삭제 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>("서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);

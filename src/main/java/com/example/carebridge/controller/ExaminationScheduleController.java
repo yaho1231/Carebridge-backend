@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * 검사 일정 관리 컨트롤러
@@ -63,8 +64,11 @@ public class ExaminationScheduleController {
             log.debug("환자 ID {}의 검사 일정 조회 성공 - {} 건", patientId, schedules.size());
             return new ResponseEntity<>(schedules, HttpStatus.OK);
             
+        } catch (NoSuchElementException e) {
+            log.error("검사 일정 조회 실패 - 환자를 찾을 수 없음 (NoSuchElementException): {}", patientId, e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
-            log.error("잘못된 환자 ID: {}", patientId, e);
+            log.error("검사 일정 조회 실패 - 잘못된 환자 ID (IllegalArgumentException): {}", patientId, e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("검사 일정 조회 중 오류 발생 - 환자 ID: {}", patientId, e);
@@ -89,8 +93,11 @@ public class ExaminationScheduleController {
             log.debug("의료진 ID {}의 검사 일정 조회 성공 - {} 건", medicalId, schedules.size());
 
             return new ResponseEntity<>(schedules, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            log.error("검사 일정 조회 실패 - 의료진을 찾을 수 없음 (NoSuchElementException): {}", medicalId, e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
-            log.error("잘못된 의료진 ID: {}", medicalId, e);
+            log.error("검사 일정 조회 실패 - 잘못된 의료진 ID (IllegalArgumentException): {}", medicalId, e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("검사 일정 조회 중 오류 발생 - 의료진 ID: {}", medicalId, e);
@@ -98,7 +105,13 @@ public class ExaminationScheduleController {
         }
     }
 
-    @Operation(summary = "오늘의 일정 조회")
+    @Operation(summary = "오늘의 일정 조회", description = "특정 환자에게 해당되는 오늘의 검사 일정을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "검사 일정 조회 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 (환자 ID 오류)"),
+            @ApiResponse(responseCode = "404", description = "환자를 찾을 수 없음"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     @GetMapping("/today/{patient_id}")
     public ResponseEntity<List<ExaminationScheduleDto>> getTodaySchedules(
             @Parameter(description = "환자 ID", required = true)
@@ -107,8 +120,11 @@ public class ExaminationScheduleController {
             List<ExaminationScheduleDto> schedules = scheduleService.getTodaySchedules(patientId);
             log.debug("오늘의 검사 일정 조회 성공 - {} 건", schedules.size());
             return new ResponseEntity<>(schedules, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            log.error("오늘의 검사 일정 조회 실패 - 환자를 찾을 수 없음 (NoSuchElementException): {}", patientId, e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
-            log.error("잘못된 환자 ID: {}", patientId, e);
+            log.error("오늘의 검사 일정 조회 실패 - 잘못된 환자 ID (IllegalArgumentException): {}", patientId, e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("검사 일정 조회 중 오류 발생 - 환자 ID: {}", patientId, e);
@@ -124,11 +140,14 @@ public class ExaminationScheduleController {
             ExaminationSchedule examinationSchedule = scheduleService.createSchedule(examinationScheduleDto);
             log.debug("환자 ID : {} 의 스케줄 생성 성공", examinationSchedule.getPatientId());
             return new ResponseEntity<>(examinationSchedule, HttpStatus.CREATED);
+        } catch (NoSuchElementException e) {
+            log.error("해당 환자 ID에 대한 정보가 없습니다.", e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
-            log.error("잘못된 Dto");
+            log.error("잘못된 Dto", e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            log.error("스케줄 생성중 오류 발생");
+            log.error("스케줄 생성 중 오류 발생", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -140,11 +159,14 @@ public class ExaminationScheduleController {
         try {
             ExaminationSchedule examinationSchedule = scheduleService.updateSchedule(examinationScheduleDto);
             return new ResponseEntity<>(examinationSchedule, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            log.error("해당 ID의 스케줄을 찾을 수 없습니다. ID: {}", examinationScheduleDto.getId(), e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
-            log.error("잘못된 Dto");
+            log.error("잘못된 Dto", e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            log.error("스케줄 수정중 오류 발생");
+            log.error("스케줄 수정 중 오류 발생", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -155,6 +177,9 @@ public class ExaminationScheduleController {
         try {
             ExaminationSchedule examinationSchedule = scheduleService.deleteSchedule(id);
             return new ResponseEntity<>(examinationSchedule, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            log.error("삭제할 스케줄을 찾을 수 없습니다. 스케줄 ID: {}", id, e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
             log.error("잘못된 스케줄 ID: {}", id, e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -170,6 +195,9 @@ public class ExaminationScheduleController {
         try {
             ExaminationSchedule examinationSchedule = scheduleService.getSchedulesById(id);
             return new ResponseEntity<>(examinationSchedule, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            log.error("조회할 스케줄을 찾을 수 없습니다. 스케줄 ID: {}", id, e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
             log.error("잘못된 스케줄 ID: {}", id, e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

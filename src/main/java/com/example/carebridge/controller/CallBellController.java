@@ -15,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * 콜벨(호출) 관리 컨트롤러
@@ -63,9 +64,12 @@ public class CallBellController {
             log.info("요청 상태 업데이트 성공 - 요청 ID: {}, 상태: {}", requestId, status);
             return new ResponseEntity<>("요청 상태가 성공적으로 업데이트되었습니다.", HttpStatus.OK);
 
-        } catch (IllegalArgumentException e) {
-            log.error("요청을 찾을 수 없음 - 요청 ID: {}", requestId, e);
+        } catch (NoSuchElementException e) {
+            log.error("요청을 찾을 수 없음(NoSuchElementException) - 요청 ID: {}", requestId, e);
             return new ResponseEntity<>("해당 요청을 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            log.error("잘못된 인자 - 요청 ID: {}", requestId, e);
+            return new ResponseEntity<>("유효하지 않은 요청입니다.", HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("요청 상태 업데이트 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>("서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -101,9 +105,12 @@ public class CallBellController {
             
             log.debug("의료진 요청 목록 조회 성공 - 의료진 ID: {}, 요청 수: {}", medicalStaffId, requests.size());
             return new ResponseEntity<>(requests, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            log.error("의료진을 찾을 수 없음 - ID: {}", medicalStaffId, e);
+        } catch (NoSuchElementException e) {
+            log.error("의료진을 찾을 수 없음(NoSuchElementException) - ID: {}", medicalStaffId, e);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            log.error("잘못된 의료진 ID (IllegalArgumentException) - ID: {}", medicalStaffId, e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("요청 목록 조회 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -139,9 +146,12 @@ public class CallBellController {
             
             log.debug("환자 요청 목록 조회 성공 - 환자 ID: {}, 요청 수: {}", patientId, requests.size());
             return new ResponseEntity<>(requests, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            log.error("환자를 찾을 수 없음 - ID: {}", patientId, e);
+        } catch (NoSuchElementException e) {
+            log.error("환자를 찾을 수 없음(NoSuchElementException) - ID: {}", patientId, e);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            log.error("잘못된 환자 ID (IllegalArgumentException) - ID: {}", patientId, e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("요청 목록 조회 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -170,9 +180,12 @@ public class CallBellController {
             callBellService.deleteRequest(requestId);
             log.info("요청 삭제 성공 - 요청 ID: {}", requestId);
             return new ResponseEntity<>("요청이 성공적으로 삭제되었습니다.", HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            log.error("요청을 찾을 수 없음 - 요청 ID: {}", requestId, e);
+        } catch (NoSuchElementException e) {
+            log.error("요청을 찾을 수 없음(NoSuchElementException) - 요청 ID: {}", requestId, e);
             return new ResponseEntity<>("해당 요청을 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            log.error("잘못된 요청 ID (IllegalArgumentException) - 요청 ID: {}", requestId, e);
+            return new ResponseEntity<>("유효하지 않은 요청 ID입니다.", HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("요청 삭제 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>("서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -197,9 +210,12 @@ public class CallBellController {
             callBellService.updateRequestAcceptTime(requestId, acceptTime);
             log.info("요청 수락 시간 업데이트 성공 - 요청 ID: {}, 수락 시간: {}", requestId, acceptTime);
             return new ResponseEntity<>("요청 수락 시간이 성공적으로 업데이트되었습니다.", HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            log.error("요청을 찾을 수 없음 - 요청 ID: {}", requestId, e);
+        } catch (NoSuchElementException e) {
+            log.error("요청을 찾을 수 없음(NoSuchElementException) - 요청 ID: {}", requestId, e);
             return new ResponseEntity<>("해당 요청을 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            log.error("잘못된 요청 ID 또는 수락 시간 형식 (IllegalArgumentException) - 요청 ID: {}, 수락 시간: {}", requestId, acceptTime, e);
+            return new ResponseEntity<>("유효하지 않은 요청 ID 또는 수락 시간 형식입니다.", HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("요청 수락 시간 업데이트 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>("서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
