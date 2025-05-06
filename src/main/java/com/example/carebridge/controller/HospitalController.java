@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.NoSuchElementException;
+
 /**
  * 병원 관련 API 컨트롤러
  * 병원 정보와 관련된 다양한 API 엔드포인트를 제공합니다.
@@ -44,20 +46,19 @@ public class HospitalController {
     public ResponseEntity<String> getHospitalName(@PathVariable Integer hospital_id) {
         try {
             String hospitalName = hospitalService.getHospitalName(hospital_id);
-            if (hospitalName == null || hospitalName.isEmpty()) {
-                return ResponseEntity
+            return ResponseEntity.ok(hospitalName);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
                     .body("해당 ID의 병원을 찾을 수 없습니다.");
-            }
-            return ResponseEntity.ok(hospitalName);
         } catch (IllegalArgumentException e) {
             return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body("잘못된 병원 ID 형식입니다: " + e.getMessage());
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("잘못된 병원 ID 형식입니다: " + e.getMessage());
         } catch (Exception e) {
             return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("서버 오류가 발생했습니다: " + e.getMessage());
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("서버 오류가 발생했습니다: " + e.getMessage());
         }
     }
 }

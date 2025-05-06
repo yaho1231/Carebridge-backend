@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.NoSuchElementException;
+
 /**
  * 채팅방 관리 컨트롤러
  * 채팅방의 생성, 조회 등 채팅방 관련 기능을 제공하는 REST API 컨트롤러입니다.
@@ -53,8 +55,11 @@ public class ChatRoomController {
             ChatRoomDto chatRoom = callBellService.createChatRoom(patientId, department);
             log.info("채팅방 생성 성공 - 방 ID: {}", chatRoom.getRoomId());
             return new ResponseEntity<>(chatRoom, HttpStatus.CREATED);
+        } catch (NoSuchElementException e) {
+            log.error("채팅방 생성 실패 - 환자 또는 부서를 찾을 수 없음: 환자 ID {}, 부서: {}", patientId, department, e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
-            log.error("채팅방 생성 실패 - 잘못된 요청: {}", e.getMessage());
+            log.error("채팅방 생성 실패 - 잘못된 요청 파라미터: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("채팅방 생성 중 오류 발생: {}", e.getMessage(), e);
@@ -91,9 +96,12 @@ public class ChatRoomController {
             
             log.debug("채팅방 조회 성공 - 방 ID: {}", chatRoom.getRoomId());
             return new ResponseEntity<>(chatRoom, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            log.error("채팅방 조회 실패 - 잘못된 요청: {}", e.getMessage());
+        } catch (NoSuchElementException e) {
+            log.error("채팅방 조회 실패 - 환자를 찾을 수 없음 (NoSuchElementException): {}", patientId, e);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            log.error("채팅방 조회 실패 - 잘못된 환자 ID (IllegalArgumentException): {}", patientId, e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("채팅방 조회 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
