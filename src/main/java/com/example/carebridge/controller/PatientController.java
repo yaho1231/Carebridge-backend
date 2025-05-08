@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 /**
  * 환자 정보 관리 컨트롤러
@@ -51,16 +52,14 @@ public class PatientController {
         try {
             log.debug("의료진 ID {}의 담당 환자 목록 조회 요청", staffId);
             List<PatientDto> patientDtoList = patientService.getPatientList(staffId);
-            
-            if (patientDtoList.isEmpty()) {
-                log.info("의료진 ID {}의 담당 환자가 없습니다.", staffId);
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-            
+
             log.debug("의료진 ID {}의 담당 환자 {}명 조회 성공", staffId, patientDtoList.size());
             return new ResponseEntity<>(patientDtoList, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            log.warn("해당 ID의 의료진의 환자 목록을 찾을 수 없습니다 - 의료진 ID: {}", staffId, e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
-            log.error("잘못된 의료진 ID: {}", staffId, e);
+            log.warn("잘못된 요청 - 의료진 ID: {}, 오류: {}", staffId, e.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("환자 목록 조회 중 오류 발생: {}", e.getMessage(), e);
@@ -88,15 +87,15 @@ public class PatientController {
         try {
             log.debug("환자 ID {} 정보 조회 요청", patientId);
             Patient patient = patientService.getPatientById(patientId);
-            
-            if (patient == null) {
-                log.info("환자 ID {}를 찾을 수 없습니다.", patientId);
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            
             PatientDto patientDto = patientService.convertToDto(patient);
             log.debug("환자 ID {} 정보 조회 성공", patientId);
             return new ResponseEntity<>(patientDto, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            log.warn("해당 ID의 환자를 찾을 수 없습니다 - 환자 ID: {}", patientId, e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            log.warn("잘못된 요청 - 환자 ID: {}, 오류: {}", patientId, e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("환자 정보 조회 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -124,6 +123,12 @@ public class PatientController {
             boolean isChatRoomExist = patientService.isChatRoomExist(patientId);
             log.debug("환자 ID {}의 채팅방 존재 여부: {}", patientId, isChatRoomExist);
             return new ResponseEntity<>(isChatRoomExist, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            log.warn("해당 ID의 환자를 찾을 수 없습니다 - 환자 ID: {}", patientId, e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            log.warn("잘못된 요청 - 환자 ID: {}, 오류: {}", patientId, e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("채팅방 존재 여부 확인 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -153,8 +158,11 @@ public class PatientController {
             Patient patient = patientService.createPatient(patientDto);
             log.info("새로운 환자 정보 생성 성공. ID: {}", patient.getPatientId());
             return new ResponseEntity<>(patient, HttpStatus.CREATED);
+        } catch (NoSuchElementException e) {
+            log.warn("관련 리소스를 찾을 수 없습니다 - 요청 정보: {}", patientDto, e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
-            log.error("잘못된 환자 정보: {}", e.getMessage(), e);
+            log.warn("잘못된 요청 - 요청 정보: {}, 오류: {}", patientDto, e.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("환자 정보 생성 중 오류 발생: {}", e.getMessage(), e);
@@ -195,9 +203,12 @@ public class PatientController {
             patientService.updatePhoneNumber(patientId, newPhoneNumber);
             log.info("환자 ID {}의 전화번호 수정 성공", patientId);
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            log.error("환자를 찾을 수 없음. ID: {}", patientId, e);
+        } catch (NoSuchElementException e) {
+            log.warn("해당 ID의 환자를 찾을 수 없습니다 - 환자 ID: {}", patientId, e);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            log.warn("잘못된 요청 - 환자 ID: {}, 오류: {}", patientId, e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("전화번호 수정 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

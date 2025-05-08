@@ -9,13 +9,16 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/staff")
 public class StaffAccountController {
@@ -49,9 +52,14 @@ public class StaffAccountController {
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
             }
+        } catch (NoSuchElementException e) {
+            log.warn("해당 ID의 계정을 찾을 수 없습니다 - 사용자 ID: {}", staffAccountDto.getUserId(), e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (IllegalArgumentException e) {
+            log.warn("잘못된 로그인 요청 - 사용자 ID: {}, 오류: {}", staffAccountDto.getUserId(), e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         } catch (Exception e) {
+            log.error("로그인 처리 중 서버 오류 발생: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
@@ -72,11 +80,20 @@ public class StaffAccountController {
     @GetMapping("/find-password")
     public ResponseEntity<String> findPassword(@RequestParam String Id){
         try {
-            return ResponseEntity.ok(staffAccountService.findPassword(Id));
+            log.debug("비밀번호 찾기 요청 - 사용자 ID: {}", Id);
+            String password = staffAccountService.findPassword(Id);
+            log.info("비밀번호 찾기 성공 - 사용자 ID: {}", Id);
+            return ResponseEntity.ok(password);
+        } catch (NoSuchElementException e) {
+            log.warn("해당 ID의 계정을 찾을 수 없습니다 - 사용자 ID: {}", Id, e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("계정을 찾을 수 없습니다.");
         } catch (IllegalArgumentException e) {
+            log.warn("잘못된 요청 - 사용자 ID: {}, 오류: {}", Id, e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to find password: " + e.getMessage());
+            log.error("비밀번호 찾기 중 서버 오류 발생: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("비밀번호 찾기 중 오류가 발생했습니다.");
         }
     }
 
@@ -85,13 +102,21 @@ public class StaffAccountController {
     public ResponseEntity<String> resetPassword(
             @RequestBody StaffAccountDto staffAccountDto,
             @RequestParam String newPassword){
-        try{
+        try {
+            log.debug("비밀번호 초기화 요청 - 사용자 ID: {}", staffAccountDto.getUserId());
             staffAccountService.resetPassword(staffAccountDto, newPassword);
-            return ResponseEntity.ok("password reset successful! new Password : " + newPassword);
+            log.info("비밀번호 초기화 성공 - 사용자 ID: {}", staffAccountDto.getUserId());
+            return ResponseEntity.ok("비밀번호 초기화 성공! 새로운 비밀번호: " + newPassword);
+        } catch (NoSuchElementException e) {
+            log.warn("해당 ID의 계정을 찾을 수 없습니다 - 사용자 ID: {}", staffAccountDto.getUserId(), e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("계정을 찾을 수 없습니다.");
         } catch (IllegalArgumentException e) {
+            log.warn("잘못된 요청 - 사용자 ID: {}, 오류: {}", staffAccountDto.getUserId(), e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to reset password: " + e.getMessage());
+            log.error("비밀번호 초기화 중 서버 오류 발생: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("비밀번호 초기화 중 오류가 발생했습니다.");
         }
     }
 }

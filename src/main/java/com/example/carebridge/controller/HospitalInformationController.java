@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * 병원 정보 관리 컨트롤러
@@ -60,13 +61,18 @@ public class HospitalInformationController {
             log.debug("병원 정보 검색 요청 - 병원 ID: {}, 프롬프트: {}", hospitalId, prompt);
             HospitalInformation result = hospitalInformationService.findMostSimilarHospitalInformation(prompt, hospitalId);
             
-            if (result == null) {
-                log.info("검색 결과 없음 - 병원 ID: {}, 프롬프트: {}", hospitalId, prompt);
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            
             log.debug("병원 정보 검색 성공 - 병원 ID: {}", hospitalId);
             return new ResponseEntity<>(result, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            log.warn("해당 ID의 병원을 찾을 수 없습니다 - 병원 ID: {}", hospitalId, e);
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(null);
+        } catch (IllegalArgumentException e) {
+            log.warn("잘못된 병원 ID 형식 - 병원 ID: {}, 오류: {}", hospitalId, e.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(null);
         } catch (Exception e) {
             log.error("병원 정보 검색 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -93,14 +99,19 @@ public class HospitalInformationController {
         try {
             log.debug("병원 정보 목록 조회 요청 - 병원 ID: {}", hospitalId);
             List<HospitalInformationDto> infoList = hospitalInformationService.getHospitalInformationList(hospitalId);
-            
-            if (infoList.isEmpty()) {
-                log.info("병원 정보가 없음 - 병원 ID: {}", hospitalId);
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-            
+
             log.debug("병원 정보 목록 조회 성공 - 병원 ID: {}, 정보 수: {}", hospitalId, infoList.size());
             return new ResponseEntity<>(infoList, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            log.warn("해당 ID의 병원을 찾을 수 없습니다 - 병원 ID: {}", hospitalId, e);
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(null);
+        } catch (IllegalArgumentException e) {
+            log.warn("잘못된 병원 ID 형식 - 병원 ID: {}, 오류: {}", hospitalId, e.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(null);
         } catch (Exception e) {
             log.error("병원 정보 목록 조회 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -119,6 +130,14 @@ public class HospitalInformationController {
     public ResponseEntity<String> getHospitalInformation(@PathVariable int hospital_id, @PathVariable String title) {
         try {
             return ResponseEntity.ok(hospitalInformationService.getHospitalInformation(hospital_id, title));
+        } catch (NoSuchElementException e) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("해당 ID의 병원 또는 정보를 찾을 수 없습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("잘못된 요청 파라미터입니다: " + e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(500).body(null);
         }
@@ -149,9 +168,14 @@ public class HospitalInformationController {
                     hospitalInformationDto.getHospitalId(), 
                     hospitalInformationDto.getTitle());
             return new ResponseEntity<>("병원 정보가 성공적으로 추가되었습니다.", HttpStatus.CREATED);
+        } catch (NoSuchElementException e) {
+            log.warn("해당 ID의 병원을 찾을 수 없습니다 - 병원 ID: {}", hospitalInformationDto.getHospitalId(), e);
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("해당 ID의 병원을 찾을 수 없습니다.");
         } catch (IllegalArgumentException e) {
             log.error("잘못된 병원 정보: {}", e.getMessage(), e);
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("잘못된 요청입니다: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("병원 정보 추가 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>("서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -187,19 +211,20 @@ public class HospitalInformationController {
             ) {
         try {
             log.debug("병원 정보 수정 요청 - 병원 ID: {}, 제목: {}", hospitalId, title);
-            
-            if (information == null || information.trim().isEmpty()) {
-                log.error("잘못된 정보 내용 - 병원 ID: {}, 제목: {}", hospitalId, title);
-                return new ResponseEntity<>("정보 내용은 비워둘 수 없습니다.", HttpStatus.BAD_REQUEST);
-            }
-            
+
             hospitalInformationService.updateHospitalInformation(hospitalId, id, title, information);
             log.info("병원 정보 수정 성공 - 병원 ID: {}, 제목: {}", hospitalId, title);
             return new ResponseEntity<>("병원 정보가 성공적으로 수정되었습니다.", HttpStatus.OK);
-            
+        } catch (NoSuchElementException e) {
+            log.warn("해당 병원 또는 정보를 찾을 수 없습니다 - 병원 ID: {}, 정보 ID: {}", hospitalId, id, e);
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("해당 병원 또는 정보를 찾을 수 없습니다.");
         } catch (IllegalArgumentException e) {
-            log.error("수정할 정보를 찾을 수 없음 - 병원 ID: {}, 제목: {}", hospitalId, title, e);
-            return new ResponseEntity<>("수정할 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
+            log.warn("잘못된 입력 값 - 병원 ID: {}, 정보 ID: {}, 오류: {}", hospitalId, id, e.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("잘못된 요청입니다: " + e.getMessage());
         } catch (Exception e) {
             log.error("병원 정보 수정 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>("서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -231,13 +256,21 @@ public class HospitalInformationController {
             hospitalInformationService.deleteHospitalInformation(hospitalId, title);
             log.info("병원 정보 삭제 성공 - 병원 ID: {}, 제목: {}", hospitalId, title);
             return new ResponseEntity<>("병원 정보가 성공적으로 삭제되었습니다.", HttpStatus.OK);
-            
+        } catch (NoSuchElementException e) {
+            log.warn("해당 병원 또는 정보를 찾을 수 없습니다 - 병원 ID: {}, 제목: {}", hospitalId, title, e);
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("해당 병원 또는 정보를 찾을 수 없습니다.");
         } catch (IllegalArgumentException e) {
-            log.error("삭제할 정보를 찾을 수 없음 - 병원 ID: {}, 제목: {}", hospitalId, title, e);
-            return new ResponseEntity<>("삭제할 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
+            log.warn("잘못된 요청 파라미터 - 병원 ID: {}, 제목: {}, 오류: {}", hospitalId, title, e.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("잘못된 요청입니다: " + e.getMessage());
         } catch (Exception e) {
-            log.error("병원 정보 삭제 중 오류 발생: {}", e.getMessage(), e);
-            return new ResponseEntity<>("서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+            log.error("병원 정보 삭제 중 서버 오류 발생: {}", e.getMessage(), e);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("서버 오류가 발생했습니다: " + e.getMessage());
         }
     }
 }
