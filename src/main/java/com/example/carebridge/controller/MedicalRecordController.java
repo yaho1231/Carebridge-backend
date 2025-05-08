@@ -1,5 +1,6 @@
 package com.example.carebridge.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import com.example.carebridge.service.MedicalRecordService;
@@ -9,6 +10,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.NoSuchElementException;
 
 /**
  * 의료 기록 관리 컨트롤러
@@ -59,15 +62,19 @@ public class MedicalRecordController {
         @PathVariable Integer patientId
     ) {
         try {
+            log.debug("질병 정보 조회 요청 - 환자 ID: {}", patientId);
             String diseaseInfo = medicalRecordService.getDiseaseInfo(patientId);
+            log.info("질병 정보 조회 성공 - 환자 ID: {}", patientId);
             return ResponseEntity.ok(diseaseInfo);
+        } catch (NoSuchElementException e) {
+            log.warn("해당 ID의 환자의 질병 정보를 찾을 수 없습니다 - 환자 ID: {}", patientId, e);
+            return new ResponseEntity<>("해당 환자의 질병 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (IllegalStateException e) {
-            return ResponseEntity.notFound().build();
+            log.warn("잘못된 요청 - 환자 ID: {}, 오류: {}", patientId, e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                .body("서버 오류가 발생했습니다: " + e.getMessage());
+            log.error("질병 정보 조회 중 오류 발생: {}", e.getMessage(), e);
+            return new ResponseEntity<>("서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

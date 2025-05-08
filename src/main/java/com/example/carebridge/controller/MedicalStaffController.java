@@ -8,10 +8,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @RestController
@@ -45,14 +47,20 @@ public class MedicalStaffController {
             @PathVariable Integer hospitalId
     ) {
         try {
+            log.debug("의료진 목록 조회 요청 - 병원 ID: {}", hospitalId);
             List<MedicalStaff> medicalStaffList = medicalStaffService.findAllByHospitalId(hospitalId);
-            if (medicalStaffList.isEmpty())
-                return ResponseEntity.noContent().build();
+
+            log.info("의료진 목록 조회 성공 - 병원 ID: {}", hospitalId);
             return ResponseEntity.ok(medicalStaffList);
+        } catch (NoSuchElementException e) {
+            log.warn("해당 병원의 정보를 찾을 수 없습니다 - 병원 ID: {}", hospitalId, e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+            log.warn("잘못된 요청 - 병원 ID: {}, 오류: {}", hospitalId, e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            log.error("의료진 목록 조회 중 오류 발생: {}", e.getMessage(), e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

@@ -125,12 +125,11 @@ public class UserAccountController {
 //            rttr.addFlashAttribute("loginFail", failMessage);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid phone number or otp.");
             }
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No such phone number");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-
     }
 
     /**

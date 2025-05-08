@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * 매크로 관리 컨트롤러
@@ -54,12 +55,21 @@ public class MacroController {
             macroService.addMacro(medicalStaffId, macroDto);
             log.info("매크로 추가 성공 - 의료진 ID: {}, 매크로 이름: {}", medicalStaffId, macroDto.getMacroName());
             return new ResponseEntity<>("매크로가 성공적으로 추가되었습니다.", HttpStatus.CREATED);
+        } catch (NoSuchElementException e) {
+            log.warn("해당 ID의 의료진의 매크로를 찾을 수 없습니다 - 의료진 ID: {}", medicalStaffId, e);
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("해당 ID의 의료진의 매크로를 찾을 수 없습니다.");
         } catch (IllegalArgumentException e) {
-            log.error("잘못된 매크로 정보: {}", e.getMessage(), e);
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            log.warn("잘못된 매크로 요청 - 의료진 ID: {}, 오류: {}", medicalStaffId, e.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("잘못된 요청입니다: " + e.getMessage());
         } catch (Exception e) {
-            log.error("매크로 추가 중 오류 발생: {}", e.getMessage(), e);
-            return new ResponseEntity<>("서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+            log.error("매크로 추가 중 서버 오류 발생: {}", e.getMessage(), e);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("서버 오류가 발생했습니다: " + e.getMessage());
         }
     }
 
@@ -85,17 +95,24 @@ public class MacroController {
         try {
             log.debug("매크로 조회 요청 - 의료진 ID: {}, 매크로 이름: {}", medicalStaffId, macroName);
             String macro = macroService.getMacro(medicalStaffId, macroName);
-            
-            if (macro == null) {
-                log.info("매크로를 찾을 수 없음 - 의료진 ID: {}, 매크로 이름: {}", medicalStaffId, macroName);
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            
+
             log.debug("매크로 조회 성공 - 의료진 ID: {}, 매크로 이름: {}", medicalStaffId, macroName);
             return new ResponseEntity<>(macro, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            log.warn("해당 ID의 의료진의 매크로를 찾을 수 없습니다 - 의료진 ID: {}", medicalStaffId, e);
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("해당 ID의 의료진의 매크로를 찾을 수 없습니다.");
+        } catch (IllegalArgumentException e) {
+            log.warn("잘못된 매크로 조회 요청 - 의료진 ID: {}, 오류: {}", medicalStaffId, e.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("잘못된 요청입니다: " + e.getMessage());
         } catch (Exception e) {
-            log.error("매크로 조회 중 오류 발생: {}", e.getMessage(), e);
-            return new ResponseEntity<>("서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+            log.error("매크로 조회 중 서버 오류 발생: {}", e.getMessage(), e);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("서버 오류가 발생했습니다: " + e.getMessage());
         }
     }
 
@@ -118,17 +135,24 @@ public class MacroController {
         try {
             log.debug("매크로 목록 조회 요청 - 의료진 ID: {}", medicalStaffId);
             List<MacroDto> macroList = macroService.getMacroList(medicalStaffId);
-            
-            if (macroList.isEmpty()) {
-                log.info("매크로가 없음 - 의료진 ID: {}", medicalStaffId);
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-            
+
             log.debug("매크로 목록 조회 성공 - 의료진 ID: {}, 매크로 수: {}", medicalStaffId, macroList.size());
             return new ResponseEntity<>(macroList, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            log.warn("해당 ID의 의료진의 매크로를 찾을 수 없습니다 - 의료진 ID: {}", medicalStaffId, e);
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(null);
+        } catch (IllegalArgumentException e) {
+            log.warn("잘못된 요청 - 의료진 ID: {}, 오류: {}", medicalStaffId, e.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(null);
         } catch (Exception e) {
-            log.error("매크로 목록 조회 중 오류 발생: {}", e.getMessage(), e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            log.error("매크로 목록 조회 중 서버 오류 발생: {}", e.getMessage(), e);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
         }
     }
 
@@ -157,8 +181,11 @@ public class MacroController {
             macroService.updateMacro(medicalStaffId, macroDto);
             log.info("매크로 수정 성공 - 의료진 ID: {}, 매크로 이름: {}", medicalStaffId, macroDto.getMacroName());
             return new ResponseEntity<>("매크로가 성공적으로 수정되었습니다.", HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            log.warn("해당 ID의 의료진의 매크로를 찾을 수 없습니다 - 의료진 ID: {}", medicalStaffId, e);
+            return new ResponseEntity<>("해당 의료진의 매크로를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
-            log.error("매크로를 찾을 수 없음: {}", e.getMessage(), e);
+            log.error("잘못된 요청 : {}, 의료진 ID: {}", e.getMessage(), medicalStaffId, e);
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             log.error("매크로 수정 중 오류 발생: {}", e.getMessage(), e);
@@ -190,8 +217,11 @@ public class MacroController {
             macroService.deleteMacro(medicalStaffId, macroName);
             log.info("매크로 삭제 성공 - 의료진 ID: {}, 매크로 이름: {}", medicalStaffId, macroName);
             return new ResponseEntity<>("매크로가 성공적으로 삭제되었습니다.", HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            log.warn("해당 ID의 의료진의 매크로를 찾을 수 없습니다 - 의료진 ID: {}", medicalStaffId, e);
+            return new ResponseEntity<>("해당 의료진의 매크로를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
-            log.error("매크로를 찾을 수 없음: {}", e.getMessage(), e);
+            log.error("잘못된 요청 : {}, 의료진 ID: {}, 매크로 이름: {}", e.getMessage(), medicalStaffId, macroName, e);
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             log.error("매크로 삭제 중 오류 발생: {}", e.getMessage(), e);
@@ -220,15 +250,15 @@ public class MacroController {
             @RequestParam String phraseHead) {
         try {
             log.debug("문구 머리말 추가 요청 - 의료진 ID: {}", medicalStaffId);
-            
-            if (phraseHead == null || phraseHead.trim().isEmpty()) {
-                log.error("문구 머리말이 비어있음 - 의료진 ID: {}", medicalStaffId);
-                return new ResponseEntity<>("문구 머리말은 비워둘 수 없습니다.", HttpStatus.BAD_REQUEST);
-            }
-            
             macroService.addPhraseHead(medicalStaffId, phraseHead);
             log.info("문구 머리말 추가 성공 - 의료진 ID: {}", medicalStaffId);
             return new ResponseEntity<>("문구 머리말이 성공적으로 추가되었습니다.", HttpStatus.CREATED);
+        } catch (NoSuchElementException e) {
+            log.warn("해당 ID의 의료진의 머리말을 찾을 수 없습니다 - 의료진 ID: {}", medicalStaffId, e);
+            return new ResponseEntity<>("해당 의료진의 머리말을 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            log.warn("잘못된 요청 - 의료진 ID: {}, 오류: {}", medicalStaffId, e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("문구 머리말 추가 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>("서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -254,14 +284,15 @@ public class MacroController {
         try {
             log.debug("문구 머리말 조회 요청 - 의료진 ID: {}", medicalStaffId);
             String phraseHead = macroService.getPhraseHead(medicalStaffId);
-            
-            if (phraseHead == null) {
-                log.info("문구 머리말을 찾을 수 없음 - 의료진 ID: {}", medicalStaffId);
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            
+
             log.debug("문구 머리말 조회 성공 - 의료진 ID: {}", medicalStaffId);
             return new ResponseEntity<>(phraseHead, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            log.warn("해당 ID의 의료진의 머리말을 찾을 수 없습니다 - 의료진 ID: {}", medicalStaffId, e);
+            return new ResponseEntity<>("해당 의료진의 머리말을 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            log.warn("잘못된 요청 - 의료진 ID: {}, 오류: {}", medicalStaffId, e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("문구 머리말 조회 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>("서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -293,9 +324,12 @@ public class MacroController {
             macroService.updatePhraseHead(medicalStaffId, phraseHead);
             log.info("문구 머리말 수정 성공 - 의료진 ID: {}", medicalStaffId);
             return new ResponseEntity<>("문구 머리말이 성공적으로 수정되었습니다.", HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            log.warn("해당 ID의 의료진의 머리말을 찾을 수 없습니다 - 의료진 ID: {}", medicalStaffId, e);
+            return new ResponseEntity<>("해당 의료진의 머리말을 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
-            log.error("문구 머리말을 찾을 수 없음: {}", e.getMessage(), e);
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+            log.warn("잘못된 요청 - 의료진 ID: {}, 오류: {}", medicalStaffId, e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("문구 머리말 수정 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>("서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -323,15 +357,16 @@ public class MacroController {
             @RequestParam String phraseTail) {
         try {
             log.debug("문구 꼬리말 추가 요청 - 의료진 ID: {}", medicalStaffId);
-            
-            if (phraseTail == null || phraseTail.trim().isEmpty()) {
-                log.error("문구 꼬리말이 비어있음 - 의료진 ID: {}", medicalStaffId);
-                return new ResponseEntity<>("문구 꼬리말은 비워둘 수 없습니다.", HttpStatus.BAD_REQUEST);
-            }
-            
+
             macroService.addPhraseTail(medicalStaffId, phraseTail);
             log.info("문구 꼬리말 추가 성공 - 의료진 ID: {}", medicalStaffId);
             return new ResponseEntity<>("문구 꼬리말이 성공적으로 추가되었습니다.", HttpStatus.CREATED);
+        } catch (NoSuchElementException e) {
+            log.warn("해당 ID의 의료진의 꼬리말을 찾을 수 없습니다 - 의료진 ID: {}", medicalStaffId, e);
+            return new ResponseEntity<>("해당 의료진의 꼬리말을 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            log.warn("잘못된 요청 - 의료진 ID: {}, 오류: {}", medicalStaffId, e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("문구 꼬리말 추가 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>("서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -357,14 +392,15 @@ public class MacroController {
         try {
             log.debug("문구 꼬리말 조회 요청 - 의료진 ID: {}", medicalStaffId);
             String phraseTail = macroService.getPhraseTail(medicalStaffId);
-            
-            if (phraseTail == null) {
-                log.info("문구 꼬리말을 찾을 수 없음 - 의료진 ID: {}", medicalStaffId);
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            
+
             log.debug("문구 꼬리말 조회 성공 - 의료진 ID: {}", medicalStaffId);
             return new ResponseEntity<>(phraseTail, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            log.warn("해당 ID의 의료진의 꼬리말을 찾을 수 없습니다 - 의료진 ID: {}", medicalStaffId, e);
+            return new ResponseEntity<>("해당 의료진의 꼬리말을 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            log.warn("잘못된 요청 - 의료진 ID: {}, 오류: {}", medicalStaffId, e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("문구 꼬리말 조회 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>("서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -394,11 +430,15 @@ public class MacroController {
         try {
             log.debug("문구 꼬리말 수정 요청 - 의료진 ID: {}", medicalStaffId);
             macroService.updatePhraseTail(medicalStaffId, phraseTail);
+
             log.info("문구 꼬리말 수정 성공 - 의료진 ID: {}", medicalStaffId);
             return new ResponseEntity<>("문구 꼬리말이 성공적으로 수정되었습니다.", HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            log.warn("해당 ID의 의료진의 꼬리말을 찾을 수 없습니다 - 의료진 ID: {}", medicalStaffId, e);
+            return new ResponseEntity<>("해당 의료진의 꼬리말을 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
-            log.error("문구 꼬리말을 찾을 수 없음: {}", e.getMessage(), e);
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+            log.warn("잘못된 요청 - 의료진 ID: {}, 오류: {}", medicalStaffId, e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("문구 꼬리말 수정 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>("서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
