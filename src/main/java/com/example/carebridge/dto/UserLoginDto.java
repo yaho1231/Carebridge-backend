@@ -19,4 +19,6 @@ public class UserLoginDto {
     private Integer patientId;
 
     private String phoneNumber;
+
+    private Boolean autoLogin = false;
 }

@@ -159,10 +159,10 @@ public class UserAccountController {
     /**
      * User Login
      * @param verifyAccountDto
-     * @param session
+     * @param autoLogin
      * @return
      */
-    @Operation(summary = "계정 인증", description = "OTP 인증을 수행하고, 성공 시 JWT를 발급합니다.")
+    @Operation(summary = "계정 인증", description = "OTP 인증을 수행하고, autoLogin 여부에 따라 JWT를 발급합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "인증 성공 및 JWT 발급"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터"),
@@ -171,42 +171,31 @@ public class UserAccountController {
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PostMapping("/login")
-    public ResponseEntity<UserLoginDto> login(@RequestBody VerifyAccountDto verifyAccountDto, HttpSession session) {
+    public ResponseEntity<UserLoginDto> login(@RequestBody VerifyAccountDto verifyAccountDto, Boolean autoLogin) {
         try {
-            boolean isVerified = userAccountService.verifyOtp(verifyAccountDto);
-            boolean isValid = userAccountService.isValidUserAccount(verifyAccountDto.getPhone());
-            Patient patient = patientService.getPatientByPhone(verifyAccountDto.getPhone());
-            if (patient == null)
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-            Integer patientId = patient.getPatientId();
-            Integer userId = patient.getUserId();
-
-            if (isVerified && isValid) {
-                //jwt 발급
-                JwtUtil.TokenPair token = jwtUtil.generateTokens(verifyAccountDto.getPhone());
-                // 세션에 사용자 전화번호 저장 (자동 로그인 기능을 위한 세션 활용)
-//            session.setAttribute("userPhone", verifyAccountDto.getPhone());
-//            log.info("세션 생성됨: " + session.getId());
-//            log.info("세션 확인용" + session.getAttribute("userPhone"));
-                UserLoginDto userLoginDto = new UserLoginDto();
-                userLoginDto.setUserId(userId);
-                userLoginDto.setAccessToken(token.accessToken);
-                userLoginDto.setRefreshToken(token.refreshToken);
-                userLoginDto.setPatientId(patientId);
-                userLoginDto.setPhoneNumber(verifyAccountDto.getPhone());
-
-                return ResponseEntity.ok(userLoginDto);
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+            String phone = verifyAccountDto.getPhone();
+            if (!userAccountService.verifyOtp(verifyAccountDto) || !userAccountService.isValidUserAccount(phone)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
+            Patient patient = patientService.getPatientByPhone(phone);
+            JwtUtil.TokenPair tokenPair = jwtUtil.generateTokens(phone);
+            UserLoginDto userLoginDto = UserLoginDto.builder()
+                    .userId(patient.getUserId())
+                    .patientId(patient.getPatientId())
+                    .accessToken(tokenPair.accessToken)
+                    .refreshToken(tokenPair.refreshToken)
+                    .phoneNumber(phone)
+                    .autoLogin(Boolean.TRUE.equals(autoLogin))
+                    .build();
+            return ResponseEntity.ok(userLoginDto);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.badRequest().build();
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -221,10 +210,7 @@ public class UserAccountController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청")
     })
     @PostMapping("/logout")
-//    public ResponseEntity<String> logout(HttpSession session) {
     public ResponseEntity<String> logout(String phoneNumber) {
-//        log.info("세션 삭제됨: " + session.getId());
-//        session.invalidate();
         jwtUtil.invalidateRefreshToken(phoneNumber);
         return ResponseEntity.ok("Logout successful!");
     }
@@ -234,6 +220,7 @@ public class UserAccountController {
      * @param refreshToken
      * @return
      */
+    @Operation(summary = "Access Token 재발급", description = "refresh token을 사용해 access token을 재발급합니다. 30분이내 재발급 받아야합니다.")
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(@RequestParam String refreshToken) {
         try {
@@ -260,6 +247,7 @@ public class UserAccountController {
      * @param token
      * @throws Exception
      */
+    @Operation(summary = "사용자 동의항목 페이지 초기화", description = "카카오톡 첫 로그인시 접근되는 사용자 동의항목 페이지 기록을 초기화합니다")
     @GetMapping("/social-login/kakao/unLink/{token}")
     public void kakaoUnLink(@PathVariable String token) throws Exception {
         oAuthService.unlinkKakaoAccount(token);
@@ -335,26 +323,6 @@ public class UserAccountController {
         return ResponseEntity.ok("Logout successful");
     }
 
-//    /**
-//     * 자동으로 로그인 상태를 유지하기 위해
-//     * 세션에 저장된 정보를 확인
-//     * @param session
-//     * @return
-//     */
-//    @GetMapping("/session-check")
-//    public ResponseEntity<String> checkSession(HttpSession session) {
-//        String userPhone = (String) session.getAttribute("userPhone");
-//        log.info("세션 확인: " + session.getId());
-//        log.info("세션 전화번호 확인: " + session.getAttribute("userPhone"));
-//
-//        if (userPhone != null) {
-//            return ResponseEntity.ok("User is logged in with phone: " + userPhone);
-//        } else {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
-//        }
-//    }
-
-    //자동 로그인 (JWT 검증)
     @Operation(summary = "자동 로그인", description = "JWT를 검증하여 자동 로그인을 수행합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "자동 로그인 성공"),
