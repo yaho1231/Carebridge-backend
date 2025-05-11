@@ -87,15 +87,22 @@ public class UserAccountService {
     @Transactional
     public void createUserAccount(UserAccountDto userAccountDto) {
         log.debug("사용자 계정 생성 시도 - UserAccountDto: {}", userAccountDto);
-        if (userAccountDto == null || userAccountDto.getPhoneNumber() == null || userAccountDto.getPhoneNumber().trim().isEmpty()) {
+        if (userAccountDto == null
+                || userAccountDto.getName() == null || userAccountDto.getName().trim().isEmpty()
+                || userAccountDto.getPhoneNumber() == null || userAccountDto.getPhoneNumber().trim().isEmpty()
+                || userAccountDto.getBirthDate() == null
+                || userAccountDto.getGender() == null
+                || userAccountDto.getEmail() == null || userAccountDto.getEmail().trim().isEmpty()) {
             log.error("사용자 계정 생성 입력값이 누락되었습니다 - UserAccountDto: {}", userAccountDto);
-            throw new IllegalArgumentException("사용자 계정 생성에 필요한 전화번호가 누락되었습니다.");
+            throw new IllegalArgumentException("사용자 계정 생성에 필요한 값이 누락되었습니다.");
         }
         try {
             userAccountRepository.findByPhoneNumber(userAccountDto.getPhoneNumber())
                     .ifPresent(u -> {
-                        log.error("이미 등록된 전화번호입니다 - 전화번호: {}", userAccountDto.getPhoneNumber());
-                        throw new DuplicateKeyException("이미 등록된 전화번호입니다: " + userAccountDto.getPhoneNumber());
+                        if (!"UserName".equals(u.getName())) {
+                            log.error("이미 등록된 전화번호입니다 - 전화번호: {}", userAccountDto.getPhoneNumber());
+                            throw new DuplicateKeyException("이미 등록된 전화번호입니다: " + userAccountDto.getPhoneNumber());
+                        }
                     });
             UserAccount newUserAccount = new UserAccount();
             newUserAccount.update(userAccountDto);
