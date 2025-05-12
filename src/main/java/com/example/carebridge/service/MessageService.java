@@ -148,7 +148,7 @@ public class MessageService {
         message.setMessageContent("[ChatGPT로 자동 생성된 답변 입니다.]\n" + content);
         message.setSenderId(medicalStaffId);
         message.setReadStatus(chatMessageDto.getReadStatus());
-        message.setTimestamp(LocalDateTime.now());
+        message.setTimestamp(LocalDateTime.now().plusHours(9));
         message.setHospitalId(chatMessageDto.getHospitalId());
         message.setCategory("정보성 질문 답변자동생성");
         message.setType(Message.MessageType.MESSAGE);
@@ -157,6 +157,25 @@ public class MessageService {
 
         return message;
     }
+
+    //요청 사항 생성 확인 메세지
+    public Message makeReqMessage(ChatMessageDto chatMessageDto) {
+        Message message = new Message();
+        message.setPatientId(chatMessageDto.getPatientId());
+        message.setMedicalStaffId(chatMessageDto.getMedicalStaffId());
+        message.setMessageContent("[요청 사항 생성 완료]\n 요청사항이 의료진에게 전달되어습니다.\n" + chatMessageDto.getMessageContent());
+        message.setTimestamp(LocalDateTime.now().plusHours(9));
+        message.setReadStatus(chatMessageDto.getReadStatus());
+        message.setChatRoomId(chatMessageDto.getChatRoomId());
+        message.setSenderId(chatMessageDto.getMedicalStaffId());
+        message.setHospitalId(chatMessageDto.getHospitalId());
+        message.setCategory(chatMessageDto.getCategory());
+        message.setIsPatient(!chatMessageDto.getIsPatient());
+        message.setType(Message.MessageType.MESSAGE);
+        messageRepository.save(message);
+        return message;
+    }
+
 
     /**
      * 메시지의 읽음 상태를 업데이트합니다.
