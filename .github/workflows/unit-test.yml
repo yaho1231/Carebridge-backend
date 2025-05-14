@@ -2,8 +2,7 @@ name: Java CI with Gradle on PR to Dev (Unit Tests)
 
 on:
   pull_request:
-    branches:
-      - dev
+    branches: [dev]
 
 jobs:
   unit-test:
