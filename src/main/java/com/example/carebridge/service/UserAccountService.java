@@ -289,6 +289,7 @@ public class UserAccountService {
         userAccountDto.setPhoneNumber(userAccount.getPhoneNumber());
         userAccountDto.setBirthDate(userAccount.getBirthDate());
         userAccountDto.setGender(userAccount.getGender());
+        userAccountDto.setEmail(userAccount.getEmail());
         return userAccountDto;
     }
 }

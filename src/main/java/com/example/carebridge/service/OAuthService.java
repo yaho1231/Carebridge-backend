@@ -18,7 +18,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
-import java.util.UUID;
 
 @Service
 public class OAuthService {

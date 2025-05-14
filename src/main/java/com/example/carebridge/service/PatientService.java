@@ -194,6 +194,7 @@ public class PatientService {
                         log.error("사용자 계정을 찾을 수 없습니다 - 전화번호: {}", patientDto.getPhoneNumber());
                         return new NoSuchElementException("해당 전화번호의 사용자 계정을 찾을 수 없습니다: " + patientDto.getPhoneNumber());
                     });
+            
             Patient patient = new Patient();
             patient.update(patientDto, userAccount);
 
@@ -273,7 +274,7 @@ public class PatientService {
             throw new IllegalArgumentException("유효하지 않은 전화번호 형식입니다: " + phoneNumber);
         }
         try {
-            Patient patient = patientRepository.findById(patientId)
+            Patient patient = patientRepository.findByPatientId(patientId)
                     .orElseThrow(() -> {
                         log.error("환자 정보를 찾을 수 없습니다 - 환자 ID: {}", patientId);
                         return new NoSuchElementException("해당 환자 ID의 환자 정보를 찾을 수 없습니다: " + patientId);

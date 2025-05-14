@@ -120,12 +120,15 @@ public class CallBellService {
                 throw new IllegalArgumentException("해당 채팅방이 이미 존재합니다.");
             }
 
-            ChatRoomDto chatRoomDto = new ChatRoomDto();
-            chatRoomDto.setRoomId(roomId);
-            chatRoomDto.setPatientId(patientId);
-            chatRoomDto.setMedicalStaffId(medicalStaffId);
-            ChatRoom chatRoom = chatRoomMapper.toEntity(chatRoomDto);
+            // ChatRoom 객체 먼저 생성
+            ChatRoom chatRoom = new ChatRoom();
+            chatRoom.setChatRoomId(roomId);
+            chatRoom.setPatientId(patientId);
+            chatRoom.setMedicalStaffId(medicalStaffId);
+            
+            // 저장 후 DTO로 변환
             chatRoomRepository.save(chatRoom);
+            ChatRoomDto chatRoomDto = chatRoomMapper.toDto(chatRoom);
 
             log.info("채팅방 생성 완료 - 방 ID: {}", roomId);
             return chatRoomDto;

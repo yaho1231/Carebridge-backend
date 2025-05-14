@@ -248,11 +248,11 @@ public class MessageService {
             return messageRepository.findByMessageId(messageId)
                     .orElseThrow(() -> {
                         logger.error("메세지가 존재하지 않습니다 - 검색한 메세지 ID {}", messageId);
-                        return new IllegalArgumentException("메세지가 존재하지 않습니다.");
+                        return new NoSuchElementException("메시지를 찾을 수 없습니다: " + messageId);
                     });
         } catch (Exception e) {
-            logger.error("Error fetching messages for patientId: {}", messageId, e);
-            return null;
+            logger.error("Error fetching messages for messageId: {}", messageId, e);
+            throw new NoSuchElementException("메시지를 찾을 수 없습니다: " + messageId);
         }
     }
 
