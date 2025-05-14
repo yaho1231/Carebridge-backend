@@ -63,7 +63,6 @@ public class MessageController {
             if (savedMessage.getCategory().equals("정보성 질문") && message.getIsPatient()){
                 Message chatGptMessage = messageService.chatGptMessage(message);
                 messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), chatGptMessage); // 자동 답변 환자에게 전송
-
                 messagingTemplate.convertAndSend("/sub/user/chat/" + message.getMedicalStaffId(), chatGptMessage); // 환자에게 보낸 자동 답변 의료진한테도 전송
             }
             // 환자가 보낸 의료진 도움요청이라면 Request를 생성합니다. 생성한 Request를 의료진에게 전송합니다.
@@ -75,6 +74,7 @@ public class MessageController {
                 //요청 사항 생성 확인 메세지
                 Message reqMessage = messageService.makeReqMessage(message);
                 messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), savedMessage);
+                messagingTemplate.convertAndSend("/sub/user/chat/" + message.getMedicalStaffId(),savedMessage);
             }
         } catch (IllegalArgumentException e) {
             logger.error("잘못된 메시지 데이터: {}", e.getMessage(), e);

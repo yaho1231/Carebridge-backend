@@ -163,7 +163,7 @@ public class MessageService {
         Message message = new Message();
         message.setPatientId(chatMessageDto.getPatientId());
         message.setMedicalStaffId(chatMessageDto.getMedicalStaffId());
-        message.setMessageContent("[요청 사항 생성 완료]\n 요청사항이 의료진에게 전달되어습니다.\n" + chatMessageDto.getMessageContent());
+        message.setMessageContent("[요청 사항 생성 완료]\n 요청사항이 의료진에게 전달되었습니다.\n 요청사항 : " + chatMessageDto.getMessageContent());
         message.setTimestamp(LocalDateTime.now().plusHours(9));
         message.setReadStatus(chatMessageDto.getReadStatus());
         message.setChatRoomId(chatMessageDto.getChatRoomId());
