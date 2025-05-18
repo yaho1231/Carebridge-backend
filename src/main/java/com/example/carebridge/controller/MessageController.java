@@ -73,8 +73,8 @@ public class MessageController {
 
                 //요청 사항 생성 확인 메세지
                 Message reqMessage = messageService.makeReqMessage(message);
-                messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), savedMessage);
-                messagingTemplate.convertAndSend("/sub/user/chat/" + message.getMedicalStaffId(),savedMessage);
+                messagingTemplate.convertAndSend("/sub/chat/room/" + message.getChatRoomId(), reqMessage);
+//                messagingTemplate.convertAndSend("/sub/user/chat/" + message.getMedicalStaffId(),reqMessage);
             }
         } catch (IllegalArgumentException e) {
             logger.error("잘못된 메시지 데이터: {}", e.getMessage(), e);
