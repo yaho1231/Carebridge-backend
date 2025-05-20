@@ -58,7 +58,7 @@ public class CallBellService {
         request.setPatientId(message.getPatientId());
         request.setRequestContent(message.getMessageContent());
         request.setStatus(Request.RequestStatus.PENDING);
-        request.setRequestTime(LocalDateTime.now());
+        request.setRequestTime(LocalDateTime.now().plusHours(9));
         request.setMedicalStaffId(message.getMedicalStaffId());
         request.setType(Request.MessageType.REQUEST);
         request = requestRepository.save(request);
