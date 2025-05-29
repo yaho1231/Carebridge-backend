@@ -69,7 +69,7 @@ public class Patient {
 //        this.userAccount = userAccount;
         this.userId = userAccount.getId();
         this.name = patientDto.getName();
-        this.birthDate = LocalDateTime.parse(patientDto.getBirthDate());
+        this.birthDate = LocalDateTime.parse(patientDto.getBirthDate()).plusHours(9);
         this.gender = patientDto.getGender();
         this.guardianContact = patientDto.getGuardianContact();
         this.hospitalLocation = patientDto.getHospitalLocation();
@@ -77,6 +77,6 @@ public class Patient {
         this.chatRoomId = patientDto.getChatRoomId();
         this.department = patientDto.getDepartment();
         this.email = patientDto.getEmail();
-        this.hospitalizationDate = LocalDateTime.parse(patientDto.getHospitalizationDate());
+        this.hospitalizationDate = LocalDateTime.parse(patientDto.getHospitalizationDate()).plusHours(9);
     }
 }
