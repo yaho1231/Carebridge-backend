@@ -18,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -94,8 +95,8 @@ class PatientServiceTest {
         validPatientDto.setName(validName);
         validPatientDto.setHospitalId(validHospitalId);
         validPatientDto.setDepartment(validDepartment);
-        validPatientDto.setBirthDate("2000-01-01T00:00:00");
-        validPatientDto.setHospitalizationDate("2023-01-01T00:00:00");
+        validPatientDto.setBirthDate(LocalDateTime.parse("2000-01-01T00:00:00"));
+        validPatientDto.setHospitalizationDate(LocalDateTime.parse("2023-01-01T00:00:00"));
         validPatientDto.setGender(Patient.Gender.Male);
 
         // 유효한 의료진 생성
@@ -326,7 +327,7 @@ class PatientServiceTest {
             });
 
             // when
-            Patient result = patientService.createPatient(validPatientDto);
+            Patient result = patientService.createPatient(validPatient);
 
             // then
             assertNotNull(result);
@@ -342,7 +343,7 @@ class PatientServiceTest {
             lenient().when(userAccountRepository.findByPhoneNumber(validPhoneNumber)).thenReturn(Optional.empty());
 
             // when & then
-            assertThrows(NoSuchElementException.class, () -> patientService.createPatient(validPatientDto));
+            assertThrows(NoSuchElementException.class, () -> patientService.createPatient(validPatient));
             verify(userAccountRepository, times(1)).findByPhoneNumber(validPhoneNumber);
             verify(patientRepository, never()).save(any(Patient.class));
         }

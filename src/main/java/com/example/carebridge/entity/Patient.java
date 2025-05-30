@@ -68,19 +68,19 @@ public class Patient {
         Male, Female
     }
 
-    public void update(PatientDto patientDto, UserAccount userAccount) {
-        this.phoneNumber = patientDto.getPhoneNumber();
+    public void update(Patient patient, UserAccount userAccount) {
+        this.phoneNumber = patient.getPhoneNumber();
 //        this.userAccount = userAccount;
         this.userId = userAccount.getId();
-        this.name = patientDto.getName();
-        this.birthDate = patientDto.getBirthDate().plusHours(9);
-        this.gender = patientDto.getGender();
-        this.guardianContact = patientDto.getGuardianContact();
-        this.hospitalLocation = patientDto.getHospitalLocation();
-        this.hospitalId = patientDto.getHospitalId();
-        this.chatRoomId = patientDto.getChatRoomId();
-        this.department = patientDto.getDepartment();
-        this.email = patientDto.getEmail();
-        this.hospitalizationDate = patientDto.getHospitalizationDate().plusHours(9);
+        this.name = patient.getName();
+        this.birthDate = patient.getBirthDate().plusHours(9);
+        this.gender = patient.getGender();
+        this.guardianContact = patient.getGuardianContact();
+        this.hospitalLocation = patient.getHospitalLocation();
+        this.hospitalId = patient.getHospitalId();
+        this.chatRoomId = patient.getChatRoomId();
+        this.department = patient.getDepartment();
+        this.email = patient.getEmail();
+        this.hospitalizationDate = patient.getHospitalizationDate().plusHours(9);
     }
 }

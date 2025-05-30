@@ -177,28 +177,27 @@ public class PatientService {
      * 새로운 환자 정보를 생성합니다.
      * 환자 정보 생성 전 사용자 계정이 존재하는지 확인합니다.
      *
-     * @param patientDto 생성할 환자 정보
+     * @param patient 생성할 환자 정보
      * @return 생성된 환자 정보
      * @throws IllegalArgumentException 환자 정보가 null 이거나 해당 전화번호의 사용자 계정이 없는 경우
      */
     @Transactional
-    public Patient createPatient(PatientDto patientDto) {
-        log.debug("환자 생성 시도 - PatientDto: {}", patientDto);
-        if (patientDto == null) {
+    public Patient createPatient(Patient patient) {
+        log.debug("환자 생성 시도 - PatientDto: {}", patient);
+        if (patient == null) {
             log.error("환자 정보가 null 입니다.");
             throw new IllegalArgumentException("환자 정보는 필수 입력값입니다.");
         }
         try {
-            UserAccount userAccount = userAccountRepository.findByPhoneNumber(patientDto.getPhoneNumber())
+            UserAccount userAccount = userAccountRepository.findByPhoneNumber(patient.getPhoneNumber())
                     .orElseThrow(() -> {
-                        log.error("사용자 계정을 찾을 수 없습니다 - 전화번호: {}", patientDto.getPhoneNumber());
-                        return new NoSuchElementException("해당 전화번호의 사용자 계정을 찾을 수 없습니다: " + patientDto.getPhoneNumber());
+                        log.error("사용자 계정을 찾을 수 없습니다 - 전화번호: {}", patient.getPhoneNumber());
+                        return new NoSuchElementException("해당 전화번호의 사용자 계정을 찾을 수 없습니다: " + patient.getPhoneNumber());
                     });
-            
-            Patient patient = new Patient();
+
 //            log.info("환자 생성 테스트 환자 생일 : {}", patientDto.getBirthDate());
 //            log.info("환자 생성 테스트 생일 타입 : {}", patientDto.getBirthDate().getClass().getName());
-            patient.update(patientDto, userAccount);
+            patient.update(patient, userAccount);
             Patient savedPatient = patientRepository.save(patient);
             log.info("환자 생성 성공 - 환자 ID: {}", savedPatient.getPatientId());
             return savedPatient;
