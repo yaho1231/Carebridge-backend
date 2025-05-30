@@ -32,7 +32,6 @@ public class Patient {
     @Column(nullable = false) // Not Null 제약 조건 설정
     private String name; // 환자 이름
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     @Column(name = "birth_date", nullable = false) // birth_date 컬럼과 매핑
     private LocalDateTime birthDate; // 환자 생년월일
 
@@ -58,7 +57,6 @@ public class Patient {
     @Column(name = "email", nullable = false) // Not Null 제약 조건 설정
     private String email;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     @Column(name = "hospitalization_date") // hospitalization_date 컬럼과 매핑
     private LocalDateTime hospitalizationDate; // 입원 날짜
 
