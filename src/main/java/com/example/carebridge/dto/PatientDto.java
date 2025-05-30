@@ -48,7 +48,7 @@ public class PatientDto {
      * ISO-8601 형식의 날짜/시간 문자열
      */
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
-    private LocalDateTime birthDate;
+    private String birthDate;
 
     /**
      * 환자의 성별
@@ -103,7 +103,7 @@ public class PatientDto {
      * ISO-8601 형식의 날짜/시간 문자열
      */
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
-    private LocalDateTime hospitalizationDate;
+    private String hospitalizationDate;
 
     /**
      * 사용자 계정 식별자
