@@ -43,7 +43,6 @@ public class Patient {
     @Column(name = "guardian_contact", length = 15) // guardian_contact 컬럼과 매핑
     private String guardianContact; // 보호자 전화번호 (참조)
 
-
     @Column(name = "hospital_location") // hospital_location 컬럼과 매핑
     private String hospitalLocation; // 병원 위치 정보
 
