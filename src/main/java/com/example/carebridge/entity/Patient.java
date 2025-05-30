@@ -1,6 +1,7 @@
 package com.example.carebridge.entity;
 
 import com.example.carebridge.dto.PatientDto;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,6 +32,7 @@ public class Patient {
     @Column(nullable = false) // Not Null 제약 조건 설정
     private String name; // 환자 이름
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     @Column(name = "birth_date", nullable = false) // birth_date 컬럼과 매핑
     private LocalDateTime birthDate; // 환자 생년월일
 
@@ -57,6 +59,7 @@ public class Patient {
     @Column(name = "email", nullable = false) // Not Null 제약 조건 설정
     private String email;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     @Column(name = "hospitalization_date") // hospitalization_date 컬럼과 매핑
     private LocalDateTime hospitalizationDate; // 입원 날짜
 
@@ -66,12 +69,11 @@ public class Patient {
     }
 
     public void update(PatientDto patientDto, UserAccount userAccount) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
         this.phoneNumber = patientDto.getPhoneNumber();
 //        this.userAccount = userAccount;
         this.userId = userAccount.getId();
         this.name = patientDto.getName();
-        this.birthDate = LocalDateTime.parse(patientDto.getBirthDate(), formatter).plusHours(9);
+        this.birthDate = patientDto.getBirthDate().plusHours(9);
         this.gender = patientDto.getGender();
         this.guardianContact = patientDto.getGuardianContact();
         this.hospitalLocation = patientDto.getHospitalLocation();
@@ -79,6 +81,6 @@ public class Patient {
         this.chatRoomId = patientDto.getChatRoomId();
         this.department = patientDto.getDepartment();
         this.email = patientDto.getEmail();
-        this.hospitalizationDate = LocalDateTime.parse(patientDto.getHospitalizationDate(), formatter).plusHours(9);
+        this.hospitalizationDate = patientDto.getHospitalizationDate().plusHours(9);
     }
 }

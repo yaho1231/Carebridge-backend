@@ -10,6 +10,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 /**
  * PatientDto 는 환자 정보를 전송하기 위한 데이터 전송 객체입니다.
  */
@@ -46,7 +48,7 @@ public class PatientDto {
      * ISO-8601 형식의 날짜/시간 문자열
      */
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
-    private String birthDate;
+    private LocalDateTime birthDate;
 
     /**
      * 환자의 성별
@@ -101,7 +103,7 @@ public class PatientDto {
      * ISO-8601 형식의 날짜/시간 문자열
      */
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
-    private String hospitalizationDate;
+    private LocalDateTime hospitalizationDate;
 
     /**
      * 사용자 계정 식별자
