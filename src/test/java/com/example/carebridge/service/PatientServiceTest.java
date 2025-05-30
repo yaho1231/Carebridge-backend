@@ -86,6 +86,9 @@ class PatientServiceTest {
         validPatient.setName(validName);
         validPatient.setHospitalId(validHospitalId);
         validPatient.setDepartment(validDepartment);
+        validPatient.setBirthDate(LocalDateTime.parse("2000-01-01T00:00:00"));
+        validPatient.setHospitalizationDate(LocalDateTime.parse("2023-01-01T00:00:00"));
+        validPatient.setGender(Patient.Gender.Male);
 
         // 유효한 환자 DTO 생성
         validPatientDto = new PatientDto();
