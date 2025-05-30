@@ -139,7 +139,7 @@ public class PatientController {
      * 새로운 환자 정보를 생성합니다.
      * 사용자 계정이 이미 생성되어 있어야 합니다.
      *
-     * @param patientDto 환자 정보 DTO
+     * @param patient 환자 정보 DTO
      * @return 생성된 환자 정보와 HTTP 상태 코드
      */
     @Operation(summary = "환자 정보 생성", description = "새로운 환자 정보를 생성합니다. 사용자 계정이 필요합니다.")
@@ -152,17 +152,17 @@ public class PatientController {
     @ResponseBody
     public ResponseEntity<Patient> createPatient(
             @Parameter(description = "환자 정보", required = true)
-            @RequestBody PatientDto patientDto) {
+            @RequestBody Patient patient) {
         try {
-            log.debug("새로운 환자 정보 생성 요청: {}", patientDto);
-            Patient patient = patientService.createPatient(patientDto);
-            log.info("새로운 환자 정보 생성 성공. ID: {}", patient.getPatientId());
+            log.debug("새로운 환자 정보 생성 요청: {}", patient);
+            Patient newPatient = patientService.createPatient(patient);
+            log.info("새로운 환자 정보 생성 성공. ID: {}", newPatient.getPatientId());
             return new ResponseEntity<>(patient, HttpStatus.CREATED);
         } catch (NoSuchElementException e) {
-            log.warn("관련 리소스를 찾을 수 없습니다 - 요청 정보: {}", patientDto, e);
+            log.warn("관련 리소스를 찾을 수 없습니다 - 요청 정보: {}", patient, e);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
-            log.warn("잘못된 요청 - 요청 정보: {}, 오류: {}", patientDto, e.getMessage());
+            log.warn("잘못된 요청 - 요청 정보: {}, 오류: {}", patient, e.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("환자 정보 생성 중 오류 발생: {}", e.getMessage(), e);
