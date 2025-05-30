@@ -21,7 +21,10 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-
+          
+      - name: Debug Maven Central Access
+        run: curl -I https://repo.maven.apache.org/maven2/
+        
       - name: Build & Test Spring Boot Application
         run: |
           chmod +x gradlew
