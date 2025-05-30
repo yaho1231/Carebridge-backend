@@ -73,7 +73,7 @@ public class Patient {
 //        this.userAccount = userAccount;
         this.userId = userAccount.getId();
         this.name = patient.getName();
-        this.birthDate = patient.getBirthDate().plusHours(9);
+        this.birthDate = patient.getBirthDate();
         this.gender = patient.getGender();
         this.guardianContact = patient.getGuardianContact();
         this.hospitalLocation = patient.getHospitalLocation();
@@ -81,6 +81,6 @@ public class Patient {
         this.chatRoomId = patient.getChatRoomId();
         this.department = patient.getDepartment();
         this.email = patient.getEmail();
-        this.hospitalizationDate = patient.getHospitalizationDate().plusHours(9);
+        this.hospitalizationDate = patient.getHospitalizationDate();
     }
 }
