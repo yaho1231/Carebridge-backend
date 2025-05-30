@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Entity
 @Getter
@@ -65,11 +66,12 @@ public class Patient {
     }
 
     public void update(PatientDto patientDto, UserAccount userAccount) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
         this.phoneNumber = patientDto.getPhoneNumber();
 //        this.userAccount = userAccount;
         this.userId = userAccount.getId();
         this.name = patientDto.getName();
-        this.birthDate = LocalDateTime.parse(patientDto.getBirthDate()).plusHours(9);
+        this.birthDate = LocalDateTime.parse(patientDto.getBirthDate(), formatter).plusHours(9);
         this.gender = patientDto.getGender();
         this.guardianContact = patientDto.getGuardianContact();
         this.hospitalLocation = patientDto.getHospitalLocation();
@@ -77,6 +79,6 @@ public class Patient {
         this.chatRoomId = patientDto.getChatRoomId();
         this.department = patientDto.getDepartment();
         this.email = patientDto.getEmail();
-        this.hospitalizationDate = LocalDateTime.parse(patientDto.getHospitalizationDate()).plusHours(9);
+        this.hospitalizationDate = LocalDateTime.parse(patientDto.getHospitalizationDate(), formatter).plusHours(9);
     }
 }

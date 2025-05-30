@@ -196,8 +196,8 @@ public class PatientService {
                     });
             
             Patient patient = new Patient();
-            log.info("환자 생성 테스트 환자 생일 : {}", patientDto.getBirthDate());
-            log.info("환자 생성 테스트 생일 타입 : {}", patientDto.getBirthDate().getClass().getName());
+//            log.info("환자 생성 테스트 환자 생일 : {}", patientDto.getBirthDate());
+//            log.info("환자 생성 테스트 생일 타입 : {}", patientDto.getBirthDate().getClass().getName());
             patient.update(patientDto, userAccount);
             Patient savedPatient = patientRepository.save(patient);
             log.info("환자 생성 성공 - 환자 ID: {}", savedPatient.getPatientId());
