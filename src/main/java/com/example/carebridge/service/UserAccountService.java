@@ -224,6 +224,7 @@ public class UserAccountService {
                     userAccount.getOtpExpiry().isAfter(LocalDateTime.now());
             if (isVerified) {
                 log.info("OTP 인증 성공 - 전화번호: {}", verifyAccountDto.getPhone());
+                userAccountRepository.delete(userAccount);
             } else {
                 log.warn("OTP 인증 실패 - 전화번호: {}", verifyAccountDto.getPhone());
             }
