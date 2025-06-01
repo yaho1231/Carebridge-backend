@@ -198,7 +198,9 @@ public class PatientService {
                     });
             Optional<Patient> existingPatient = patientRepository.findByPhoneNumber(patient.getPhoneNumber());
             if (existingPatient.isPresent()) {
-                log.info("이미 등록된 환자 반환 - 환자 ID: {}", existingPatient.get().getPatientId());
+                Patient savedPatient = existingPatient.get();
+                log.info("이미 등록된 환자 반환 - 환자 ID: {}", savedPatient.getPatientId());
+                savedPatient.update(savedPatient, userAccount);
                 return existingPatient.get();
             }
             patient.update(patient, userAccount);
