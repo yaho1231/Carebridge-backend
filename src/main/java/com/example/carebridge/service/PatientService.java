@@ -10,10 +10,12 @@ import com.example.carebridge.mapper.PatientMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.yaml.snakeyaml.constructor.DuplicateKeyException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 /**
  * 환자 정보 관리 서비스
@@ -194,19 +196,21 @@ public class PatientService {
                         log.error("사용자 계정을 찾을 수 없습니다 - 전화번호: {}", patient.getPhoneNumber());
                         return new NoSuchElementException("해당 전화번호의 사용자 계정을 찾을 수 없습니다: " + patient.getPhoneNumber());
                     });
-
-//            log.info("환자 생성 테스트 환자 생일 : {}", patientDto.getBirthDate());
-//            log.info("환자 생성 테스트 생일 타입 : {}", patientDto.getBirthDate().getClass().getName());
+            Optional<Patient> existingPatient = patientRepository.findByPhoneNumber(patient.getPhoneNumber());
+            if (existingPatient.isPresent()) {
+                log.info("이미 등록된 환자 반환 - 환자 ID: {}", existingPatient.get().getPatientId());
+                return existingPatient.get();
+            }
             patient.update(patient, userAccount);
-            Patient savedPatient = patientRepository.save(patient);
-            log.info("환자 생성 성공 - 환자 ID: {}", savedPatient.getPatientId());
-            return savedPatient;
+            Patient newPatient = patientRepository.save(patient);
+            log.info("환자 생성 성공 - 환자 ID: {}", newPatient.getPatientId());
+            return newPatient;
         } catch (IllegalArgumentException e) {
             log.error("환자 생성 실패 - 입력값 오류: {}", e.getMessage());
-            throw new IllegalArgumentException("잘못된 입력값입니다: " + e.getMessage());
+            throw e;
         } catch (NoSuchElementException e) {
             log.error("환자 생성 실패 - 데이터 없음: {}", e.getMessage());
-            throw new NoSuchElementException("해당 환자를 찾을 수 없습니다.");
+            throw e;
         } catch (Exception e) {
             log.error("환자 생성 중 예외 발생: {}", e.getMessage(), e);
             throw new RuntimeException("환자 생성에 실패했습니다.", e);
