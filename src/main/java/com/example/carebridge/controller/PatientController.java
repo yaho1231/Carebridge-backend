@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.yaml.snakeyaml.constructor.DuplicateKeyException;
 
 import java.util.List;
 import java.util.Map;
@@ -144,9 +145,10 @@ public class PatientController {
      */
     @Operation(summary = "환자 정보 생성", description = "새로운 환자 정보를 생성합니다. 사용자 계정이 필요합니다.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "환자 정보 생성 성공"),
-        @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-        @ApiResponse(responseCode = "500", description = "서버 오류")
+            @ApiResponse(responseCode = "201", description = "환자 정보 생성 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "409", description = "이미 존재하는 데이터"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PostMapping("/user")
     @ResponseBody
@@ -164,6 +166,9 @@ public class PatientController {
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청 - 요청 정보: {}, 오류: {}", patient, e.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (DuplicateKeyException e) {
+            log.warn("이미 존재하는 환자 입니다 - 요청 정보: {}, 오류: {}", patient, e.getMessage());
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         } catch (Exception e) {
             log.error("환자 정보 생성 중 오류 발생: {}", e.getMessage(), e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
