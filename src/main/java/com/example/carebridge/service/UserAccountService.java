@@ -97,14 +97,15 @@ public class UserAccountService {
             throw new IllegalArgumentException("사용자 계정 생성에 필요한 값이 누락되었습니다.");
         }
         try {
-            userAccountRepository.findByPhoneNumber(userAccountDto.getPhoneNumber())
-                    .ifPresent(u -> {
-                        if (!"UserName".equals(u.getName())) {
-                            log.error("이미 등록된 전화번호입니다 - 전화번호: {}", userAccountDto.getPhoneNumber());
-                            throw new DuplicateKeyException("이미 등록된 전화번호입니다: " + userAccountDto.getPhoneNumber());
-                        }
+            UserAccount newUserAccount = userAccountRepository.findByPhoneNumber(userAccountDto.getPhoneNumber())
+                    .orElseThrow(() -> {
+                        log.error("사용자 계정을 찾을 수 없습니다 (전화번호 미 인증) - 전화번호: {}", userAccountDto.getPhoneNumber());
+                        return new NoSuchElementException("해당 전화번호의 사용자 계정을 찾을 수 없습니다: 전화번호 미 인증 " + userAccountDto.getPhoneNumber());
                     });
-            UserAccount newUserAccount = new UserAccount();
+            if (!newUserAccount.getName().equals("UserName")){
+                log.error("이미 회원가입된 사용자입니다 - 사용자 이름: {}", newUserAccount.getName());
+                throw new DuplicateKeyException("이미 회원가입된 사용자 입니다");
+            }
             newUserAccount.update(userAccountDto);
             userAccountRepository.save(newUserAccount);
             log.info("사용자 계정 생성 성공 - 전화번호: {}", userAccountDto.getPhoneNumber());
@@ -224,7 +225,6 @@ public class UserAccountService {
                     userAccount.getOtpExpiry().isAfter(LocalDateTime.now());
             if (isVerified) {
                 log.info("OTP 인증 성공 - 전화번호: {}", verifyAccountDto.getPhone());
-                userAccountRepository.delete(userAccount);
             } else {
                 log.warn("OTP 인증 실패 - 전화번호: {}", verifyAccountDto.getPhone());
             }
