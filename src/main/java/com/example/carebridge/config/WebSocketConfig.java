@@ -52,7 +52,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(@NonNull MessageBrokerRegistry config) {
         // 구독 경로 설정 (/sub/chat/room/1 형태로 구독)
-        config.enableSimpleBroker("/sub");
+        config.enableSimpleBroker("/sub")
+                .setHeartbeatValue(new long[]{4000, 4000});
         
         // 메시지 발행 경로 설정 (/pub/chat/message 형태로 발행)
         config.setApplicationDestinationPrefixes("/pub");
