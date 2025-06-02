@@ -1,8 +1,11 @@
 package com.example.carebridge.config;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
@@ -26,6 +29,14 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker  // WebSocket 메시지 브로커 활성화
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    @Bean
+    public TaskScheduler messageBrokerTaskScheduler() {
+        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+        scheduler.setPoolSize(1);
+        scheduler.setThreadNamePrefix("wss-heartbeat-");
+        scheduler.initialize();
+        return scheduler;
+    }
     /**
      * 메시지 브로커 설정 메서드
      * 메시지 라우팅과 브로커 동작 방식을 정의합니다.
@@ -53,6 +64,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(@NonNull MessageBrokerRegistry config) {
         // 구독 경로 설정 (/sub/chat/room/1 형태로 구독)
         config.enableSimpleBroker("/sub")
+                .setTaskScheduler(messageBrokerTaskScheduler())
                 .setHeartbeatValue(new long[]{4000, 4000});
         
         // 메시지 발행 경로 설정 (/pub/chat/message 형태로 발행)
