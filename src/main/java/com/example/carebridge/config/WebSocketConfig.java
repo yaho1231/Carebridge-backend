@@ -29,8 +29,8 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker  // WebSocket 메시지 브로커 활성화
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    @Bean
-    public TaskScheduler messageBrokerTaskScheduler() {
+    @Bean(name = "customTaskScheduler")
+    public TaskScheduler customTaskScheduler() {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
         scheduler.setPoolSize(1);
         scheduler.setThreadNamePrefix("wss-heartbeat-");
@@ -64,7 +64,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(@NonNull MessageBrokerRegistry config) {
         // 구독 경로 설정 (/sub/chat/room/1 형태로 구독)
         config.enableSimpleBroker("/sub")
-                .setTaskScheduler(messageBrokerTaskScheduler())
+                .setTaskScheduler(customTaskScheduler())
                 .setHeartbeatValue(new long[]{4000, 4000});
         
         // 메시지 발행 경로 설정 (/pub/chat/message 형태로 발행)
